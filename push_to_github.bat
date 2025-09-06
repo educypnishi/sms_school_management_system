@@ -9,7 +9,7 @@ git config --global user.name "EduCyp"
 git config --global user.email "educyp@example.com"
 
 echo Adding remote repository...
-git remote add origin https://github.com/educypnishi/educyp.git
+git remote add origin https://github.com/educypnishi/educyp_nishi.git
 
 echo Adding all files...
 git add .
