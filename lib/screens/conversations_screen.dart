@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/toast_util.dart';
 import '../models/conversation_model.dart';
 import '../services/auth_service.dart';
-import '../services/messaging_service.dart';
+import '../services/chat_service.dart';
 import '../theme/app_theme.dart';
 import 'chat_screen.dart';
 
@@ -14,7 +14,7 @@ class ConversationsScreen extends StatefulWidget {
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
-  final MessagingService _messagingService = MessagingService();
+  final ChatService _chatService = ChatService();
   final AuthService _authService = AuthService();
   List<ConversationModel> _conversations = [];
   bool _isLoading = true;
@@ -39,7 +39,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       }
       
       _userId = currentUser.id;
-      final conversations = await _messagingService.getUserConversations();
+      final conversations = await _chatService.getUserConversations(_userId);
       
       setState(() {
         _conversations = conversations;
@@ -208,8 +208,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   
   Future<int> _getUnreadCount(String conversationId) async {
     try {
-      final messages = await _messagingService.getConversationMessages(conversationId);
-      return messages.where((m) => m.receiverId == _userId && !m.isRead).length;
+      final conversation = await _chatService.getConversationById(conversationId);
+      return conversation?.unreadCount ?? 0;
     } catch (e) {
       debugPrint('Error getting unread count: $e');
       return 0;

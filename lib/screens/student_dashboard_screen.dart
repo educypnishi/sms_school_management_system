@@ -212,9 +212,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         Icons.chat,
                         Colors.purple,
                         () {
-                          // Navigate to chat
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Chat support will be available in Phase 9')),
+                          // Navigate to conversations screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ConversationsScreen(),
+                            ),
                           );
                         },
                       ),

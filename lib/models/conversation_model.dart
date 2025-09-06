@@ -1,3 +1,18 @@
+/// Represents the status of a conversation
+enum ConversationStatus {
+  active,
+  closed,
+  pending
+}
+
+/// Represents the type of conversation
+enum ConversationType {
+  support,
+  general,
+  application,
+  program
+}
+
 class ConversationModel {
   final String id;
   final String title;
@@ -6,6 +21,10 @@ class ConversationModel {
   final DateTime? updatedAt;
   final String? lastMessageContent;
   final DateTime? lastMessageTime;
+  final ConversationStatus status;
+  final ConversationType type;
+  final String? assignedSupportId;
+  final int unreadCount;
 
   ConversationModel({
     required this.id,
@@ -15,6 +34,10 @@ class ConversationModel {
     this.updatedAt,
     this.lastMessageContent,
     this.lastMessageTime,
+    this.status = ConversationStatus.active,
+    this.type = ConversationType.general,
+    this.assignedSupportId,
+    this.unreadCount = 0,
   });
 
   // Create a ConversationModel from a map
@@ -33,6 +56,10 @@ class ConversationModel {
       lastMessageTime: map['lastMessageTime'] != null 
           ? DateTime.parse(map['lastMessageTime']) 
           : null,
+      status: _parseConversationStatus(map['status']),
+      type: _parseConversationType(map['type']),
+      assignedSupportId: map['assignedSupportId'],
+      unreadCount: map['unreadCount'] ?? 0,
     );
   }
 
@@ -45,6 +72,10 @@ class ConversationModel {
       'updatedAt': updatedAt?.toIso8601String(),
       'lastMessageContent': lastMessageContent,
       'lastMessageTime': lastMessageTime?.toIso8601String(),
+      'status': status.toString().split('.').last,
+      'type': type.toString().split('.').last,
+      'assignedSupportId': assignedSupportId,
+      'unreadCount': unreadCount,
     };
   }
 
@@ -57,6 +88,10 @@ class ConversationModel {
     DateTime? updatedAt,
     String? lastMessageContent,
     DateTime? lastMessageTime,
+    ConversationStatus? status,
+    ConversationType? type,
+    String? assignedSupportId,
+    int? unreadCount,
   }) {
     return ConversationModel(
       id: id ?? this.id,
@@ -66,6 +101,42 @@ class ConversationModel {
       updatedAt: updatedAt ?? this.updatedAt,
       lastMessageContent: lastMessageContent ?? this.lastMessageContent,
       lastMessageTime: lastMessageTime ?? this.lastMessageTime,
+      status: status ?? this.status,
+      type: type ?? this.type,
+      assignedSupportId: assignedSupportId ?? this.assignedSupportId,
+      unreadCount: unreadCount ?? this.unreadCount,
     );
+  }
+  
+  /// Parse ConversationStatus from string
+  static ConversationStatus _parseConversationStatus(String? value) {
+    if (value == null) return ConversationStatus.active;
+    
+    switch (value.toLowerCase()) {
+      case 'closed':
+        return ConversationStatus.closed;
+      case 'pending':
+        return ConversationStatus.pending;
+      case 'active':
+      default:
+        return ConversationStatus.active;
+    }
+  }
+  
+  /// Parse ConversationType from string
+  static ConversationType _parseConversationType(String? value) {
+    if (value == null) return ConversationType.general;
+    
+    switch (value.toLowerCase()) {
+      case 'support':
+        return ConversationType.support;
+      case 'application':
+        return ConversationType.application;
+      case 'program':
+        return ConversationType.program;
+      case 'general':
+      default:
+        return ConversationType.general;
+    }
   }
 }

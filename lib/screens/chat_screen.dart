@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../utils/toast_util.dart';
-import '../models/message_model.dart';
+import '../models/chat_message_model.dart';
 import '../services/auth_service.dart';
-import '../services/messaging_service.dart';
+import '../services/chat_service.dart';
 import '../theme/app_theme.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -20,15 +20,14 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final MessagingService _messagingService = MessagingService();
+  final ChatService _chatService = ChatService();
   final AuthService _authService = AuthService();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   
-  List<MessageModel> _messages = [];
+  List<ChatMessageModel> _messages = [];
   bool _isLoading = true;
   String _userId = '';
-  String _receiverId = '';
   
   @override
   void initState() {
@@ -57,21 +56,11 @@ class _ChatScreenState extends State<ChatScreen> {
       
       _userId = currentUser.id;
       
-      // Get conversation to determine receiver ID
-      final conversation = await _messagingService.getConversationById(widget.conversationId);
-      if (conversation != null) {
-        // Set receiver ID as the other participant
-        _receiverId = conversation.participantIds.firstWhere(
-          (id) => id != _userId,
-          orElse: () => '',
-        );
-      }
-      
       // Get messages
-      final messages = await _messagingService.getConversationMessages(widget.conversationId);
+      final messages = await _chatService.getConversationMessages(widget.conversationId);
       
-      // Mark messages as read
-      await _messagingService.markConversationAsRead(widget.conversationId, _userId);
+      // Mark conversation as read
+      await _chatService.markConversationAsRead(widget.conversationId, _userId);
       
       setState(() {
         _messages = messages;
@@ -105,7 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _sendMessage() async {
     final message = _messageController.text.trim();
     
-    if (message.isEmpty || _receiverId.isEmpty) {
+    if (message.isEmpty) {
       return;
     }
     
@@ -114,11 +103,12 @@ class _ChatScreenState extends State<ChatScreen> {
       _messageController.clear();
       
       // Send message
-      final newMessage = await _messagingService.sendMessage(
+      final newMessage = await _chatService.sendMessage(
         conversationId: widget.conversationId,
         senderId: _userId,
-        receiverId: _receiverId,
+        senderType: SenderType.user,
         content: message,
+        type: MessageType.text,
       );
       
       // Add message to list
@@ -179,7 +169,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemCount: _messages.length,
                         itemBuilder: (context, index) {
                           final message = _messages[index];
-                          final isMe = message.senderId == _userId;
+                          final isMe = message.senderType == SenderType.user && message.senderId == _userId;
                           
                           return _buildMessageBubble(message, isMe);
                         },
@@ -247,7 +237,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
   
-  Widget _buildMessageBubble(MessageModel message, bool isMe) {
+  Widget _buildMessageBubble(ChatMessageModel message, bool isMe) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -298,7 +288,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 
                 // Timestamp
                 Text(
-                  _formatDateTime(message.createdAt),
+                  _formatDateTime(message.timestamp),
                   style: TextStyle(
                     fontSize: 10,
                     color: isMe ? Colors.white.withOpacity(0.7) : Colors.grey,
