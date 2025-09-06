@@ -23,6 +23,8 @@ class AppConstants {
   static const String applicationProgressRoute = '/application/progress';
   static const String documentManagementRoute = '/documents';
   static const String calendarRoute = '/calendar';
+  static const String programComparisonRoute = '/programs/compare';
+  static const String savedComparisonsRoute = '/programs/comparisons';
   
   // Shared Preferences Keys
   static const String userIdKey = 'userId';

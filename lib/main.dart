@@ -21,6 +21,8 @@ import 'screens/settings_screen.dart';
 import 'screens/application_progress_screen.dart';
 import 'screens/document_management_screen.dart';
 import 'screens/calendar_screen.dart';
+import 'screens/program_comparison_screen.dart';
+import 'screens/saved_comparisons_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/constants.dart';
 
@@ -98,6 +100,13 @@ class _MyAppState extends State<MyApp> {
           isAdmin: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['isAdmin'] as bool? ?? false,
         ),
         AppConstants.calendarRoute: (context) => CalendarScreen(
+          userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
+        ),
+        AppConstants.programComparisonRoute: (context) => ProgramComparisonScreen(
+          userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
+          initialProgramIds: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['programIds'] as List<String>?,
+        ),
+        AppConstants.savedComparisonsRoute: (context) => SavedComparisonsScreen(
           userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
         ),
       },

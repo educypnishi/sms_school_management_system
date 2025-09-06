@@ -3,6 +3,7 @@ import '../utils/toast_util.dart';
 import '../models/program_model.dart';
 import '../services/program_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/constants.dart';
 import 'program_detail_screen.dart';
 
 class ProgramListScreen extends StatefulWidget {
@@ -18,6 +19,10 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
   bool _isLoading = true;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  
+  // For program comparison
+  bool _comparisonMode = false;
+  final Set<String> _selectedProgramIds = <String>{};
 
   @override
   void initState() {
@@ -76,6 +81,32 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
       appBar: AppBar(
         title: const Text('Study Programs'),
         actions: [
+          // Compare button
+          if (!_comparisonMode && _programs.length >= 2)
+            IconButton(
+              icon: const Icon(Icons.compare_arrows),
+              onPressed: () {
+                setState(() {
+                  _comparisonMode = true;
+                });
+              },
+              tooltip: 'Compare Programs',
+            ),
+          // View saved comparisons
+          if (!_comparisonMode)
+            IconButton(
+              icon: const Icon(Icons.saved_search),
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  AppConstants.savedComparisonsRoute,
+                  arguments: {
+                    'userId': 'user123', // Using a sample user ID for demo
+                  },
+                );
+              },
+              tooltip: 'Saved Comparisons',
+            ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadPrograms,
@@ -85,6 +116,48 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
       ),
       body: Column(
         children: [
+          // Comparison mode banner
+          if (_comparisonMode)
+            Container(
+              color: AppTheme.primaryColor.withOpacity(0.1),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.compare_arrows, color: AppTheme.primaryColor),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Select programs to compare (max 3)',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Text(
+                    '${_selectedProgramIds.length}/3 selected',
+                    style: TextStyle(
+                      color: _selectedProgramIds.length == 3 ? Colors.red : AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _comparisonMode = false;
+                        _selectedProgramIds.clear();
+                      });
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _selectedProgramIds.length >= 2
+                        ? () => _compareSelectedPrograms()
+                        : null,
+                    child: const Text('Compare'),
+                  ),
+                ],
+              ),
+            ),
+          
           // Search Bar
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -140,18 +213,79 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
     );
   }
 
+  void _toggleProgramSelection(String programId) {
+    setState(() {
+      if (_selectedProgramIds.contains(programId)) {
+        _selectedProgramIds.remove(programId);
+      } else {
+        // Check if we've already selected the maximum number of programs
+        if (_selectedProgramIds.length < 3) {
+          _selectedProgramIds.add(programId);
+        } else {
+          // Show a message that max programs are selected
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('You can compare up to 3 programs at once'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    });
+  }
+  
+  void _compareSelectedPrograms() {
+    if (_selectedProgramIds.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Select at least 2 programs to compare'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    // Navigate to comparison screen
+    Navigator.pushNamed(
+      context,
+      AppConstants.programComparisonRoute,
+      arguments: {
+        'userId': 'user123', // Using a sample user ID for demo
+        'programIds': _selectedProgramIds.toList(),
+      },
+    ).then((_) {
+      // Reset selection mode when returning from comparison
+      setState(() {
+        _comparisonMode = false;
+        _selectedProgramIds.clear();
+      });
+    });
+  }
+  
   Widget _buildProgramCard(ProgramModel program) {
+    final bool isSelected = _selectedProgramIds.contains(program.id);
+    
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       clipBehavior: Clip.antiAlias,
+      shape: isSelected
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: AppTheme.primaryColor, width: 2),
+            )
+          : null,
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProgramDetailScreen(programId: program.id),
-            ),
-          );
+          if (_comparisonMode) {
+            _toggleProgramSelection(program.id);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProgramDetailScreen(programId: program.id),
+              ),
+            );
+          }
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
