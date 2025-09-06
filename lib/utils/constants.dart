@@ -21,6 +21,7 @@ class AppConstants {
   static const String profileRoute = '/profile';
   static const String settingsRoute = '/settings';
   static const String applicationProgressRoute = '/application/progress';
+  static const String documentManagementRoute = '/documents';
   
   // Shared Preferences Keys
   static const String userIdKey = 'userId';

@@ -179,9 +179,15 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         Icons.folder,
                         AppTheme.accentColor,
                         () {
-                          // Navigate to documents
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Documents will be available in future phases')),
+                          // Navigate to document management
+                          Navigator.pushNamed(
+                            context,
+                            AppConstants.documentManagementRoute,
+                            arguments: {
+                              'userId': 'user123', // Using a sample user ID for demo
+                              'applicationId': 'APP001', // Using a sample application ID for demo
+                              'isAdmin': false,
+                            },
                           );
                         },
                       ),
