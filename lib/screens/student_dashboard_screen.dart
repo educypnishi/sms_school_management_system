@@ -218,6 +218,22 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           );
                         },
                       ),
+                      _buildActionCard(
+                        context,
+                        'Calendar & Deadlines',
+                        Icons.calendar_today,
+                        Colors.teal,
+                        () {
+                          // Navigate to calendar
+                          Navigator.pushNamed(
+                            context,
+                            AppConstants.calendarRoute,
+                            arguments: {
+                              'userId': 'user123', // Using a sample user ID for demo
+                            },
+                          );
+                        },
+                      ),
                     ],
                   ),
                   

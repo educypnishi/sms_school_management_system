@@ -20,6 +20,7 @@ import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/application_progress_screen.dart';
 import 'screens/document_management_screen.dart';
+import 'screens/calendar_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/constants.dart';
 
@@ -95,6 +96,9 @@ class _MyAppState extends State<MyApp> {
           userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
           applicationId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['applicationId'] as String,
           isAdmin: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['isAdmin'] as bool? ?? false,
+        ),
+        AppConstants.calendarRoute: (context) => CalendarScreen(
+          userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
         ),
       },
     );
