@@ -174,6 +174,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           );
                         },
                       ),
+                      _buildActionCard(
+                        context,
+                        'Analytics Dashboard',
+                        Icons.analytics,
+                        Colors.purple,
+                        () {
+                          // Navigate to analytics dashboard
+                          Navigator.pushNamed(
+                            context,
+                            AppConstants.analyticsDashboardRoute,
+                            arguments: {
+                              'userRole': 'admin',
+                            },
+                          );
+                        },
+                      ),
                     ],
                   ),
                   

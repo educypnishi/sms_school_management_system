@@ -23,6 +23,7 @@ import 'screens/document_management_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/program_comparison_screen.dart';
 import 'screens/saved_comparisons_screen.dart';
+import 'screens/analytics_dashboard_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/constants.dart';
 
@@ -108,6 +109,9 @@ class _MyAppState extends State<MyApp> {
         ),
         AppConstants.savedComparisonsRoute: (context) => SavedComparisonsScreen(
           userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
+        ),
+        AppConstants.analyticsDashboardRoute: (context) => AnalyticsDashboardScreen(
+          userRole: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userRole'] as String,
         ),
       },
     );

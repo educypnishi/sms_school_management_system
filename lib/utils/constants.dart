@@ -25,6 +25,7 @@ class AppConstants {
   static const String calendarRoute = '/calendar';
   static const String programComparisonRoute = '/programs/compare';
   static const String savedComparisonsRoute = '/programs/comparisons';
+  static const String analyticsDashboardRoute = '/analytics';
   
   // Shared Preferences Keys
   static const String userIdKey = 'userId';
