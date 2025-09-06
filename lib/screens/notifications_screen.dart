@@ -1,0 +1,347 @@
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import '../models/notification_model.dart';
+import '../services/notification_service.dart';
+import '../theme/app_theme.dart';
+import '../utils/constants.dart';
+import 'application_form_screen.dart';
+import 'program_detail_screen.dart';
+
+class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
+
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  final NotificationService _notificationService = NotificationService();
+  List<NotificationModel> _notifications = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotifications();
+  }
+
+  Future<void> _loadNotifications() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final notifications = await _notificationService.getUserNotifications();
+      
+      setState(() {
+        _notifications = notifications;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading notifications: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      
+      // Show error message
+      Fluttertoast.showToast(
+        msg: 'Error loading notifications: $e',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: AppTheme.errorColor,
+        textColor: AppTheme.whiteColor,
+      );
+    }
+  }
+  
+  Future<void> _markAllAsRead() async {
+    try {
+      final authService = await _notificationService.markAllAsRead(_notifications.first.userId);
+      
+      // Refresh notifications
+      await _loadNotifications();
+      
+      // Show success message
+      Fluttertoast.showToast(
+        msg: 'All notifications marked as read',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: AppTheme.whiteColor,
+      );
+    } catch (e) {
+      debugPrint('Error marking all notifications as read: $e');
+      
+      // Show error message
+      Fluttertoast.showToast(
+        msg: 'Error marking all notifications as read: $e',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: AppTheme.errorColor,
+        textColor: AppTheme.whiteColor,
+      );
+    }
+  }
+  
+  Future<void> _markAsRead(String notificationId) async {
+    try {
+      await _notificationService.markAsRead(notificationId);
+      
+      // Update notification in list
+      setState(() {
+        final index = _notifications.indexWhere((n) => n.id == notificationId);
+        if (index != -1) {
+          _notifications[index] = _notifications[index].copyWith(isRead: true);
+        }
+      });
+    } catch (e) {
+      debugPrint('Error marking notification as read: $e');
+    }
+  }
+  
+  Future<void> _deleteNotification(String notificationId) async {
+    try {
+      await _notificationService.deleteNotification(notificationId);
+      
+      // Remove notification from list
+      setState(() {
+        _notifications.removeWhere((n) => n.id == notificationId);
+      });
+      
+      // Show success message
+      Fluttertoast.showToast(
+        msg: 'Notification deleted',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: AppTheme.whiteColor,
+      );
+    } catch (e) {
+      debugPrint('Error deleting notification: $e');
+      
+      // Show error message
+      Fluttertoast.showToast(
+        msg: 'Error deleting notification: $e',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: AppTheme.errorColor,
+        textColor: AppTheme.whiteColor,
+      );
+    }
+  }
+  
+  void _handleNotificationTap(NotificationModel notification) async {
+    // Mark notification as read
+    await _markAsRead(notification.id);
+    
+    // Handle navigation based on notification type
+    switch (notification.type) {
+      case NotificationService.typeApplication:
+        if (notification.data != null && notification.data!['applicationId'] != null) {
+          // Navigate to application details
+          if (!mounted) return;
+          Navigator.pushNamed(context, AppConstants.applicationFormRoute);
+        }
+        break;
+      case NotificationService.typeProgram:
+        if (notification.data != null && notification.data!['programId'] != null) {
+          // Navigate to program details
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProgramDetailScreen(
+                programId: notification.data!['programId'],
+              ),
+            ),
+          );
+        }
+        break;
+      case NotificationService.typeMessage:
+        // Navigate to messages
+        if (!mounted) return;
+        Fluttertoast.showToast(
+          msg: 'Messages will be available in future phases',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: AppTheme.primaryColor,
+          textColor: AppTheme.whiteColor,
+        );
+        break;
+      default:
+        // Do nothing for general notifications
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Notifications'),
+        actions: [
+          if (_notifications.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.done_all),
+              onPressed: _markAllAsRead,
+              tooltip: 'Mark all as read',
+            ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadNotifications,
+            tooltip: 'Refresh',
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _notifications.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No notifications',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: _notifications.length,
+                  itemBuilder: (context, index) {
+                    final notification = _notifications[index];
+                    return _buildNotificationCard(notification);
+                  },
+                ),
+    );
+  }
+
+  Widget _buildNotificationCard(NotificationModel notification) {
+    // Determine icon based on notification type
+    IconData icon;
+    Color iconColor;
+    
+    switch (notification.type) {
+      case NotificationService.typeApplication:
+        icon = Icons.assignment;
+        iconColor = Colors.orange;
+        break;
+      case NotificationService.typeProgram:
+        icon = Icons.school;
+        iconColor = Colors.blue;
+        break;
+      case NotificationService.typeMessage:
+        icon = Icons.message;
+        iconColor = Colors.green;
+        break;
+      default:
+        icon = Icons.notifications;
+        iconColor = AppTheme.primaryColor;
+        break;
+    }
+    
+    return Dismissible(
+      key: Key(notification.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: Colors.red,
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      onDismissed: (direction) {
+        _deleteNotification(notification.id);
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        color: notification.isRead ? null : Colors.blue.shade50,
+        child: InkWell(
+          onTap: () => _handleNotificationTap(notification),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Notification Icon
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                
+                // Notification Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        notification.title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      
+                      // Message
+                      Text(
+                        notification.message,
+                        style: TextStyle(
+                          color: notification.isRead ? AppTheme.lightTextColor : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      
+                      // Timestamp
+                      Text(
+                        _formatDateTime(notification.createdAt),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.lightTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Read/Unread Indicator
+                if (!notification.isRead)
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  
+  String _formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+    
+    if (difference.inDays > 0) {
+      return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+    } else {
+      return 'Just now';
+    }
+  }
+}
