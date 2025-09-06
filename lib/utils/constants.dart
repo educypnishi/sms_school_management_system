@@ -20,6 +20,7 @@ class AppConstants {
   static const String chatRoute = '/chat';
   static const String profileRoute = '/profile';
   static const String settingsRoute = '/settings';
+  static const String applicationProgressRoute = '/application/progress';
   
   // Shared Preferences Keys
   static const String userIdKey = 'userId';

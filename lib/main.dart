@@ -18,6 +18,7 @@ import 'screens/conversations_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/application_progress_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/constants.dart';
 
@@ -86,6 +87,9 @@ class _MyAppState extends State<MyApp> {
         ),
         AppConstants.profileRoute: (context) => const ProfileScreen(),
         AppConstants.settingsRoute: (context) => const SettingsScreen(),
+        AppConstants.applicationProgressRoute: (context) => ApplicationProgressScreen(
+          applicationId: ModalRoute.of(context)!.settings.arguments as String,
+        ),
       },
     );
   }

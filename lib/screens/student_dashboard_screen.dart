@@ -262,18 +262,41 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                                 style: const TextStyle(color: AppTheme.lightTextColor),
                               ),
                               const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const ApplicationFormScreen(),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const ApplicationFormScreen(),
+                                          ),
+                                        ).then((_) => _loadUserData());
+                                      },
+                                      icon: Icon(_applicationStatus == 'submitted' ? Icons.visibility : Icons.edit),
+                                      label: Text(_applicationStatus == 'submitted' ? 'View Application' : 'Continue Editing'),
                                     ),
-                                  ).then((_) => _loadUserData());
-                                },
-                                icon: Icon(_applicationStatus == 'submitted' ? Icons.visibility : Icons.edit),
-                                label: Text(_applicationStatus == 'submitted' ? 'View Application' : 'Continue Editing'),
+                                  ),
+                                ],
                               ),
+                              if (_applicationStatus == 'submitted') ...[  
+                                const SizedBox(height: 8),
+                                OutlinedButton.icon(
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context, 
+                                      AppConstants.applicationProgressRoute,
+                                      arguments: 'APP001', // Using a sample application ID for demo
+                                    );
+                                  },
+                                  icon: const Icon(Icons.timeline),
+                                  label: const Text('Track Progress'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppTheme.primaryColor,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
