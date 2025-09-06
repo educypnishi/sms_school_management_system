@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
@@ -65,13 +65,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error loading settings: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error loading settings: $e',
+    );
     }
   }
   
@@ -85,24 +82,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.setString('language', _selectedLanguage);
       
       // Show success message
-      Fluttertoast.showToast(
-        msg: 'Settings saved',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Settings saved',
+    );
     } catch (e) {
       debugPrint('Error saving settings: $e');
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error saving settings: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error saving settings: $e',
+    );
     }
   }
   
@@ -118,13 +109,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       debugPrint('Error logging out: $e');
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error logging out: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error logging out: $e',
+    );
     }
   }
 
@@ -252,13 +240,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _saveSettings();
                       
                       // Show message that theme will apply on restart
-                      Fluttertoast.showToast(
-                        msg: 'Theme will apply on app restart',
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: AppTheme.primaryColor,
-                        textColor: AppTheme.whiteColor,
-                      );
+                      ToastUtil.showToast(
+      context: context,
+      message: 'Theme will apply on app restart',
+    );
                     },
                   ),
                 ),
@@ -299,13 +284,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               _saveSettings();
                               
                               // Show message that language will apply on restart
-                              Fluttertoast.showToast(
-                                msg: 'Language will apply on app restart',
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                backgroundColor: AppTheme.primaryColor,
-                                textColor: AppTheme.whiteColor,
-                              );
+                              ToastUtil.showToast(
+      context: context,
+      message: 'Language will apply on app restart',
+    );
                             }
                           },
                         ),
@@ -417,13 +399,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: const Text('Privacy Policy'),
                     onTap: () {
                       // Show privacy policy
-                      Fluttertoast.showToast(
-                        msg: 'Privacy policy will be available in future phases',
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: AppTheme.primaryColor,
-                        textColor: AppTheme.whiteColor,
-                      );
+                      ToastUtil.showToast(
+      context: context,
+      message: 'Privacy policy will be available in future phases',
+    );
                     },
                   ),
                 ),
@@ -435,13 +414,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: const Text('Terms of Service'),
                     onTap: () {
                       // Show terms of service
-                      Fluttertoast.showToast(
-                        msg: 'Terms of service will be available in future phases',
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: AppTheme.primaryColor,
-                        textColor: AppTheme.whiteColor,
-                      );
+                      ToastUtil.showToast(
+      context: context,
+      message: 'Terms of service will be available in future phases',
+    );
                     },
                   ),
                 ),

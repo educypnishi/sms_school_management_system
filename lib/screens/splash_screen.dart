@@ -66,7 +66,8 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Center(
-        child: Column(
+        child: SingleChildScrollView(
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // App Logo
@@ -133,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

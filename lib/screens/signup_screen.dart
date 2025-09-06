@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
@@ -124,13 +124,10 @@ class _SignupScreenState extends State<SignupScreen> {
         if (!mounted) return;
         
         // Show success message
-        Fluttertoast.showToast(
-          msg: 'Account created successfully!',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: AppTheme.whiteColor,
-        );
+        ToastUtil.showToast(
+      context: context,
+      message: 'Account created successfully!',
+    );
         
         // Navigate to appropriate dashboard based on role
         if (_selectedRole == AppConstants.adminRole) {
@@ -142,13 +139,10 @@ class _SignupScreenState extends State<SignupScreen> {
         }
       } catch (e) {
         // Show error message
-        Fluttertoast.showToast(
-          msg: 'Error creating account: $e',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: AppTheme.errorColor,
-          textColor: AppTheme.whiteColor,
-        );
+        ToastUtil.showToast(
+      context: context,
+      message: 'Error creating account: $e',
+    );
       } finally {
         if (mounted) {
           setState(() {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../models/application_model.dart';
 import '../models/user_model.dart';
 import '../services/application_service.dart';
@@ -51,13 +51,10 @@ class _AdminApplicationsScreenState extends State<AdminApplicationsScreen> {
       });
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error loading applications: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error loading applications: $e',
+    );
     }
   }
   
@@ -101,24 +98,18 @@ class _AdminApplicationsScreenState extends State<AdminApplicationsScreen> {
       await _loadApplications();
       
       // Show success message
-      Fluttertoast.showToast(
-        msg: 'Application status updated',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Application status updated',
+    );
     } catch (e) {
       debugPrint('Error updating application status: $e');
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error updating application status: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error updating application status: $e',
+    );
     }
   }
   
@@ -168,24 +159,18 @@ class _AdminApplicationsScreenState extends State<AdminApplicationsScreen> {
                   await _loadApplications();
                   
                   // Show success message
-                  Fluttertoast.showToast(
-                    msg: 'Application assigned to partner',
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.green,
-                    textColor: AppTheme.whiteColor,
-                  );
+                  ToastUtil.showToast(
+      context: context,
+      message: 'Application assigned to partner',
+    );
                 } catch (e) {
                   debugPrint('Error assigning application: $e');
                   
                   // Show error message
-                  Fluttertoast.showToast(
-                    msg: 'Error assigning application: $e',
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: AppTheme.errorColor,
-                    textColor: AppTheme.whiteColor,
-                  );
+                  ToastUtil.showToast(
+      context: context,
+      message: 'Error assigning application: $e',
+    );
                 }
               }
             },

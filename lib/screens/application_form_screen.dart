@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../models/application_model.dart';
 import '../services/application_service.dart';
 import '../services/auth_service.dart';
@@ -94,22 +94,16 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
         _applicationId = application.id;
         
         // Show success message
-        Fluttertoast.showToast(
-          msg: 'Application draft saved',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: AppTheme.whiteColor,
-        );
+        ToastUtil.showToast(
+      context: context,
+      message: 'Application draft saved',
+    );
       } catch (e) {
         // Show error message
-        Fluttertoast.showToast(
-          msg: 'Error saving draft: $e',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: AppTheme.errorColor,
-          textColor: AppTheme.whiteColor,
-        );
+        ToastUtil.showToast(
+      context: context,
+      message: 'Error saving draft: $e',
+    );
       } finally {
         if (mounted) {
           setState(() {
@@ -142,26 +136,20 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
         await _applicationService.submitApplication(_applicationId!);
         
         // Show success message
-        Fluttertoast.showToast(
-          msg: 'Application submitted successfully',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: AppTheme.whiteColor,
-        );
+        ToastUtil.showToast(
+      context: context,
+      message: 'Application submitted successfully',
+    );
         
         // Navigate back to student dashboard
         if (!mounted) return;
         Navigator.pop(context);
       } catch (e) {
         // Show error message
-        Fluttertoast.showToast(
-          msg: 'Error submitting application: $e',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: AppTheme.errorColor,
-          textColor: AppTheme.whiteColor,
-        );
+        ToastUtil.showToast(
+      context: context,
+      message: 'Error submitting application: $e',
+    );
       } finally {
         if (mounted) {
           setState(() {

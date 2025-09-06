@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../models/program_model.dart';
 import '../services/program_service.dart';
 import '../theme/app_theme.dart';
@@ -50,13 +50,10 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
       });
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error loading programs: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error loading programs: $e',
+    );
     }
   }
   

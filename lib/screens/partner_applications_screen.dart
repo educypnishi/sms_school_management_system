@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../models/application_model.dart';
 import '../services/application_service.dart';
 import '../theme/app_theme.dart';
@@ -55,13 +55,10 @@ class _PartnerApplicationsScreenState extends State<PartnerApplicationsScreen> {
       });
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error loading applications: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error loading applications: $e',
+    );
     }
   }
 
@@ -102,24 +99,18 @@ class _PartnerApplicationsScreenState extends State<PartnerApplicationsScreen> {
                   await _loadApplications();
                   
                   // Show success message
-                  Fluttertoast.showToast(
-                    msg: 'Feedback added successfully',
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.green,
-                    textColor: AppTheme.whiteColor,
-                  );
+                  ToastUtil.showToast(
+      context: context,
+      message: 'Feedback added successfully',
+    );
                 } catch (e) {
                   debugPrint('Error adding feedback: $e');
                   
                   // Show error message
-                  Fluttertoast.showToast(
-                    msg: 'Error adding feedback: $e',
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: AppTheme.errorColor,
-                    textColor: AppTheme.whiteColor,
-                  );
+                  ToastUtil.showToast(
+      context: context,
+      message: 'Error adding feedback: $e',
+    );
                 }
               }
             },
@@ -182,13 +173,10 @@ class _PartnerApplicationsScreenState extends State<PartnerApplicationsScreen> {
       debugPrint('Error getting feedback: $e');
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error getting feedback: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error getting feedback: $e',
+    );
     }
   }
 

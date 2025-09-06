@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
@@ -63,13 +63,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error loading user profile: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error loading user profile: $e',
+    );
     }
   }
   
@@ -99,13 +96,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
         
         // Show success message
-        Fluttertoast.showToast(
-          msg: 'Profile updated successfully',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: AppTheme.whiteColor,
-        );
+        ToastUtil.showToast(
+      context: context,
+      message: 'Profile updated successfully',
+    );
       }
     } catch (e) {
       debugPrint('Error updating profile: $e');
@@ -114,13 +108,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error updating profile: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error updating profile: $e',
+    );
     }
   }
 

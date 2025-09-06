@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../models/notification_model.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
@@ -44,13 +44,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       });
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error loading notifications: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error loading notifications: $e',
+    );
     }
   }
   
@@ -62,24 +59,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       await _loadNotifications();
       
       // Show success message
-      Fluttertoast.showToast(
-        msg: 'All notifications marked as read',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'All notifications marked as read',
+    );
     } catch (e) {
       debugPrint('Error marking all notifications as read: $e');
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error marking all notifications as read: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error marking all notifications as read: $e',
+    );
     }
   }
   
@@ -109,24 +100,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       });
       
       // Show success message
-      Fluttertoast.showToast(
-        msg: 'Notification deleted',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Notification deleted',
+    );
     } catch (e) {
       debugPrint('Error deleting notification: $e');
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error deleting notification: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error deleting notification: $e',
+    );
     }
   }
   
@@ -160,13 +145,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case NotificationService.typeMessage:
         // Navigate to messages
         if (!mounted) return;
-        Fluttertoast.showToast(
-          msg: 'Messages will be available in future phases',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: AppTheme.primaryColor,
-          textColor: AppTheme.whiteColor,
-        );
+        ToastUtil.showToast(
+      context: context,
+      message: 'Messages will be available in future phases',
+    );
         break;
       default:
         // Do nothing for general notifications

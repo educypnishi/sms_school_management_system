@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
@@ -52,21 +52,16 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         
         // Show success toast
-        Fluttertoast.showToast(
-          msg: 'Login successful',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: AppTheme.whiteColor,
+        ToastUtil.showToast(
+          context: context,
+          message: 'Login successful',
         );
       } catch (e) {
         // Show error message
-        Fluttertoast.showToast(
-          msg: 'Login failed: $e',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: AppTheme.errorColor,
-          textColor: AppTheme.whiteColor,
+        ToastUtil.showToast(
+          context: context,
+          message: 'Login failed: $e',
+          isError: true,
         );
       } finally {
         if (mounted) {

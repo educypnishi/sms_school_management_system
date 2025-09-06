@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../models/message_model.dart';
 import '../services/auth_service.dart';
 import '../services/messaging_service.dart';
@@ -95,13 +95,10 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error loading messages: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error loading messages: $e',
+    );
     }
   }
   
@@ -143,13 +140,10 @@ class _ChatScreenState extends State<ChatScreen> {
       debugPrint('Error sending message: $e');
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error sending message: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error sending message: $e',
+    );
     }
   }
 

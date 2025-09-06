@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/toast_util.dart';
 import '../models/conversation_model.dart';
 import '../services/auth_service.dart';
 import '../services/messaging_service.dart';
@@ -52,13 +52,10 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       });
       
       // Show error message
-      Fluttertoast.showToast(
-        msg: 'Error loading conversations: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.errorColor,
-        textColor: AppTheme.whiteColor,
-      );
+      ToastUtil.showToast(
+      context: context,
+      message: 'Error loading conversations: $e',
+    );
     }
   }
 
