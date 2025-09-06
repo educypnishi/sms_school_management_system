@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import 'application_form_screen.dart';
 import 'program_detail_screen.dart';
+import 'notification_settings_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -14,15 +15,46 @@ class NotificationsScreen extends StatefulWidget {
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class _NotificationsScreenState extends State<NotificationsScreen> with SingleTickerProviderStateMixin {
   final NotificationService _notificationService = NotificationService();
   List<NotificationModel> _notifications = [];
+  List<NotificationModel> _filteredNotifications = [];
   bool _isLoading = true;
+  String _selectedFilter = 'All';
+  late TabController _tabController;
+  
+  // Filter options
+  final List<String> _filterOptions = [
+    'All',
+    'Unread',
+    'Application',
+    'Program',
+    'Message',
+    'General',
+  ];
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: _filterOptions.length, vsync: this);
+    _tabController.addListener(_handleTabChange);
     _loadNotifications();
+  }
+  
+  @override
+  void dispose() {
+    _tabController.removeListener(_handleTabChange);
+    _tabController.dispose();
+    super.dispose();
+  }
+  
+  void _handleTabChange() {
+    if (!_tabController.indexIsChanging) {
+      setState(() {
+        _selectedFilter = _filterOptions[_tabController.index];
+        _filterNotifications();
+      });
+    }
   }
 
   Future<void> _loadNotifications() async {
@@ -36,6 +68,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       setState(() {
         _notifications = notifications;
         _isLoading = false;
+        _filterNotifications();
       });
     } catch (e) {
       debugPrint('Error loading notifications: $e');
@@ -51,6 +84,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
   
+  void _filterNotifications() {
+    switch (_selectedFilter) {
+      case 'Unread':
+        _filteredNotifications = _notifications.where((n) => !n.isRead).toList();
+        break;
+      case 'Application':
+        _filteredNotifications = _notifications.where((n) => n.type == NotificationService.typeApplication).toList();
+        break;
+      case 'Program':
+        _filteredNotifications = _notifications.where((n) => n.type == NotificationService.typeProgram).toList();
+        break;
+      case 'Message':
+        _filteredNotifications = _notifications.where((n) => n.type == NotificationService.typeMessage).toList();
+        break;
+      case 'General':
+        _filteredNotifications = _notifications.where((n) => n.type == NotificationService.typeGeneral).toList();
+        break;
+      case 'All':
+      default:
+        _filteredNotifications = List.from(_notifications);
+        break;
+    }
+  }
+
   Future<void> _markAllAsRead() async {
     try {
       final authService = await _notificationService.markAllAsRead(_notifications.first.userId);
@@ -115,6 +172,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
   
+  void _openNotificationSettings() {
+    // Navigate to notification settings screen
+    if (_notifications.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NotificationSettingsScreen(
+            userId: _notifications.first.userId,
+          ),
+        ),
+      );
+    } else {
+      // If no notifications, use a sample user ID
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const NotificationSettingsScreen(
+            userId: 'user123',
+          ),
+        ),
+      );
+    }
+  }
+
   void _handleNotificationTap(NotificationModel notification) async {
     // Mark notification as read
     await _markAsRead(notification.id);
@@ -173,21 +254,47 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             onPressed: _loadNotifications,
             tooltip: 'Refresh',
           ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: _openNotificationSettings,
+            tooltip: 'Notification Settings',
+          ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabs: _filterOptions.map((filter) => Tab(text: filter)).toList(),
+          labelColor: Theme.of(context).primaryColor,
+          unselectedLabelColor: Colors.grey,
+          indicatorSize: TabBarIndicatorSize.label,
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _notifications.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No notifications',
-                    style: TextStyle(fontSize: 16),
+          : _filteredNotifications.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.notifications_off,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _selectedFilter == 'All'
+                            ? 'No notifications'
+                            : 'No ${_selectedFilter.toLowerCase()} notifications',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
                   ),
                 )
               : ListView.builder(
-                  itemCount: _notifications.length,
+                  itemCount: _filteredNotifications.length,
                   itemBuilder: (context, index) {
-                    final notification = _notifications[index];
+                    final notification = _filteredNotifications[index];
                     return _buildNotificationCard(notification);
                   },
                 ),
