@@ -350,17 +350,270 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
   }
 
   void _showAddEventDialog() {
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+    DateTime selectedDate = DateTime.now();
+    TimeOfDay selectedTime = TimeOfDay.now();
+    bool isAllDay = false;
+    EventType selectedType = EventType.applicationDeadline;
+    EventPriority selectedPriority = EventPriority.medium;
+    final locationController = TextEditingController();
+    bool hasReminder = true;
+    Duration reminderBefore = const Duration(days: 1);
+    
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Event'),
-        content: const Text('This feature will be available in the next update.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Add Event'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Title *',
+                    hintText: 'Enter event title',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // Description
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description *',
+                    hintText: 'Enter event description',
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                
+                // Date picker
+                Row(
+                  children: [
+                    const Text('Date: '),
+                    TextButton(
+                      onPressed: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDate,
+                          firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                          lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                        );
+                        if (date != null) {
+                          setState(() {
+                            selectedDate = date;
+                          });
+                        }
+                      },
+                      child: Text(
+                        '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                        style: const TextStyle(color: AppTheme.primaryColor),
+                      ),
+                    ),
+                  ],
+                ),
+                
+                // All day switch
+                Row(
+                  children: [
+                    const Text('All day: '),
+                    Switch(
+                      value: isAllDay,
+                      onChanged: (value) {
+                        setState(() {
+                          isAllDay = value;
+                        });
+                      },
+                      activeColor: AppTheme.primaryColor,
+                    ),
+                  ],
+                ),
+                
+                // Time picker (only if not all day)
+                if (!isAllDay)
+                  Row(
+                    children: [
+                      const Text('Time: '),
+                      TextButton(
+                        onPressed: () async {
+                          final time = await showTimePicker(
+                            context: context,
+                            initialTime: selectedTime,
+                          );
+                          if (time != null) {
+                            setState(() {
+                              selectedTime = time;
+                            });
+                          }
+                        },
+                        child: Text(
+                          '${selectedTime.hour}:${selectedTime.minute.toString().padLeft(2, '0')}',
+                          style: const TextStyle(color: AppTheme.primaryColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 16),
+                
+                // Event type
+                const Text('Event Type:'),
+                DropdownButton<EventType>(
+                  value: selectedType,
+                  isExpanded: true,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedType = value;
+                      });
+                    }
+                  },
+                  items: EventType.values.map((type) {
+                    return DropdownMenuItem<EventType>(
+                      value: type,
+                      child: Text(_getEventTypeText(type)),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                
+                // Priority
+                const Text('Priority:'),
+                DropdownButton<EventPriority>(
+                  value: selectedPriority,
+                  isExpanded: true,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedPriority = value;
+                      });
+                    }
+                  },
+                  items: EventPriority.values.map((priority) {
+                    return DropdownMenuItem<EventPriority>(
+                      value: priority,
+                      child: Text(_getEventPriorityText(priority)),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                
+                // Location
+                TextField(
+                  controller: locationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Location (optional)',
+                    hintText: 'Enter event location',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // Reminder
+                Row(
+                  children: [
+                    const Text('Reminder: '),
+                    Switch(
+                      value: hasReminder,
+                      onChanged: (value) {
+                        setState(() {
+                          hasReminder = value;
+                        });
+                      },
+                      activeColor: AppTheme.primaryColor,
+                    ),
+                  ],
+                ),
+                
+                // Reminder time
+                if (hasReminder)
+                  DropdownButton<Duration>(
+                    value: reminderBefore,
+                    isExpanded: true,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          reminderBefore = value;
+                        });
+                      }
+                    },
+                    items: [
+                      const DropdownMenuItem<Duration>(
+                        value: Duration(minutes: 15),
+                        child: Text('15 minutes before'),
+                      ),
+                      const DropdownMenuItem<Duration>(
+                        value: Duration(hours: 1),
+                        child: Text('1 hour before'),
+                      ),
+                      const DropdownMenuItem<Duration>(
+                        value: Duration(hours: 3),
+                        child: Text('3 hours before'),
+                      ),
+                      const DropdownMenuItem<Duration>(
+                        value: Duration(days: 1),
+                        child: Text('1 day before'),
+                      ),
+                      const DropdownMenuItem<Duration>(
+                        value: Duration(days: 3),
+                        child: Text('3 days before'),
+                      ),
+                      const DropdownMenuItem<Duration>(
+                        value: Duration(days: 7),
+                        child: Text('1 week before'),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (titleController.text.isEmpty || descriptionController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please fill in all required fields'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                
+                // Create event
+                _createEvent(
+                  title: titleController.text,
+                  description: descriptionController.text,
+                  startDate: isAllDay
+                      ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
+                      : DateTime(
+                          selectedDate.year,
+                          selectedDate.month,
+                          selectedDate.day,
+                          selectedTime.hour,
+                          selectedTime.minute,
+                        ),
+                  isAllDay: isAllDay,
+                  type: selectedType,
+                  priority: selectedPriority,
+                  location: locationController.text.isNotEmpty ? locationController.text : null,
+                  hasReminder: hasReminder,
+                  reminderBefore: reminderBefore,
+                );
+                
+                Navigator.pop(context);
+              },
+              child: const Text('Add Event'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -572,6 +825,88 @@ class _CalendarScreenState extends State<CalendarScreen> with SingleTickerProvid
         );
       },
     );
+  }
+
+  String _getEventTypeText(EventType type) {
+    switch (type) {
+      case EventType.applicationDeadline:
+        return 'Application Deadline';
+      case EventType.documentDeadline:
+        return 'Document Deadline';
+      case EventType.interview:
+        return 'Interview';
+      case EventType.orientation:
+        return 'Orientation';
+      case EventType.registration:
+        return 'Registration';
+      case EventType.exam:
+        return 'Exam';
+      case EventType.result:
+        return 'Result';
+      case EventType.other:
+        return 'Other Event';
+    }
+  }
+
+  String _getEventPriorityText(EventPriority priority) {
+    switch (priority) {
+      case EventPriority.low:
+        return 'Low Priority';
+      case EventPriority.medium:
+        return 'Medium Priority';
+      case EventPriority.high:
+        return 'High Priority';
+      case EventPriority.urgent:
+        return 'Urgent';
+    }
+  }
+
+  Future<void> _createEvent({
+    required String title,
+    required String description,
+    required DateTime startDate,
+    required bool isAllDay,
+    required EventType type,
+    required EventPriority priority,
+    String? location,
+    required bool hasReminder,
+    required Duration reminderBefore,
+  }) async {
+    try {
+      await _calendarService.createEvent(
+        title: title,
+        description: description,
+        startDate: startDate,
+        isAllDay: isAllDay,
+        type: type,
+        priority: priority,
+        location: location,
+        userId: widget.userId,
+        hasReminder: hasReminder,
+        reminderBefore: reminderBefore,
+      );
+      
+      // Refresh events
+      await _loadEvents();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Event created successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error creating event: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _showHelpDialog() {
