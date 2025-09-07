@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/program_model.dart';
+import '../models/visa_application_model.dart';
 import '../services/application_service.dart';
 import '../services/program_service.dart';
+import '../services/visa_application_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import '../widgets/notification_badge.dart';
@@ -11,6 +13,8 @@ import 'program_detail_screen.dart';
 import 'program_list_screen.dart';
 import 'university_comparison_screen.dart';
 import 'cost_calculator_screen.dart';
+import 'visa_application_list_screen.dart';
+import 'visa_application_detail_screen.dart';
 
 class StudentDashboardScreen extends StatefulWidget {
   const StudentDashboardScreen({super.key});
@@ -26,13 +30,16 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   String? _applicationStatus;
   final _applicationService = ApplicationService();
   final _programService = ProgramService();
+  final _visaApplicationService = VisaApplicationService();
   List<ProgramModel> _featuredPrograms = [];
+  List<VisaApplicationModel> _visaApplications = [];
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
     _loadFeaturedPrograms();
+    _loadVisaApplications();
   }
   
   Future<void> _loadFeaturedPrograms() async {
@@ -45,6 +52,18 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       });
     } catch (e) {
       debugPrint('Error loading featured programs: $e');
+    }
+  }
+  
+  Future<void> _loadVisaApplications() async {
+    try {
+      final visaApplications = await _visaApplicationService.getVisaApplicationsForUser('user123');
+      
+      setState(() {
+        _visaApplications = visaApplications;
+      });
+    } catch (e) {
+      debugPrint('Error loading visa applications: $e');
     }
   }
 
@@ -269,6 +288,23 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           );
                         },
                       ),
+                      _buildActionCard(
+                        context,
+                        'Visa Tracker',
+                        Icons.flight_takeoff,
+                        Colors.teal,
+                        () {
+                          // Navigate to visa application list
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VisaApplicationListScreen(
+                                userId: 'user123', // Using a sample user ID for demo
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                   
@@ -430,6 +466,43 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       label: const Text('View All Programs'),
                     ),
                   ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Visa Applications
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Visa Applications',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VisaApplicationListScreen(
+                                userId: 'user123', // Using a sample user ID for demo
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('View All'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Visa applications list
+                  _visaApplications.isEmpty
+                      ? _buildEmptyVisaApplicationsCard()
+                      : Column(
+                          children: _visaApplications
+                              .take(2) // Show only the first 2 applications
+                              .map((application) => _buildVisaApplicationCard(application))
+                              .toList(),
+                        ),
                 ],
               ),
             ),
@@ -497,65 +570,220 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 aspectRatio: 16 / 9,
                 child: Image.network(
                   program.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 30,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    );
-                  },
                 ),
               ),
-              
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Program Title
-                    Text(
-                      program.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    
-                    // University
-                    Text(
-                      program.university,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.lightTextColor,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    
-                    // Degree Type
-                    Text(
-                      program.degreeType,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 8),
+              Text(
+                program.university,
+                style: const TextStyle(
+                  color: AppTheme.primaryColor,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                program.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: AppTheme.lightTextColor),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${program.duration} ${program.degreeType}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '€${program.tuitionFee}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildEmptyVisaApplicationsCard() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'No visa applications yet',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Start tracking your visa application process',
+              style: TextStyle(color: AppTheme.lightTextColor),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VisaApplicationListScreen(
+                      userId: 'user123', // Using a sample user ID for demo
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Create Visa Application'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildVisaApplicationCard(VisaApplicationModel application) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VisaApplicationDetailScreen(
+                visaApplicationId: application.id,
+              ),
+            ),
+          ).then((_) => _loadVisaApplications());
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: application.status.color.withOpacity(0.1),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(4),
+                  topRight: Radius.circular(4),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    application.status.icon,
+                    color: application.status.color,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          application.visaType.displayName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          application.status.displayName,
+                          style: TextStyle(
+                            color: application.status.color,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Country and Embassy
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '${application.country} - ${application.embassy}',
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Progress
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Progress'),
+                          Text('${application.completionPercentage.toStringAsFixed(0)}%'),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      LinearProgressIndicator(
+                        value: application.completionPercentage / 100,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          application.status.color,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Next Milestone
+                  if (application.nextMilestone != null) ...[                    
+                    Row(
+                      children: [
+                        const Icon(Icons.flag, size: 16, color: Colors.blue),
+                        const SizedBox(width: 4),
+                        const Text(
+                          'Next Step:',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            application.nextMilestone!.title,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
