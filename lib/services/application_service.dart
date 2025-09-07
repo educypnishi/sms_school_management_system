@@ -18,12 +18,42 @@ class ApplicationService {
   // For Phase 3, we'll use SharedPreferences to store application data
   // In a real app, this would use Firestore
   
-  // Save application as draft
+  // Save application as draft with all fields
   Future<ApplicationModel> saveDraft({
     String? id,
     required String name,
     required String email,
     required String phone,
+    DateTime? dateOfBirth,
+    String? nationality,
+    String? passportNumber,
+    DateTime? passportExpiryDate,
+    String? currentAddress,
+    String? gender,
+    String? highestEducation,
+    String? previousInstitution,
+    String? fieldOfStudy,
+    double? gpa,
+    int? yearOfCompletion,
+    List<String>? certificates,
+    String? desiredProgram,
+    String? desiredUniversity,
+    String? studyLevel,
+    String? preferredStartDate,
+    bool? needsAccommodation,
+    String? fundingSource,
+    bool? hasFinancialDocuments,
+    double? availableFunds,
+    String? sponsorName,
+    String? sponsorRelationship,
+    String? passportScanUrl,
+    String? photoUrl,
+    String? transcriptsUrl,
+    String? certificatesUrl,
+    String? financialDocumentsUrl,
+    String? motivationLetterUrl,
+    String? recommendationLettersUrl,
+    int? currentStep,
   }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -37,16 +67,54 @@ class ApplicationService {
       // Generate a new ID if not provided
       final applicationId = id ?? DateTime.now().millisecondsSinceEpoch.toString();
       
-      // Create application model
+      // Get existing application if it exists
+      ApplicationModel? existingApplication;
+      final existingJson = prefs.getString('application_$applicationId');
+      if (existingJson != null) {
+        final existingMap = jsonDecode(existingJson) as Map<String, dynamic>;
+        existingApplication = ApplicationModel.fromMap(existingMap, applicationId);
+      }
+      
+      // Create or update application model
       final application = ApplicationModel(
         id: applicationId,
         userId: currentUser.id,
         name: name,
         email: email,
         phone: phone,
+        dateOfBirth: dateOfBirth ?? existingApplication?.dateOfBirth,
+        nationality: nationality ?? existingApplication?.nationality,
+        passportNumber: passportNumber ?? existingApplication?.passportNumber,
+        passportExpiryDate: passportExpiryDate ?? existingApplication?.passportExpiryDate,
+        currentAddress: currentAddress ?? existingApplication?.currentAddress,
+        gender: gender ?? existingApplication?.gender,
+        highestEducation: highestEducation ?? existingApplication?.highestEducation,
+        previousInstitution: previousInstitution ?? existingApplication?.previousInstitution,
+        fieldOfStudy: fieldOfStudy ?? existingApplication?.fieldOfStudy,
+        gpa: gpa ?? existingApplication?.gpa,
+        yearOfCompletion: yearOfCompletion ?? existingApplication?.yearOfCompletion,
+        certificates: certificates ?? existingApplication?.certificates,
+        desiredProgram: desiredProgram ?? existingApplication?.desiredProgram,
+        desiredUniversity: desiredUniversity ?? existingApplication?.desiredUniversity,
+        studyLevel: studyLevel ?? existingApplication?.studyLevel,
+        preferredStartDate: preferredStartDate ?? existingApplication?.preferredStartDate,
+        needsAccommodation: needsAccommodation ?? existingApplication?.needsAccommodation,
+        fundingSource: fundingSource ?? existingApplication?.fundingSource,
+        hasFinancialDocuments: hasFinancialDocuments ?? existingApplication?.hasFinancialDocuments,
+        availableFunds: availableFunds ?? existingApplication?.availableFunds,
+        sponsorName: sponsorName ?? existingApplication?.sponsorName,
+        sponsorRelationship: sponsorRelationship ?? existingApplication?.sponsorRelationship,
+        passportScanUrl: passportScanUrl ?? existingApplication?.passportScanUrl,
+        photoUrl: photoUrl ?? existingApplication?.photoUrl,
+        transcriptsUrl: transcriptsUrl ?? existingApplication?.transcriptsUrl,
+        certificatesUrl: certificatesUrl ?? existingApplication?.certificatesUrl,
+        financialDocumentsUrl: financialDocumentsUrl ?? existingApplication?.financialDocumentsUrl,
+        motivationLetterUrl: motivationLetterUrl ?? existingApplication?.motivationLetterUrl,
+        recommendationLettersUrl: recommendationLettersUrl ?? existingApplication?.recommendationLettersUrl,
         status: 'draft',
-        createdAt: DateTime.now(),
+        createdAt: existingApplication?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
+        currentStep: currentStep ?? existingApplication?.currentStep,
       );
       
       // Save application to SharedPreferences
