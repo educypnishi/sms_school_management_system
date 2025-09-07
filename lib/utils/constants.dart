@@ -1,6 +1,6 @@
 class AppConstants {
   // App name
-  static const String appName = 'SchoolMS';
+  static const String appName = 'SchoolSM';
   
   // Routes
   static const String splashRoute = '/';
