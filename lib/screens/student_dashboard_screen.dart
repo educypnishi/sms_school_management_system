@@ -9,6 +9,7 @@ import 'application_form_screen.dart';
 import 'conversations_screen.dart';
 import 'program_detail_screen.dart';
 import 'program_list_screen.dart';
+import 'university_comparison_screen.dart';
 
 class StudentDashboardScreen extends StatefulWidget {
   const StudentDashboardScreen({super.key});
@@ -234,6 +235,21 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                             arguments: {
                               'userId': 'user123', // Using a sample user ID for demo
                             },
+                          );
+                        },
+                      ),
+                      _buildActionCard(
+                        context,
+                        'University Comparison',
+                        Icons.compare,
+                        Colors.indigo,
+                        () {
+                          // Navigate to university comparison
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const UniversityComparisonScreen(),
+                            ),
                           );
                         },
                       ),
