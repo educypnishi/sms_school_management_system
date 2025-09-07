@@ -10,6 +10,7 @@ import 'conversations_screen.dart';
 import 'program_detail_screen.dart';
 import 'program_list_screen.dart';
 import 'university_comparison_screen.dart';
+import 'cost_calculator_screen.dart';
 
 class StudentDashboardScreen extends StatefulWidget {
   const StudentDashboardScreen({super.key});
@@ -249,6 +250,21 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => const UniversityComparisonScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildActionCard(
+                        context,
+                        'Cost Calculator',
+                        Icons.calculate,
+                        Colors.amber,
+                        () {
+                          // Navigate to cost calculator
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CostCalculatorScreen(),
                             ),
                           );
                         },
