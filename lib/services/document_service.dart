@@ -11,24 +11,28 @@ class DocumentService {
   // Required documents for application
   final List<Map<String, dynamic>> _requiredDocuments = [
     {
-      'type': DocumentType.transcript,
+      'type': 'transcript',
       'title': 'Academic Transcript',
       'description': 'Official academic transcript from your previous institution',
+      'required': true,
     },
     {
-      'type': DocumentType.idCard,
+      'type': 'passport',
       'title': 'ID Card/Passport',
       'description': 'Valid identification document',
+      'required': true,
     },
     {
-      'type': DocumentType.cv,
+      'type': 'cv',
       'title': 'Curriculum Vitae',
       'description': 'Your updated CV/resume',
+      'required': true,
     },
     {
-      'type': DocumentType.motivationLetter,
+      'type': 'motivation letter',
       'title': 'Motivation Letter',
       'description': 'Letter explaining your motivation for applying',
+      'required': false,
     },
   ];
 
@@ -57,10 +61,10 @@ class DocumentService {
   Future<DocumentModel> uploadDocument({
     required String userId,
     required String applicationId,
-    required String title,
-    required String description,
-    required DocumentType type,
+    required DocumentType documentType,
     required File file,
+    String? title,
+    String? description,
     bool isRequired = true,
   }) async {
     // Simulate network delay and file upload
@@ -75,9 +79,9 @@ class DocumentService {
       id: 'DOC${_documents.length + 1}',
       userId: userId,
       applicationId: applicationId,
-      title: title,
-      description: description,
-      type: type,
+      title: title ?? _getDefaultTitle(documentType),
+      description: description ?? _getDefaultDescription(documentType),
+      type: documentType,
       fileUrl: fileUrl,
       fileName: file.path.split('/').last,
       fileSize: await file.length(),
@@ -98,7 +102,7 @@ class DocumentService {
     required String documentId,
     required DocumentVerificationStatus status,
     String? verifiedBy,
-    String? rejectionReason,
+    String? reason,
   }) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 300));
@@ -112,7 +116,7 @@ class DocumentService {
       verificationStatus: status,
       verifiedBy: verifiedBy,
       verificationDate: DateTime.now(),
-      rejectionReason: rejectionReason,
+      rejectionReason: reason,
     );
     
     _documents[documentId] = updatedDocument;
@@ -257,6 +261,50 @@ class DocumentService {
         return 'image/png';
       default:
         return 'application/octet-stream';
+    }
+  }
+  
+  /// Get default title for document type
+  String _getDefaultTitle(DocumentType type) {
+    switch (type) {
+      case DocumentType.transcript:
+        return 'Academic Transcript';
+      case DocumentType.certificate:
+        return 'Certificate';
+      case DocumentType.idCard:
+        return 'ID Card';
+      case DocumentType.passport:
+        return 'Passport';
+      case DocumentType.cv:
+        return 'Curriculum Vitae';
+      case DocumentType.motivationLetter:
+        return 'Motivation Letter';
+      case DocumentType.recommendationLetter:
+        return 'Recommendation Letter';
+      case DocumentType.other:
+        return 'Other Document';
+    }
+  }
+  
+  /// Get default description for document type
+  String _getDefaultDescription(DocumentType type) {
+    switch (type) {
+      case DocumentType.transcript:
+        return 'Official academic transcript from your previous institution';
+      case DocumentType.certificate:
+        return 'Certificate of completion or achievement';
+      case DocumentType.idCard:
+        return 'Valid identification card';
+      case DocumentType.passport:
+        return 'Valid passport for identification';
+      case DocumentType.cv:
+        return 'Your updated CV/resume';
+      case DocumentType.motivationLetter:
+        return 'Letter explaining your motivation for applying';
+      case DocumentType.recommendationLetter:
+        return 'Letter of recommendation from a previous institution or employer';
+      case DocumentType.other:
+        return 'Additional supporting document';
     }
   }
 }

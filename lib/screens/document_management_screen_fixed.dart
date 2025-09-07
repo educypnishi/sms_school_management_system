@@ -1,10 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/document_model.dart';
+import '../models/document_verification_model.dart';
 import '../services/document_service.dart';
+import '../services/document_verification_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/document_card.dart';
 import '../widgets/document_upload_card.dart';
+import '../screens/student_document_status_screen.dart';
+import '../screens/admin_document_verification_screen.dart';
 
 class DocumentManagementScreen extends StatefulWidget {
   final String userId;
@@ -24,9 +28,11 @@ class DocumentManagementScreen extends StatefulWidget {
 
 class _DocumentManagementScreenState extends State<DocumentManagementScreen> with SingleTickerProviderStateMixin {
   final DocumentService _documentService = DocumentService();
+  final DocumentVerificationService _verificationService = DocumentVerificationService();
   bool _isLoading = true;
   List<DocumentModel> _documents = [];
   List<Map<String, dynamic>> _missingDocuments = [];
+  List<DocumentVerificationModel> _verificationDocuments = [];
   late TabController _tabController;
   
   @override
@@ -48,6 +54,9 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
     });
 
     try {
+      // Load verification documents
+      final verificationDocs = await _verificationService.getApplicationDocuments(widget.applicationId);
+      
       // For demo purposes, generate sample data if it doesn't exist
       await _documentService.generateSampleDocuments(widget.userId, widget.applicationId);
       
@@ -60,6 +69,7 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
       setState(() {
         _documents = documents;
         _missingDocuments = missingDocs;
+        _verificationDocuments = verificationDocs;
         _isLoading = false;
       });
     } catch (e) {
@@ -78,16 +88,7 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
     }
   }
   
-  Future<void> _uploadDocument(String documentTypeStr) async {
-    // Convert string to DocumentType enum with error handling
-    DocumentType documentType;
-    try {
-      documentType = _getDocumentTypeFromString(documentTypeStr);
-    } catch (e) {
-      // Default to 'other' if conversion fails
-      documentType = DocumentType.other;
-    }
-    
+  Future<void> _uploadDocument(String documentType) async {
     // In a real app, this would open a file picker
     // For demo purposes, we'll simulate uploading a document
     setState(() {
@@ -164,17 +165,13 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
     }
   }
   
-  Future<void> _updateDocumentStatus(String documentId, DocumentVerificationStatus status, String reason) async {
+  Future<void> _updateDocumentStatus(String documentId, String status, String reason) async {
     setState(() {
       _isLoading = true;
     });
     
     try {
-      await _documentService.updateDocumentStatus(
-        documentId: documentId,
-        status: status,
-        reason: reason,
-      );
+      await _documentService.updateDocumentStatus(documentId, status, reason);
       
       // Reload documents
       await _loadDocuments();
@@ -208,7 +205,7 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Viewing ${document.title}'),
+        title: Text('Viewing ${document.name}'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -258,6 +255,28 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
         ],
       ),
     );
+  }
+  
+  void _navigateToVerificationScreen(DocumentModel document) {
+    if (widget.isAdmin) {
+      // Navigate to admin verification screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AdminDocumentVerificationScreen(),
+        ),
+      ).then((_) => _loadDocuments());
+    } else {
+      // Navigate to student verification status screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StudentDocumentStatusScreen(
+            applicationId: widget.applicationId,
+          ),
+        ),
+      ).then((_) => _loadDocuments());
+    }
   }
 
   @override
@@ -335,13 +354,17 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
                 document: document,
                 onView: () => _viewDocument(document),
                 onDelete: widget.isAdmin ? null : () => _deleteDocument(document.id),
-                onUpdateStatus: widget.isAdmin 
-                  ? (status, reason) => _updateDocumentStatus(
-                      document.id, 
-                      status as DocumentVerificationStatus, 
-                      reason ?? ''
-                    ) 
-                  : null,
+                onUpdateStatus: widget.isAdmin ? (status, reason) => _updateDocumentStatus(document.id, status, reason) : null,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton.icon(
+                onPressed: () => _navigateToVerificationScreen(document),
+                icon: const Icon(Icons.verified),
+                label: Text(widget.isAdmin ? 'Verify Document' : 'Check Verification Status'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                ),
               ),
               const SizedBox(height: 16),
             ],
@@ -404,51 +427,14 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
   }
 
   Widget _buildMissingDocumentCard(Map<String, dynamic> document) {
-    final documentTypeStr = document['type'] as String;
-    // Use a safer approach to convert string to DocumentType
-    DocumentType docType;
-    try {
-      docType = _getDocumentTypeFromString(documentTypeStr);
-    } catch (e) {
-      // Default to 'other' if conversion fails
-      docType = DocumentType.other;
-    }
-    
     return DocumentUploadCard(
-      documentType: docType,
-      title: documentTypeStr,
-      description: document['description'] as String,
-      isRequired: document['required'] ?? true,
-      onUpload: (file, type, title, description) async {
-        // In a real app, this would upload the file
-        await Future.delayed(const Duration(seconds: 1));
-        _uploadDocument(documentTypeStr);
-      },
+      documentType: document['type'],
+      description: document['description'],
+      onUpload: () => _uploadDocument(document['type']),
     );
   }
   
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
-  }
-  
-  DocumentType _getDocumentTypeFromString(String typeStr) {
-    switch (typeStr.toLowerCase()) {
-      case 'transcript':
-        return DocumentType.transcript;
-      case 'certificate':
-        return DocumentType.certificate;
-      case 'id card':
-        return DocumentType.idCard;
-      case 'passport':
-        return DocumentType.passport;
-      case 'cv':
-        return DocumentType.cv;
-      case 'motivation letter':
-        return DocumentType.motivationLetter;
-      case 'recommendation letter':
-        return DocumentType.recommendationLetter;
-      default:
-        return DocumentType.other;
-    }
   }
 }
