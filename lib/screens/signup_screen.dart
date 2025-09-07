@@ -61,11 +61,11 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
           const Divider(height: 1),
           
-          // Partner Role
+          // Teacher Role
           _buildRoleOption(
-            title: 'Partner',
-            subtitle: 'Educational institution in Cyprus',
-            value: AppConstants.partnerRole,
+            title: 'Teacher',
+            subtitle: 'School teacher or instructor',
+            value: AppConstants.teacherRole,
             icon: Icons.business,
           ),
           const Divider(height: 1),
@@ -132,8 +132,8 @@ class _SignupScreenState extends State<SignupScreen> {
         // Navigate to appropriate dashboard based on role
         if (_selectedRole == AppConstants.adminRole) {
           Navigator.pushReplacementNamed(context, AppConstants.adminDashboardRoute);
-        } else if (_selectedRole == AppConstants.partnerRole) {
-          Navigator.pushReplacementNamed(context, AppConstants.partnerDashboardRoute);
+        } else if (_selectedRole == AppConstants.teacherRole) {
+          Navigator.pushReplacementNamed(context, AppConstants.teacherDashboardRoute);
         } else {
           Navigator.pushReplacementNamed(context, AppConstants.studentDashboardRoute);
         }

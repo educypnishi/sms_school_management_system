@@ -140,7 +140,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           ),
                           const SizedBox(height: 8),
                           const Text(
-                            'Start your journey to study in Cyprus',
+                            'Manage your school activities and courses',
                             style: TextStyle(color: AppTheme.lightTextColor),
                           ),
                         ],
@@ -166,7 +166,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     children: [
                       _buildActionCard(
                         context,
-                        'Apply Now',
+                        'Enroll in Course',
                         Icons.school,
                         AppTheme.primaryColor,
                         () {
@@ -181,7 +181,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       ),
                       _buildActionCard(
                         context,
-                        'Browse Programs',
+                        'Browse Courses',
                         Icons.search,
                         AppTheme.secondaryColor,
                         () {
@@ -260,7 +260,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       ),
                       _buildActionCard(
                         context,
-                        'University Comparison',
+                        'Class Comparison',
                         Icons.compare,
                         Colors.indigo,
                         () {
@@ -275,7 +275,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       ),
                       _buildActionCard(
                         context,
-                        'Cost Calculator',
+                        'Fee Calculator',
                         Icons.calculate,
                         Colors.amber,
                         () {
@@ -290,8 +290,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       ),
                       _buildActionCard(
                         context,
-                        'Visa Tracker',
-                        Icons.flight_takeoff,
+                        'Attendance Tracker',
+                        Icons.fact_check,
                         Colors.teal,
                         () {
                           // Navigate to visa application list
@@ -312,7 +312,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   
                   // Application Status
                   Text(
-                    'Application Status',
+                    'Enrollment Status',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
@@ -338,8 +338,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                                   const SizedBox(width: 8),
                                   Text(
                                     _applicationStatus == 'submitted'
-                                        ? 'Application Submitted'
-                                        : 'Application Draft',
+                                        ? 'Enrollment Submitted'
+                                        : 'Enrollment Draft',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -350,8 +350,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 _applicationStatus == 'submitted'
-                                    ? 'Your application has been submitted and is under review'
-                                    : 'Continue working on your application',
+                                    ? 'Your enrollment has been submitted and is under review'
+                                    : 'Continue working on your enrollment',
                                 style: const TextStyle(color: AppTheme.lightTextColor),
                               ),
                               const SizedBox(height: 16),
@@ -368,7 +368,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                                         ).then((_) => _loadUserData());
                                       },
                                       icon: Icon(_applicationStatus == 'submitted' ? Icons.visibility : Icons.edit),
-                                      label: Text(_applicationStatus == 'submitted' ? 'View Application' : 'Continue Editing'),
+                                      label: Text(_applicationStatus == 'submitted' ? 'View Enrollment' : 'Continue Editing'),
                                     ),
                                   ),
                                 ],
@@ -379,7 +379,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                                   onPressed: () {
                                     Navigator.pushNamed(
                                       context, 
-                                      AppConstants.applicationProgressRoute,
+                                      AppConstants.enrollmentProgressRoute,
                                       arguments: 'APP001', // Using a sample application ID for demo
                                     );
                                   },
@@ -402,7 +402,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'No applications yet',
+                                'No enrollments yet',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -410,7 +410,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                               ),
                               SizedBox(height: 8),
                               Text(
-                                'Start your application to study in Cyprus',
+                                'Start your enrollment in a course',
                                 style: TextStyle(color: AppTheme.lightTextColor),
                               ),
                             ],
@@ -422,7 +422,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   
                   // Featured Programs
                   Text(
-                    'Featured Programs',
+                    'Featured Courses',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
@@ -463,7 +463,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         );
                       },
                       icon: const Icon(Icons.view_list),
-                      label: const Text('View All Programs'),
+                      label: const Text('View All Courses'),
                     ),
                   ),
                   
@@ -474,7 +474,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Visa Applications',
+                        'Attendance Records',
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       TextButton(
@@ -621,7 +621,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'No visa applications yet',
+              'No attendance records yet',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -629,7 +629,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Start tracking your visa application process',
+              'Start tracking your class attendance',
               style: TextStyle(color: AppTheme.lightTextColor),
             ),
             const SizedBox(height: 16),
@@ -645,7 +645,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Create Visa Application'),
+              label: const Text('View Attendance Records'),
             ),
           ],
         ),

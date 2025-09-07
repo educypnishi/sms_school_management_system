@@ -44,8 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
         // Navigate to appropriate dashboard based on user role
         if (user.role == AppConstants.adminRole) {
           Navigator.pushReplacementNamed(context, AppConstants.adminDashboardRoute);
-        } else if (user.role == AppConstants.partnerRole) {
-          Navigator.pushReplacementNamed(context, AppConstants.partnerDashboardRoute);
+        } else if (user.role == AppConstants.teacherRole) {
+          Navigator.pushReplacementNamed(context, AppConstants.teacherDashboardRoute);
         } else {
           // Default to student dashboard
           Navigator.pushReplacementNamed(context, AppConstants.studentDashboardRoute);
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Education in Cyprus',
+                    'School Management System',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: AppTheme.lightTextColor,

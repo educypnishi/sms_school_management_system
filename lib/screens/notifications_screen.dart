@@ -206,7 +206,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
         if (notification.data != null && notification.data!['applicationId'] != null) {
           // Navigate to application details
           if (!mounted) return;
-          Navigator.pushNamed(context, AppConstants.applicationFormRoute);
+          Navigator.pushNamed(context, AppConstants.enrollmentFormRoute);
         }
         break;
       case NotificationService.typeProgram:

@@ -1,6 +1,6 @@
 class AppConstants {
   // App name
-  static const String appName = 'EduCyp';
+  static const String appName = 'SchoolMS';
   
   // Routes
   static const String splashRoute = '/';
@@ -8,23 +8,23 @@ class AppConstants {
   static const String signupRoute = '/signup';
   static const String homeRoute = '/home';
   static const String studentDashboardRoute = '/student/dashboard';
-  static const String partnerDashboardRoute = '/partner/dashboard';
+  static const String teacherDashboardRoute = '/teacher/dashboard';
   static const String adminDashboardRoute = '/admin/dashboard';
-  static const String applicationFormRoute = '/student/application';
-  static const String adminApplicationsRoute = '/admin/applications';
-  static const String partnerApplicationsRoute = '/partner/applications';
-  static const String programListRoute = '/programs';
-  static const String programDetailRoute = '/programs/detail';
+  static const String enrollmentFormRoute = '/student/enrollment';
+  static const String adminEnrollmentsRoute = '/admin/enrollments';
+  static const String teacherClassesRoute = '/teacher/classes';
+  static const String courseListRoute = '/courses';
+  static const String courseDetailRoute = '/courses/detail';
   static const String notificationsRoute = '/notifications';
   static const String conversationsRoute = '/conversations';
   static const String chatRoute = '/chat';
   static const String profileRoute = '/profile';
   static const String settingsRoute = '/settings';
-  static const String applicationProgressRoute = '/application/progress';
+  static const String enrollmentProgressRoute = '/enrollment/progress';
   static const String documentManagementRoute = '/documents';
   static const String calendarRoute = '/calendar';
-  static const String programComparisonRoute = '/programs/compare';
-  static const String savedComparisonsRoute = '/programs/comparisons';
+  static const String courseComparisonRoute = '/courses/compare';
+  static const String savedComparisonsRoute = '/courses/comparisons';
   static const String analyticsDashboardRoute = '/analytics';
   
   // Shared Preferences Keys
@@ -37,6 +37,6 @@ class AppConstants {
   
   // User Roles
   static const String studentRole = 'student';
-  static const String partnerRole = 'partner';
+  static const String teacherRole = 'teacher';
   static const String adminRole = 'admin';
 }

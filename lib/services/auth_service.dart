@@ -78,8 +78,8 @@ class AuthService {
       String role = AppConstants.studentRole;
       if (email.contains('admin')) {
         role = AppConstants.adminRole;
-      } else if (email.contains('partner')) {
-        role = AppConstants.partnerRole;
+      } else if (email.contains('teacher')) {
+        role = AppConstants.teacherRole;
       }
       
       // Create user model

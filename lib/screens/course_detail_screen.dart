@@ -5,30 +5,30 @@ import '../services/program_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 
-class ProgramDetailScreen extends StatefulWidget {
+class CourseDetailScreen extends StatefulWidget {
   final String programId;
   
-  const ProgramDetailScreen({
+  const CourseDetailScreen({
     super.key,
     required this.programId,
   });
 
   @override
-  State<ProgramDetailScreen> createState() => _ProgramDetailScreenState();
+  State<CourseDetailScreen> createState() => _CourseDetailScreenState();
 }
 
-class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
+class _CourseDetailScreenState extends State<CourseDetailScreen> {
   final ProgramService _programService = ProgramService();
-  ProgramModel? _program;
+  ProgramModel? _course;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadProgram();
+    _loadCourse();
   }
 
-  Future<void> _loadProgram() async {
+  Future<void> _loadCourse() async {
     setState(() {
       _isLoading = true;
     });
@@ -37,11 +37,11 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
       final program = await _programService.getProgramById(widget.programId);
       
       setState(() {
-        _program = program;
+        _course = program;
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading program: $e');
+      debugPrint('Error loading course: $e');
       setState(() {
         _isLoading = false;
       });
@@ -49,7 +49,7 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
       // Show error message
       ToastUtil.showToast(
       context: context,
-      message: 'Error loading program: $e',
+      message: 'Error loading course: $e',
     );
     }
   }
@@ -58,31 +58,31 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isLoading ? 'Program Details' : _program?.title ?? 'Program Details'),
+        title: Text(_isLoading ? 'Course Details' : _course?.title ?? 'Course Details'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _program == null
+          : _course == null
               ? const Center(
                   child: Text(
-                    'Program not found',
+                    'Course not found',
                     style: TextStyle(fontSize: 16),
                   ),
                 )
-              : _buildProgramDetails(),
+              : _buildCourseDetails(),
     );
   }
 
-  Widget _buildProgramDetails() {
+  Widget _buildCourseDetails() {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Program Image
+          // Course Image
           AspectRatio(
             aspectRatio: 16 / 9,
             child: Image.network(
-              _program!.imageUrl,
+              _course!.imageUrl,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
@@ -104,9 +104,9 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Program Title
+                // Course Title
                 Text(
-                  _program!.title,
+                  _course!.title,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -114,7 +114,7 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
                 ),
                 const SizedBox(height: 8),
                 
-                // University
+                // School/Department
                 Row(
                   children: [
                     const Icon(
@@ -124,7 +124,7 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _program!.university,
+                      _course!.university,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -134,14 +134,14 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Program Info Cards
+                // Course Info Cards
                 Row(
                   children: [
-                    _buildInfoCard('Degree', _program!.degreeType, Icons.badge),
+                    _buildInfoCard('Grade', _course!.degreeType, Icons.grade),
                     const SizedBox(width: 16),
-                    _buildInfoCard('Duration', _program!.duration, Icons.access_time),
+                    _buildInfoCard('Duration', _course!.duration, Icons.access_time),
                     const SizedBox(width: 16),
-                    _buildInfoCard('Tuition', _program!.tuitionFee, Icons.euro),
+                    _buildInfoCard('Fee', _course!.tuitionFee, Icons.attach_money),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -156,7 +156,7 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _program!.description,
+                  _course!.description,
                   style: const TextStyle(
                     fontSize: 16,
                     height: 1.5,
@@ -173,7 +173,7 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                ..._program!.requirements.map((requirement) {
+                ..._course!.requirements.map((requirement) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
@@ -199,12 +199,12 @@ class _ProgramDetailScreenState extends State<ProgramDetailScreen> {
                 }).toList(),
                 const SizedBox(height: 32),
                 
-                // Apply Button
+                // Enroll Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Navigate to application form
+                      // Navigate to enrollment form
                       Navigator.pushNamed(context, AppConstants.enrollmentFormRoute);
                     },
                     style: ElevatedButton.styleFrom(

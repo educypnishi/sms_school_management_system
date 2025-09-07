@@ -38,9 +38,9 @@ class _SplashScreenState extends State<SplashScreen> {
         if (user.role == AppConstants.adminRole) {
           debugPrint('SplashScreen: Navigating to admin dashboard');
           Navigator.pushReplacementNamed(context, AppConstants.adminDashboardRoute);
-        } else if (user.role == AppConstants.partnerRole) {
-          debugPrint('SplashScreen: Navigating to partner dashboard');
-          Navigator.pushReplacementNamed(context, AppConstants.partnerDashboardRoute);
+        } else if (user.role == AppConstants.teacherRole) {
+          debugPrint('SplashScreen: Navigating to teacher dashboard');
+          Navigator.pushReplacementNamed(context, AppConstants.teacherDashboardRoute);
         } else {
           debugPrint('SplashScreen: Navigating to student dashboard');
           Navigator.pushReplacementNamed(context, AppConstants.studentDashboardRoute);
@@ -72,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             // App Logo
             const Icon(
-              Icons.school,
+              Icons.school_outlined,
               size: 100,
               color: AppTheme.primaryColor,
             ),
@@ -90,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen> {
             
             // App Tagline
             Text(
-              'Education in Cyprus',
+              'School Management System',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: AppTheme.lightTextColor,
                   ),
@@ -116,12 +116,12 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 8),
             
-            // Partner Login Button
+            // Teacher Login Button
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, AppConstants.partnerDashboardRoute);
+                Navigator.pushReplacementNamed(context, AppConstants.teacherDashboardRoute);
               },
-              child: const Text('Login as Partner'),
+              child: const Text('Login as Teacher'),
             ),
             const SizedBox(height: 8),
             

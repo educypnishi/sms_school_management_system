@@ -3,55 +3,49 @@ import '../services/application_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import '../widgets/notification_badge.dart';
-import 'admin_applications_screen.dart';
+import 'partner_applications_screen.dart';
 
-class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({super.key});
+class TeacherDashboardScreen extends StatefulWidget {
+  const TeacherDashboardScreen({super.key});
 
   @override
-  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+  State<TeacherDashboardScreen> createState() => _TeacherDashboardScreenState();
 }
 
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
-  String _adminName = '';
+class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
+  String _teacherName = '';
   bool _isLoading = true;
-  int _applicationCount = 0;
-  int _pendingApplications = 0;
+  int _assignedClasses = 0;
   final ApplicationService _applicationService = ApplicationService();
 
   @override
   void initState() {
     super.initState();
-    _loadAdminData();
+    _loadTeacherData();
   }
 
-  Future<void> _loadAdminData() async {
+  Future<void> _loadTeacherData() async {
     setState(() {
       _isLoading = true;
     });
     
     try {
-      // In a real app, you would fetch admin data from Firestore
+      // In a real app, you would fetch teacher data from Firestore
       // For now, we'll just use a placeholder name
       await Future.delayed(const Duration(milliseconds: 500));
       
-      // Get application statistics
-      final applications = await _applicationService.getAllApplications();
-      final pendingApplications = applications.where(
-        (app) => app.status == ApplicationService.statusSubmitted || 
-                app.status == ApplicationService.statusInReview
-      ).toList();
+      // Get assigned applications count (will be classes in the future)
+      final applications = await _applicationService.getPartnerApplications();
       
       setState(() {
-        _adminName = 'Admin';
-        _applicationCount = applications.length;
-        _pendingApplications = pendingApplications.length;
+        _teacherName = 'Teacher';
+        _assignedClasses = applications.length;
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading admin data: $e');
+      debugPrint('Error loading teacher data: $e');
       setState(() {
-        _adminName = 'Admin';
+        _teacherName = 'Teacher';
         _isLoading = false;
       });
     }
@@ -66,7 +60,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: const Text('Teacher Dashboard'),
         actions: [
           const NotificationBadge(),
           IconButton(
@@ -94,12 +88,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Welcome, $_adminName!',
+                            'Welcome, $_teacherName!',
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 8),
                           const Text(
-                            'Manage all aspects of the School Management System',
+                            'Manage your classes and student enrollments',
                             style: TextStyle(color: AppTheme.lightTextColor),
                           ),
                         ],
@@ -125,68 +119,52 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     children: [
                       _buildActionCard(
                         context,
-                        'Manage Enrollments',
-                        Icons.assignment,
+                        'Manage Classes',
+                        Icons.class_,
                         AppTheme.primaryColor,
                         () {
-                          // Navigate to applications management
+                          // Navigate to classes management
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const AdminApplicationsScreen(),
+                              builder: (context) => const PartnerApplicationsScreen(),
                             ),
-                          ).then((_) => _loadAdminData()); // Refresh data when returning
+                          ).then((_) => _loadTeacherData()); // Refresh data when returning
                         },
                       ),
                       _buildActionCard(
                         context,
-                        'Manage Teachers',
-                        Icons.people,
+                        'Student Records',
+                        Icons.folder_shared,
                         AppTheme.secondaryColor,
                         () {
-                          // Navigate to partner management
+                          // Navigate to student records
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Teacher management will be available soon')),
+                            const SnackBar(content: Text('Student records will be available soon')),
                           );
                         },
                       ),
                       _buildActionCard(
                         context,
-                        'Manage Courses',
-                        Icons.school,
-                        AppTheme.accentColor,
+                        'Take Attendance',
+                        Icons.fact_check,
+                        Colors.green,
                         () {
-                          // Navigate to program management
+                          // Navigate to attendance taking
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Course management will be available soon')),
+                            const SnackBar(content: Text('Attendance feature will be available soon')),
                           );
                         },
                       ),
                       _buildActionCard(
                         context,
-                        'System Settings',
-                        Icons.settings,
-                        Colors.grey,
+                        'Grade Assignments',
+                        Icons.grading,
+                        Colors.orange,
                         () {
-                          // Navigate to settings
+                          // Navigate to grading
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('System settings will be available in future phases')),
-                          );
-                        },
-                      ),
-                      _buildActionCard(
-                        context,
-                        'Analytics Dashboard',
-                        Icons.analytics,
-                        Colors.purple,
-                        () {
-                          // Navigate to analytics dashboard
-                          Navigator.pushNamed(
-                            context,
-                            AppConstants.analyticsDashboardRoute,
-                            arguments: {
-                              'userRole': 'admin',
-                            },
+                            const SnackBar(content: Text('Grading feature will be available soon')),
                           );
                         },
                       ),
@@ -195,14 +173,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   
                   const SizedBox(height: 24),
                   
-                  // Application Statistics
+                  // Assigned Classes
                   Text(
-                    'Enrollment Statistics',
+                    'Assigned Classes',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
                   
-                  _applicationCount > 0
+                  _assignedClasses > 0
                     ? Card(
                         elevation: 2,
                         child: Padding(
@@ -211,27 +189,25 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  _buildStatCard(
-                                    'Total',
-                                    _applicationCount.toString(),
-                                    Icons.assignment,
-                                    AppTheme.primaryColor,
+                                  const Icon(
+                                    Icons.class_,
+                                    color: AppTheme.primaryColor,
                                   ),
-                                  _buildStatCard(
-                                    'Pending',
-                                    _pendingApplications.toString(),
-                                    Icons.pending_actions,
-                                    Colors.orange,
-                                  ),
-                                  _buildStatCard(
-                                    'Completed',
-                                    (_applicationCount - _pendingApplications).toString(),
-                                    Icons.check_circle,
-                                    Colors.green,
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '$_assignedClasses Classes Assigned',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ],
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Manage your classes and student enrollments',
+                                style: TextStyle(color: AppTheme.lightTextColor),
                               ),
                               const SizedBox(height: 16),
                               ElevatedButton.icon(
@@ -239,12 +215,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const AdminApplicationsScreen(),
+                                      builder: (context) => const PartnerApplicationsScreen(),
                                     ),
-                                  ).then((_) => _loadAdminData());
+                                  ).then((_) => _loadTeacherData());
                                 },
                                 icon: const Icon(Icons.visibility),
-                                label: const Text('View All Enrollments'),
+                                label: const Text('View Classes'),
                               ),
                             ],
                           ),
@@ -258,7 +234,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'No enrollments yet',
+                                'No classes assigned yet',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -266,7 +242,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                               ),
                               SizedBox(height: 8),
                               Text(
-                                'Enrollments will appear here when students register',
+                                'Classes will be assigned by admin',
                                 style: TextStyle(color: AppTheme.lightTextColor),
                               ),
                             ],
@@ -308,49 +284,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Expanded(
-      child: Card(
-        elevation: 1,
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 28,
-                color: color,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.lightTextColor,
                 ),
               ),
             ],

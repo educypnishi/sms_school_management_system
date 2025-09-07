@@ -6,28 +6,28 @@ import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import 'program_detail_screen.dart';
 
-class ProgramListScreen extends StatefulWidget {
-  const ProgramListScreen({super.key});
+class CourseListScreen extends StatefulWidget {
+  const CourseListScreen({super.key});
 
   @override
-  State<ProgramListScreen> createState() => _ProgramListScreenState();
+  State<CourseListScreen> createState() => _CourseListScreenState();
 }
 
-class _ProgramListScreenState extends State<ProgramListScreen> {
+class _CourseListScreenState extends State<CourseListScreen> {
   final ProgramService _programService = ProgramService();
-  List<ProgramModel> _programs = [];
+  List<ProgramModel> _courses = [];
   bool _isLoading = true;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   
-  // For program comparison
+  // For course comparison
   bool _comparisonMode = false;
-  final Set<String> _selectedProgramIds = <String>{};
+  final Set<String> _selectedCourseIds = <String>{};
 
   @override
   void initState() {
     super.initState();
-    _loadPrograms();
+    _loadCourses();
   }
   
   @override
@@ -36,7 +36,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
     super.dispose();
   }
 
-  Future<void> _loadPrograms() async {
+  Future<void> _loadCourses() async {
     setState(() {
       _isLoading = true;
     });
@@ -45,11 +45,11 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
       final programs = await _programService.getAllPrograms();
       
       setState(() {
-        _programs = programs;
+        _courses = programs;
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading programs: $e');
+      debugPrint('Error loading courses: $e');
       setState(() {
         _isLoading = false;
       });
@@ -57,21 +57,21 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
       // Show error message
       ToastUtil.showToast(
       context: context,
-      message: 'Error loading programs: $e',
+      message: 'Error loading courses: $e',
     );
     }
   }
   
-  List<ProgramModel> get _filteredPrograms {
+  List<ProgramModel> get _filteredCourses {
     if (_searchQuery.isEmpty) {
-      return _programs;
+      return _courses;
     }
     
     final query = _searchQuery.toLowerCase();
-    return _programs.where((program) {
-      return program.title.toLowerCase().contains(query) ||
-          program.university.toLowerCase().contains(query) ||
-          program.degreeType.toLowerCase().contains(query);
+    return _courses.where((course) {
+      return course.title.toLowerCase().contains(query) ||
+          course.university.toLowerCase().contains(query) ||
+          course.degreeType.toLowerCase().contains(query);
     }).toList();
   }
 
@@ -82,7 +82,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
         title: const Text('School Courses'),
         actions: [
           // Compare button
-          if (!_comparisonMode && _programs.length >= 2)
+          if (!_comparisonMode && _courses.length >= 2)
             IconButton(
               icon: const Icon(Icons.compare_arrows),
               onPressed: () {
@@ -90,7 +90,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
                   _comparisonMode = true;
                 });
               },
-              tooltip: 'Compare Programs',
+              tooltip: 'Compare Courses',
             ),
           // View saved comparisons
           if (!_comparisonMode)
@@ -109,7 +109,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _loadPrograms,
+            onPressed: _loadCourses,
             tooltip: 'Refresh',
           ),
         ],
@@ -127,14 +127,14 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
                   const SizedBox(width: 8),
                   const Expanded(
                     child: Text(
-                      'Select programs to compare (max 3)',
+                      'Select courses to compare (max 3)',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   Text(
-                    '${_selectedProgramIds.length}/3 selected',
+                    '${_selectedCourseIds.length}/3 selected',
                     style: TextStyle(
-                      color: _selectedProgramIds.length == 3 ? Colors.red : AppTheme.primaryColor,
+                      color: _selectedCourseIds.length == 3 ? Colors.red : AppTheme.primaryColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -143,14 +143,14 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
                     onPressed: () {
                       setState(() {
                         _comparisonMode = false;
-                        _selectedProgramIds.clear();
+                        _selectedCourseIds.clear();
                       });
                     },
                     child: const Text('Cancel'),
                   ),
                   ElevatedButton(
-                    onPressed: _selectedProgramIds.length >= 2
-                        ? () => _compareSelectedPrograms()
+                    onPressed: _selectedCourseIds.length >= 2
+                        ? () => _compareSelectedCourses()
                         : null,
                     child: const Text('Compare'),
                   ),
@@ -164,7 +164,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search programs...',
+                hintText: 'Search courses...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -189,22 +189,22 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
             ),
           ),
           
-          // Programs List
+          // Courses List
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _filteredPrograms.isEmpty
+                : _filteredCourses.isEmpty
                     ? const Center(
                         child: Text(
-                          'No programs found',
+                          'No courses found',
                           style: TextStyle(fontSize: 16),
                         ),
                       )
                     : ListView.builder(
-                        itemCount: _filteredPrograms.length,
+                        itemCount: _filteredCourses.length,
                         itemBuilder: (context, index) {
-                          final program = _filteredPrograms[index];
-                          return _buildProgramCard(program);
+                          final course = _filteredCourses[index];
+                          return _buildCourseCard(course);
                         },
                       ),
           ),
@@ -213,19 +213,19 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
     );
   }
 
-  void _toggleProgramSelection(String programId) {
+  void _toggleCourseSelection(String courseId) {
     setState(() {
-      if (_selectedProgramIds.contains(programId)) {
-        _selectedProgramIds.remove(programId);
+      if (_selectedCourseIds.contains(courseId)) {
+        _selectedCourseIds.remove(courseId);
       } else {
-        // Check if we've already selected the maximum number of programs
-        if (_selectedProgramIds.length < 3) {
-          _selectedProgramIds.add(programId);
+        // Check if we've already selected the maximum number of courses
+        if (_selectedCourseIds.length < 3) {
+          _selectedCourseIds.add(courseId);
         } else {
-          // Show a message that max programs are selected
+          // Show a message that max courses are selected
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('You can compare up to 3 programs at once'),
+              content: Text('You can compare up to 3 courses at once'),
               backgroundColor: Colors.orange,
             ),
           );
@@ -234,11 +234,11 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
     });
   }
   
-  void _compareSelectedPrograms() {
-    if (_selectedProgramIds.length < 2) {
+  void _compareSelectedCourses() {
+    if (_selectedCourseIds.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Select at least 2 programs to compare'),
+          content: Text('Select at least 2 courses to compare'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -251,19 +251,19 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
       AppConstants.courseComparisonRoute,
       arguments: {
         'userId': 'user123', // Using a sample user ID for demo
-        'programIds': _selectedProgramIds.toList(),
+        'programIds': _selectedCourseIds.toList(),
       },
     ).then((_) {
       // Reset selection mode when returning from comparison
       setState(() {
         _comparisonMode = false;
-        _selectedProgramIds.clear();
+        _selectedCourseIds.clear();
       });
     });
   }
   
-  Widget _buildProgramCard(ProgramModel program) {
-    final bool isSelected = _selectedProgramIds.contains(program.id);
+  Widget _buildCourseCard(ProgramModel course) {
+    final bool isSelected = _selectedCourseIds.contains(course.id);
     
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -277,12 +277,12 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
       child: InkWell(
         onTap: () {
           if (_comparisonMode) {
-            _toggleProgramSelection(program.id);
+            _toggleCourseSelection(course.id);
           } else {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProgramDetailScreen(programId: program.id),
+                builder: (context) => ProgramDetailScreen(programId: course.id),
               ),
             );
           }
@@ -290,11 +290,11 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Program Image
+            // Course Image
             AspectRatio(
               aspectRatio: 16 / 9,
               child: Image.network(
-                program.imageUrl,
+                course.imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -316,9 +316,9 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Program Title
+                  // Course Title
                   Text(
-                    program.title,
+                    course.title,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -326,7 +326,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
                   ),
                   const SizedBox(height: 8),
                   
-                  // University
+                  // School/Department
                   Row(
                     children: [
                       const Icon(
@@ -336,7 +336,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        program.university,
+                        course.university,
                         style: const TextStyle(
                           color: AppTheme.lightTextColor,
                         ),
@@ -345,7 +345,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
                   ),
                   const SizedBox(height: 4),
                   
-                  // Degree Type & Duration
+                  // Grade Level & Duration
                   Row(
                     children: [
                       const Icon(
@@ -355,7 +355,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${program.degreeType} • ${program.duration}',
+                        '${course.degreeType} • ${course.duration}',
                         style: const TextStyle(
                           color: AppTheme.lightTextColor,
                         ),
@@ -373,7 +373,7 @@ class _ProgramListScreenState extends State<ProgramListScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ProgramDetailScreen(programId: program.id),
+                              builder: (context) => ProgramDetailScreen(programId: course.id),
                             ),
                           );
                         },

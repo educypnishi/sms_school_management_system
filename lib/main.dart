@@ -6,22 +6,22 @@ import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/student_dashboard_screen.dart';
-import 'screens/partner_dashboard_screen.dart';
+import 'screens/teacher_dashboard_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
-import 'screens/admin_applications_screen.dart';
-import 'screens/partner_applications_screen.dart';
-import 'screens/application_form_screen.dart';
-import 'screens/program_list_screen.dart';
-import 'screens/program_detail_screen.dart';
+import 'screens/admin_applications_screen.dart' as original_admin_applications;
+import 'screens/partner_applications_screen.dart' as original_partner_applications;
+import 'screens/enrollment_form_screen.dart';
+import 'screens/course_list_screen.dart';
+import 'screens/course_detail_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/conversations_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
-import 'screens/application_progress_screen.dart';
+import 'screens/application_progress_screen.dart' as original_application_progress;
 import 'screens/document_management_screen.dart';
 import 'screens/calendar_screen.dart';
-import 'screens/program_comparison_screen.dart';
+import 'screens/program_comparison_screen.dart' as original_program_comparison;
 import 'screens/saved_comparisons_screen.dart';
 import 'screens/analytics_dashboard_screen.dart';
 import 'theme/app_theme.dart';
@@ -75,13 +75,13 @@ class _MyAppState extends State<MyApp> {
         AppConstants.loginRoute: (context) => const LoginScreen(),
         AppConstants.signupRoute: (context) => const SignupScreen(),
         AppConstants.studentDashboardRoute: (context) => const StudentDashboardScreen(),
-        AppConstants.partnerDashboardRoute: (context) => const PartnerDashboardScreen(),
+        AppConstants.teacherDashboardRoute: (context) => const TeacherDashboardScreen(),
         AppConstants.adminDashboardRoute: (context) => const AdminDashboardScreen(),
-        AppConstants.applicationFormRoute: (context) => const ApplicationFormScreen(),
-        AppConstants.adminApplicationsRoute: (context) => const AdminApplicationsScreen(),
-        AppConstants.partnerApplicationsRoute: (context) => const PartnerApplicationsScreen(),
-        AppConstants.programListRoute: (context) => const ProgramListScreen(),
-        AppConstants.programDetailRoute: (context) => ProgramDetailScreen(
+        AppConstants.enrollmentFormRoute: (context) => const EnrollmentFormScreen(),
+        AppConstants.adminEnrollmentsRoute: (context) => const original_admin_applications.AdminApplicationsScreen(),
+        AppConstants.teacherClassesRoute: (context) => const original_partner_applications.PartnerApplicationsScreen(),
+        AppConstants.courseListRoute: (context) => const CourseListScreen(),
+        AppConstants.courseDetailRoute: (context) => CourseDetailScreen(
           programId: ModalRoute.of(context)!.settings.arguments as String,
         ),
         AppConstants.notificationsRoute: (context) => const NotificationsScreen(),
@@ -92,7 +92,7 @@ class _MyAppState extends State<MyApp> {
         ),
         AppConstants.profileRoute: (context) => const ProfileScreen(),
         AppConstants.settingsRoute: (context) => const SettingsScreen(),
-        AppConstants.applicationProgressRoute: (context) => ApplicationProgressScreen(
+        AppConstants.enrollmentProgressRoute: (context) => original_application_progress.ApplicationProgressScreen(
           applicationId: ModalRoute.of(context)!.settings.arguments as String,
         ),
         AppConstants.documentManagementRoute: (context) => DocumentManagementScreen(
@@ -103,7 +103,7 @@ class _MyAppState extends State<MyApp> {
         AppConstants.calendarRoute: (context) => CalendarScreen(
           userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
         ),
-        AppConstants.programComparisonRoute: (context) => ProgramComparisonScreen(
+        AppConstants.courseComparisonRoute: (context) => original_program_comparison.ProgramComparisonScreen(
           userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
           initialProgramIds: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['programIds'] as List<String>?,
         ),
