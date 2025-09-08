@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/program_model.dart';
-import '../models/visa_application_model.dart';
-import '../services/application_service.dart';
+import '../models/enrollment_model.dart';
+import '../services/enrollment_service.dart';
 import '../services/program_service.dart';
-import '../services/visa_application_service.dart';
+import '../services/attendance_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import '../widgets/notification_badge.dart';
@@ -13,8 +13,8 @@ import 'program_detail_screen.dart';
 import 'program_list_screen.dart';
 import 'university_comparison_screen.dart';
 import 'cost_calculator_screen.dart';
-import 'visa_application_list_screen.dart';
-import 'visa_application_detail_screen.dart';
+import 'attendance_record_list_screen.dart';
+import 'attendance_record_detail_screen.dart';
 
 class StudentDashboardScreen extends StatefulWidget {
   const StudentDashboardScreen({super.key});
@@ -28,18 +28,18 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   bool _isLoading = true;
   bool _hasApplication = false;
   String? _applicationStatus;
-  final _applicationService = ApplicationService();
+  final _enrollmentService = EnrollmentService();
   final _programService = ProgramService();
-  final _visaApplicationService = VisaApplicationService();
+  final _attendanceService = AttendanceService();
   List<ProgramModel> _featuredPrograms = [];
-  List<VisaApplicationModel> _visaApplications = [];
+  List<EnrollmentModel> _enrollments = [];
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
     _loadFeaturedPrograms();
-    _loadVisaApplications();
+    _loadEnrollments();
   }
   
   Future<void> _loadFeaturedPrograms() async {
@@ -55,15 +55,16 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     }
   }
   
-  Future<void> _loadVisaApplications() async {
+  Future<void> _loadEnrollments() async {
     try {
-      final visaApplications = await _visaApplicationService.getVisaApplicationsForUser('user123');
+      // Get user enrollments
+      final enrollments = await _enrollmentService.getUserEnrollments();
       
       setState(() {
-        _visaApplications = visaApplications;
+        _enrollments = enrollments;
       });
     } catch (e) {
-      debugPrint('Error loading visa applications: $e');
+      debugPrint('Error loading enrollment records: $e');
     }
   }
 
@@ -77,12 +78,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       // For now, we'll just use a placeholder name
       await Future.delayed(const Duration(milliseconds: 500));
       
-      // Check if user has an application
-      final applications = await _applicationService.getUserApplications();
-      _hasApplication = applications.isNotEmpty;
+      // Check if user has an enrollment
+      final enrollments = await _enrollmentService.getUserEnrollments();
+      _hasApplication = enrollments.isNotEmpty;
       
       if (_hasApplication) {
-        _applicationStatus = applications.last.status;
+        _applicationStatus = enrollments.last.status;
       }
       
       setState(() {
@@ -163,6 +164,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
+                    childAspectRatio: 1.2, // Adjust this value to prevent overflow
                     children: [
                       _buildActionCard(
                         context,
@@ -294,11 +296,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         Icons.fact_check,
                         Colors.teal,
                         () {
-                          // Navigate to visa application list
+                          // Navigate to attendance record list
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => VisaApplicationListScreen(
+                              builder: (context) => AttendanceRecordListScreen(
                                 userId: 'user123', // Using a sample user ID for demo
                               ),
                             ),
@@ -469,12 +471,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   
                   const SizedBox(height: 24),
                   
-                  // Visa Applications
+                  // Enrollments
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Attendance Records',
+                        'My Enrollments',
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       TextButton(
@@ -482,9 +484,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => VisaApplicationListScreen(
-                                userId: 'user123', // Using a sample user ID for demo
-                              ),
+                              builder: (context) => const ApplicationFormScreen(),
                             ),
                           );
                         },
@@ -494,13 +494,13 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Visa applications list
-                  _visaApplications.isEmpty
-                      ? _buildEmptyVisaApplicationsCard()
+                  // Enrollments list
+                  _enrollments.isEmpty
+                      ? _buildEmptyEnrollmentsCard()
                       : Column(
-                          children: _visaApplications
-                              .take(2) // Show only the first 2 applications
-                              .map((application) => _buildVisaApplicationCard(application))
+                          children: _enrollments
+                              .take(2) // Show only the first 2 enrollments
+                              .map((record) => _buildEnrollmentCard(record))
                               .toList(),
                         ),
                 ],
@@ -522,7 +522,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       child: Card(
         elevation: 2,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -531,7 +531,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 size: 40,
                 color: color,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Text(
                 title,
                 textAlign: TextAlign.center,
@@ -612,7 +612,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     );
   }
   
-  Widget _buildEmptyVisaApplicationsCard() {
+  Widget _buildEmptyEnrollmentsCard() {
     return Card(
       elevation: 2,
       child: Padding(
@@ -621,7 +621,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'No attendance records yet',
+              'No enrollments yet',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -629,7 +629,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Start tracking your class attendance',
+              'Start your enrollment in a course',
               style: TextStyle(color: AppTheme.lightTextColor),
             ),
             const SizedBox(height: 16),
@@ -638,14 +638,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => VisaApplicationListScreen(
-                      userId: 'user123', // Using a sample user ID for demo
-                    ),
+                    builder: (context) => const ApplicationFormScreen(),
                   ),
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('View Attendance Records'),
+              label: const Text('Start Enrollment'),
             ),
           ],
         ),
@@ -653,7 +651,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     );
   }
   
-  Widget _buildVisaApplicationCard(VisaApplicationModel application) {
+  Widget _buildEnrollmentCard(EnrollmentModel record) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
@@ -661,11 +659,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => VisaApplicationDetailScreen(
-                visaApplicationId: application.id,
-              ),
+              builder: (context) => const ApplicationFormScreen(),
             ),
-          ).then((_) => _loadVisaApplications());
+          ).then((_) => _loadEnrollments());
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -674,7 +670,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: application.status.color.withOpacity(0.1),
+                color: record.status == 'accepted' ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(4),
                   topRight: Radius.circular(4),
@@ -683,8 +679,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               child: Row(
                 children: [
                   Icon(
-                    application.status.icon,
-                    color: application.status.color,
+                    record.status == 'accepted' ? Icons.check_circle : Icons.pending,
+                    color: record.status == 'accepted' ? Colors.green : Colors.orange,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -692,7 +688,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          application.visaType.displayName,
+                          'Class Attendance',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -700,9 +696,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          application.status.displayName,
+                          record.status.toUpperCase(),
                           style: TextStyle(
-                            color: application.status.color,
+                            color: record.status == 'accepted' ? Colors.green : Colors.orange,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -719,14 +715,14 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Country and Embassy
+                  // Course and Room
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                      const Icon(Icons.school, size: 16, color: Colors.grey),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          '${application.country} - ${application.embassy}',
+                          '${record.desiredClass ?? 'Unknown Class'} - Grade ${record.desiredGrade ?? 'Unknown'}',
                           style: const TextStyle(color: Colors.grey),
                         ),
                       ),
@@ -734,52 +730,50 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   ),
                   const SizedBox(height: 8),
                   
-                  // Progress
+                  // Date and Time
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Progress'),
-                          Text('${application.completionPercentage.toStringAsFixed(0)}%'),
+                          const Text('Submitted'),
+                          Text(record.submittedAt != null ? '${record.submittedAt!.day}/${record.submittedAt!.month}/${record.submittedAt!.year}' : 'Not submitted'),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      LinearProgressIndicator(
-                        value: application.completionPercentage / 100,
-                        backgroundColor: Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          application.status.color,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Academic Year'),
+                          Text(record.academicYear ?? 'Not specified'),
+                        ],
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   
-                  // Next Milestone
-                  if (application.nextMilestone != null) ...[                    
-                    Row(
-                      children: [
-                        const Icon(Icons.flag, size: 16, color: Colors.blue),
-                        const SizedBox(width: 4),
-                        const Text(
-                          'Next Step:',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  // Teacher
+                  Row(
+                    children: [
+                      const Icon(Icons.person, size: 16, color: Colors.blue),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Teacher:',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            application.nextMilestone!.title,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          record.assignedTeacherId != null ? 'Assigned Teacher' : 'Not assigned yet',
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

@@ -8,13 +8,13 @@ import '../widgets/document_upload_card.dart';
 
 class DocumentManagementScreen extends StatefulWidget {
   final String userId;
-  final String applicationId;
+  final String enrollmentId;
   final bool isAdmin;
 
   const DocumentManagementScreen({
     super.key,
     required this.userId,
-    required this.applicationId,
+    required this.enrollmentId,
     this.isAdmin = false,
   });
 
@@ -49,13 +49,13 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
 
     try {
       // For demo purposes, generate sample data if it doesn't exist
-      await _documentService.generateSampleDocuments(widget.userId, widget.applicationId);
+      await _documentService.generateSampleDocuments(widget.userId, widget.enrollmentId);
       
-      // Get documents for this application
-      final documents = await _documentService.getApplicationDocuments(widget.applicationId);
+      // Get documents for this enrollment
+      final documents = await _documentService.getApplicationDocuments(widget.enrollmentId);
       
       // Get missing required documents
-      final missingDocs = await _documentService.getMissingRequiredDocuments(widget.applicationId);
+      final missingDocs = await _documentService.getMissingRequiredDocuments(widget.enrollmentId);
       
       setState(() {
         _documents = documents;
@@ -97,7 +97,7 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
     try {
       await _documentService.uploadDocument(
         userId: widget.userId,
-        applicationId: widget.applicationId,
+        applicationId: widget.enrollmentId,
         documentType: documentType,
         file: File(''), // This would be the actual file in a real app
       );
@@ -338,7 +338,7 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
                 onUpdateStatus: widget.isAdmin 
                   ? (status, reason) => _updateDocumentStatus(
                       document.id, 
-                      status as DocumentVerificationStatus, 
+                      status, 
                       reason ?? ''
                     ) 
                   : null,
@@ -366,7 +366,7 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
         ),
         const SizedBox(height: 8),
         const Text(
-          'Please upload the following required documents for your application',
+          'Please upload the following required documents for your enrollment',
           style: TextStyle(
             color: AppTheme.lightTextColor,
           ),
@@ -388,7 +388,7 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
         ),
         const SizedBox(height: 8),
         const Text(
-          'These documents are optional but may help with your application',
+          'These documents are optional but may help with your enrollment',
           style: TextStyle(
             color: AppTheme.lightTextColor,
           ),
@@ -433,20 +433,22 @@ class _DocumentManagementScreenState extends State<DocumentManagementScreen> wit
   
   DocumentType _getDocumentTypeFromString(String typeStr) {
     switch (typeStr.toLowerCase()) {
-      case 'transcript':
-        return DocumentType.transcript;
+      case 'report card':
+        return DocumentType.reportCard;
       case 'certificate':
         return DocumentType.certificate;
       case 'id card':
         return DocumentType.idCard;
-      case 'passport':
-        return DocumentType.passport;
-      case 'cv':
-        return DocumentType.cv;
-      case 'motivation letter':
-        return DocumentType.motivationLetter;
-      case 'recommendation letter':
-        return DocumentType.recommendationLetter;
+      case 'birth certificate':
+        return DocumentType.birthCertificate;
+      case 'medical record':
+        return DocumentType.medicalRecord;
+      case 'parent consent':
+        return DocumentType.parentConsent;
+      case 'previous school record':
+        return DocumentType.previousSchoolRecord;
+      case 'immunization record':
+        return DocumentType.immunizationRecord;
       default:
         return DocumentType.other;
     }

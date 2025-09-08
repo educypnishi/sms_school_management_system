@@ -14,6 +14,10 @@ class AttendanceModel {
   final String markedByName;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime startTime;
+  final DateTime endTime;
+  final String roomNumber;
+  final String teacherName;
 
   AttendanceModel({
     required this.id,
@@ -31,6 +35,10 @@ class AttendanceModel {
     required this.markedByName,
     required this.createdAt,
     this.updatedAt,
+    required this.startTime,
+    required this.endTime,
+    required this.roomNumber,
+    required this.teacherName,
   });
 
   // Create an AttendanceModel from a map (e.g., from Firestore)
@@ -57,6 +65,14 @@ class AttendanceModel {
       updatedAt: map['updatedAt'] != null 
           ? DateTime.parse(map['updatedAt']) 
           : null,
+      startTime: map['startTime'] != null 
+          ? DateTime.parse(map['startTime']) 
+          : DateTime.now(),
+      endTime: map['endTime'] != null 
+          ? DateTime.parse(map['endTime']) 
+          : DateTime.now().add(const Duration(hours: 1)),
+      roomNumber: map['roomNumber'] ?? '',
+      teacherName: map['teacherName'] ?? '',
     );
   }
 
@@ -77,6 +93,10 @@ class AttendanceModel {
       'markedByName': markedByName,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'startTime': startTime.toIso8601String(),
+      'endTime': endTime.toIso8601String(),
+      'roomNumber': roomNumber,
+      'teacherName': teacherName,
     };
   }
 
@@ -97,6 +117,10 @@ class AttendanceModel {
     String? markedByName,
     DateTime? createdAt,
     DateTime? updatedAt,
+    DateTime? startTime,
+    DateTime? endTime,
+    String? roomNumber,
+    String? teacherName,
   }) {
     return AttendanceModel(
       id: id ?? this.id,
@@ -114,6 +138,10 @@ class AttendanceModel {
       markedByName: markedByName ?? this.markedByName,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      roomNumber: roomNumber ?? this.roomNumber,
+      teacherName: teacherName ?? this.teacherName,
     );
   }
 }

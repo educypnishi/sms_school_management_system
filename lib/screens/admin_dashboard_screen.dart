@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/application_service.dart';
+import '../services/enrollment_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import '../widgets/notification_badge.dart';
@@ -15,9 +15,9 @@ class AdminDashboardScreen extends StatefulWidget {
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   String _adminName = '';
   bool _isLoading = true;
-  int _applicationCount = 0;
-  int _pendingApplications = 0;
-  final ApplicationService _applicationService = ApplicationService();
+  int _enrollmentCount = 0;
+  int _pendingEnrollments = 0;
+  final EnrollmentService _enrollmentService = EnrollmentService();
 
   @override
   void initState() {
@@ -35,17 +35,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       // For now, we'll just use a placeholder name
       await Future.delayed(const Duration(milliseconds: 500));
       
-      // Get application statistics
-      final applications = await _applicationService.getAllApplications();
-      final pendingApplications = applications.where(
-        (app) => app.status == ApplicationService.statusSubmitted || 
-                app.status == ApplicationService.statusInReview
+      // Get enrollment statistics
+      final enrollments = await _enrollmentService.getAllEnrollments();
+      final pendingEnrollments = enrollments.where(
+        (enrollment) => enrollment.status == EnrollmentService.statusSubmitted || 
+                enrollment.status == EnrollmentService.statusInReview
       ).toList();
       
       setState(() {
         _adminName = 'Admin';
-        _applicationCount = applications.length;
-        _pendingApplications = pendingApplications.length;
+        _enrollmentCount = enrollments.length;
+        _pendingEnrollments = pendingEnrollments.length;
         _isLoading = false;
       });
     } catch (e) {
@@ -202,7 +202,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  _applicationCount > 0
+                  _enrollmentCount > 0
                     ? Card(
                         elevation: 2,
                         child: Padding(
@@ -215,19 +215,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                 children: [
                                   _buildStatCard(
                                     'Total',
-                                    _applicationCount.toString(),
+                                    _enrollmentCount.toString(),
                                     Icons.assignment,
                                     AppTheme.primaryColor,
                                   ),
                                   _buildStatCard(
                                     'Pending',
-                                    _pendingApplications.toString(),
+                                    _pendingEnrollments.toString(),
                                     Icons.pending_actions,
                                     Colors.orange,
                                   ),
                                   _buildStatCard(
                                     'Completed',
-                                    (_applicationCount - _pendingApplications).toString(),
+                                    (_enrollmentCount - _pendingEnrollments).toString(),
                                     Icons.check_circle,
                                     Colors.green,
                                   ),

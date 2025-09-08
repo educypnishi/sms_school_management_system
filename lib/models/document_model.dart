@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
-/// Represents the type of document
+/// Represents the type of document for school management system
 enum DocumentType {
-  transcript,
+  reportCard,
   certificate,
   idCard,
-  passport,
-  cv,
-  motivationLetter,
-  recommendationLetter,
+  birthCertificate,
+  medicalRecord,
+  parentConsent,
+  previousSchoolRecord,
+  immunizationRecord,
   other
 }
 
@@ -112,20 +113,22 @@ class DocumentModel {
   /// Get the icon for this document type
   IconData get typeIcon {
     switch (type) {
-      case DocumentType.transcript:
-        return Icons.school;
+      case DocumentType.reportCard:
+        return Icons.grade;
       case DocumentType.certificate:
         return Icons.card_membership;
       case DocumentType.idCard:
         return Icons.badge;
-      case DocumentType.passport:
-        return Icons.book;
-      case DocumentType.cv:
-        return Icons.description;
-      case DocumentType.motivationLetter:
-        return Icons.edit_note;
-      case DocumentType.recommendationLetter:
-        return Icons.recommend;
+      case DocumentType.birthCertificate:
+        return Icons.child_care;
+      case DocumentType.medicalRecord:
+        return Icons.medical_services;
+      case DocumentType.parentConsent:
+        return Icons.family_restroom;
+      case DocumentType.previousSchoolRecord:
+        return Icons.school;
+      case DocumentType.immunizationRecord:
+        return Icons.health_and_safety;
       case DocumentType.other:
         return Icons.insert_drive_file;
     }
@@ -158,20 +161,22 @@ class DocumentModel {
   /// Get a human-readable document type
   String get typeText {
     switch (type) {
-      case DocumentType.transcript:
-        return 'Academic Transcript';
+      case DocumentType.reportCard:
+        return 'Report Card';
       case DocumentType.certificate:
         return 'Certificate';
       case DocumentType.idCard:
         return 'ID Card';
-      case DocumentType.passport:
-        return 'Passport';
-      case DocumentType.cv:
-        return 'Curriculum Vitae';
-      case DocumentType.motivationLetter:
-        return 'Motivation Letter';
-      case DocumentType.recommendationLetter:
-        return 'Recommendation Letter';
+      case DocumentType.birthCertificate:
+        return 'Birth Certificate';
+      case DocumentType.medicalRecord:
+        return 'Medical Record';
+      case DocumentType.parentConsent:
+        return 'Parent Consent Form';
+      case DocumentType.previousSchoolRecord:
+        return 'Previous School Record';
+      case DocumentType.immunizationRecord:
+        return 'Immunization Record';
       case DocumentType.other:
         return 'Other Document';
     }

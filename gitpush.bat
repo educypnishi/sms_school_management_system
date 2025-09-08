@@ -5,10 +5,10 @@ echo Adding all changes...
 git add .
 
 echo Creating commit...
-git commit -m "Add University Comparison Tool feature"
+git commit -m "Convert visa consultancy app to school management system"
 
 echo Pushing to repository...
-git push
+git push -u origin main
 
 echo Done!
 pause

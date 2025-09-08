@@ -245,20 +245,22 @@ class _DocumentUploadCardState extends State<DocumentUploadCard> {
 
   IconData _getIconForDocumentType(DocumentType type) {
     switch (type) {
-      case DocumentType.transcript:
-        return Icons.school;
+      case DocumentType.reportCard:
+        return Icons.grade;
       case DocumentType.certificate:
         return Icons.card_membership;
       case DocumentType.idCard:
         return Icons.badge;
-      case DocumentType.passport:
-        return Icons.book;
-      case DocumentType.cv:
-        return Icons.description;
-      case DocumentType.motivationLetter:
-        return Icons.edit_note;
-      case DocumentType.recommendationLetter:
-        return Icons.recommend;
+      case DocumentType.birthCertificate:
+        return Icons.child_care;
+      case DocumentType.medicalRecord:
+        return Icons.medical_services;
+      case DocumentType.parentConsent:
+        return Icons.family_restroom;
+      case DocumentType.previousSchoolRecord:
+        return Icons.school;
+      case DocumentType.immunizationRecord:
+        return Icons.health_and_safety;
       case DocumentType.other:
         return Icons.insert_drive_file;
     }

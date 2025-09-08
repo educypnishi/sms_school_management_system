@@ -8,30 +8,48 @@ class DocumentService {
   // For now, we'll use an in-memory map for demo purposes
   final Map<String, DocumentModel> _documents = {};
   
-  // Required documents for application
+  // Required documents for school enrollment
   final List<Map<String, dynamic>> _requiredDocuments = [
     {
-      'type': 'transcript',
-      'title': 'Academic Transcript',
-      'description': 'Official academic transcript from your previous institution',
+      'type': 'birth certificate',
+      'title': 'Birth Certificate',
+      'description': 'Official birth certificate of the student',
       'required': true,
     },
     {
-      'type': 'passport',
-      'title': 'ID Card/Passport',
-      'description': 'Valid identification document',
+      'type': 'id card',
+      'title': 'ID Card',
+      'description': 'Valid identification document of the student',
       'required': true,
     },
     {
-      'type': 'cv',
-      'title': 'Curriculum Vitae',
-      'description': 'Your updated CV/resume',
+      'type': 'report card',
+      'title': 'Report Card',
+      'description': 'Previous school report card or academic records',
       'required': true,
     },
     {
-      'type': 'motivation letter',
-      'title': 'Motivation Letter',
-      'description': 'Letter explaining your motivation for applying',
+      'type': 'medical record',
+      'title': 'Medical Record',
+      'description': 'Medical history and health information',
+      'required': true,
+    },
+    {
+      'type': 'immunization record',
+      'title': 'Immunization Record',
+      'description': 'Record of vaccinations and immunizations',
+      'required': true,
+    },
+    {
+      'type': 'parent consent',
+      'title': 'Parent Consent Form',
+      'description': 'Signed consent form from parent or guardian',
+      'required': true,
+    },
+    {
+      'type': 'previous school record',
+      'title': 'Previous School Record',
+      'description': 'Transfer certificate or records from previous school',
       'required': false,
     },
   ];
@@ -181,17 +199,17 @@ class DocumentService {
   }
 
   /// Generate sample documents for demo purposes
-  Future<void> generateSampleDocuments(String userId, String applicationId) async {
-    // Sample document 1 - Verified transcript
+  Future<void> generateSampleDocuments(String userId, String enrollmentId) async {
+    // Sample document 1 - Verified birth certificate
     final doc1 = DocumentModel(
       id: 'DOC001',
       userId: userId,
-      applicationId: applicationId,
-      title: 'Academic Transcript',
-      description: 'Official academic transcript from your previous institution',
-      type: DocumentType.transcript,
-      fileUrl: 'https://example.com/files/transcript.pdf',
-      fileName: 'transcript.pdf',
+      applicationId: enrollmentId,
+      title: 'Birth Certificate',
+      description: 'Official birth certificate of the student',
+      type: DocumentType.birthCertificate,
+      fileUrl: 'https://example.com/files/birth_certificate.pdf',
+      fileName: 'birth_certificate.pdf',
       fileSize: 1024 * 1024 * 2, // 2 MB
       fileType: 'application/pdf',
       uploadDate: DateTime.now().subtract(const Duration(days: 10)),
@@ -201,16 +219,16 @@ class DocumentService {
       isRequired: true,
     );
     
-    // Sample document 2 - Pending passport
+    // Sample document 2 - Pending report card
     final doc2 = DocumentModel(
       id: 'DOC002',
       userId: userId,
-      applicationId: applicationId,
-      title: 'Passport',
-      description: 'Valid passport for identification',
-      type: DocumentType.passport,
-      fileUrl: 'https://example.com/files/passport.jpg',
-      fileName: 'passport.jpg',
+      applicationId: enrollmentId,
+      title: 'Report Card',
+      description: 'Previous school report card',
+      type: DocumentType.reportCard,
+      fileUrl: 'https://example.com/files/report_card.jpg',
+      fileName: 'report_card.jpg',
       fileSize: 1024 * 500, // 500 KB
       fileType: 'image/jpeg',
       uploadDate: DateTime.now().subtract(const Duration(days: 3)),
@@ -218,23 +236,23 @@ class DocumentService {
       isRequired: true,
     );
     
-    // Sample document 3 - Rejected CV (needs update)
+    // Sample document 3 - Rejected medical record (needs update)
     final doc3 = DocumentModel(
       id: 'DOC003',
       userId: userId,
-      applicationId: applicationId,
-      title: 'Curriculum Vitae',
-      description: 'Your updated CV/resume',
-      type: DocumentType.cv,
-      fileUrl: 'https://example.com/files/cv.pdf',
-      fileName: 'cv.pdf',
+      applicationId: enrollmentId,
+      title: 'Medical Record',
+      description: 'Medical history and health information',
+      type: DocumentType.medicalRecord,
+      fileUrl: 'https://example.com/files/medical_record.pdf',
+      fileName: 'medical_record.pdf',
       fileSize: 1024 * 300, // 300 KB
       fileType: 'application/pdf',
       uploadDate: DateTime.now().subtract(const Duration(days: 7)),
       verificationStatus: DocumentVerificationStatus.rejected,
       verifiedBy: 'Admin',
       verificationDate: DateTime.now().subtract(const Duration(days: 2)),
-      rejectionReason: 'Please update your CV with your recent work experience',
+      rejectionReason: 'Please provide updated immunization records',
       isRequired: true,
     );
     
@@ -267,20 +285,22 @@ class DocumentService {
   /// Get default title for document type
   String _getDefaultTitle(DocumentType type) {
     switch (type) {
-      case DocumentType.transcript:
-        return 'Academic Transcript';
+      case DocumentType.reportCard:
+        return 'Report Card';
       case DocumentType.certificate:
         return 'Certificate';
       case DocumentType.idCard:
         return 'ID Card';
-      case DocumentType.passport:
-        return 'Passport';
-      case DocumentType.cv:
-        return 'Curriculum Vitae';
-      case DocumentType.motivationLetter:
-        return 'Motivation Letter';
-      case DocumentType.recommendationLetter:
-        return 'Recommendation Letter';
+      case DocumentType.birthCertificate:
+        return 'Birth Certificate';
+      case DocumentType.medicalRecord:
+        return 'Medical Record';
+      case DocumentType.parentConsent:
+        return 'Parent Consent Form';
+      case DocumentType.previousSchoolRecord:
+        return 'Previous School Record';
+      case DocumentType.immunizationRecord:
+        return 'Immunization Record';
       case DocumentType.other:
         return 'Other Document';
     }
@@ -289,20 +309,22 @@ class DocumentService {
   /// Get default description for document type
   String _getDefaultDescription(DocumentType type) {
     switch (type) {
-      case DocumentType.transcript:
-        return 'Official academic transcript from your previous institution';
+      case DocumentType.reportCard:
+        return 'Previous school report card or academic records';
       case DocumentType.certificate:
         return 'Certificate of completion or achievement';
       case DocumentType.idCard:
-        return 'Valid identification card';
-      case DocumentType.passport:
-        return 'Valid passport for identification';
-      case DocumentType.cv:
-        return 'Your updated CV/resume';
-      case DocumentType.motivationLetter:
-        return 'Letter explaining your motivation for applying';
-      case DocumentType.recommendationLetter:
-        return 'Letter of recommendation from a previous institution or employer';
+        return 'Valid identification card of the student';
+      case DocumentType.birthCertificate:
+        return 'Official birth certificate of the student';
+      case DocumentType.medicalRecord:
+        return 'Medical history and health information';
+      case DocumentType.parentConsent:
+        return 'Signed consent form from parent or guardian';
+      case DocumentType.previousSchoolRecord:
+        return 'Transfer certificate or records from previous school';
+      case DocumentType.immunizationRecord:
+        return 'Record of vaccinations and immunizations';
       case DocumentType.other:
         return 'Additional supporting document';
     }

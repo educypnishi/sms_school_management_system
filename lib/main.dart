@@ -8,8 +8,8 @@ import 'screens/signup_screen.dart';
 import 'screens/student_dashboard_screen.dart';
 import 'screens/teacher_dashboard_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
-import 'screens/admin_applications_screen.dart' as original_admin_applications;
-import 'screens/partner_applications_screen.dart' as original_partner_applications;
+import 'screens/admin_applications_screen.dart';
+import 'screens/teacher_classes_screen.dart' as original_teacher_classes;
 import 'screens/enrollment_form_screen.dart';
 import 'screens/course_list_screen.dart';
 import 'screens/course_detail_screen.dart';
@@ -18,7 +18,7 @@ import 'screens/conversations_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
-import 'screens/application_progress_screen.dart' as original_application_progress;
+import 'screens/enrollment_progress_screen.dart' as original_enrollment_progress;
 import 'screens/document_management_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/program_comparison_screen.dart' as original_program_comparison;
@@ -78,8 +78,8 @@ class _MyAppState extends State<MyApp> {
         AppConstants.teacherDashboardRoute: (context) => const TeacherDashboardScreen(),
         AppConstants.adminDashboardRoute: (context) => const AdminDashboardScreen(),
         AppConstants.enrollmentFormRoute: (context) => const EnrollmentFormScreen(),
-        AppConstants.adminEnrollmentsRoute: (context) => const original_admin_applications.AdminApplicationsScreen(),
-        AppConstants.teacherClassesRoute: (context) => const original_partner_applications.PartnerApplicationsScreen(),
+        AppConstants.adminEnrollmentsRoute: (context) => const AdminApplicationsScreen(),
+        AppConstants.teacherClassesRoute: (context) => const original_teacher_classes.TeacherClassesScreen(),
         AppConstants.courseListRoute: (context) => const CourseListScreen(),
         AppConstants.courseDetailRoute: (context) => CourseDetailScreen(
           programId: ModalRoute.of(context)!.settings.arguments as String,
@@ -92,12 +92,12 @@ class _MyAppState extends State<MyApp> {
         ),
         AppConstants.profileRoute: (context) => const ProfileScreen(),
         AppConstants.settingsRoute: (context) => const SettingsScreen(),
-        AppConstants.enrollmentProgressRoute: (context) => original_application_progress.ApplicationProgressScreen(
-          applicationId: ModalRoute.of(context)!.settings.arguments as String,
+        AppConstants.enrollmentProgressRoute: (context) => original_enrollment_progress.EnrollmentProgressScreen(
+          enrollmentId: ModalRoute.of(context)!.settings.arguments as String,
         ),
         AppConstants.documentManagementRoute: (context) => DocumentManagementScreen(
           userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
-          applicationId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['applicationId'] as String,
+          enrollmentId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['enrollmentId'] as String,
           isAdmin: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['isAdmin'] as bool? ?? false,
         ),
         AppConstants.calendarRoute: (context) => CalendarScreen(

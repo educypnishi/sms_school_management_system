@@ -118,6 +118,11 @@ class AttendanceService {
         .toList();
   }
   
+  // Get attendance records for a user (alias for getAttendanceForStudent)
+  Future<List<AttendanceModel>> getAttendanceRecordsForUser(String userId) async {
+    return getAttendanceForStudent(userId);
+  }
+  
   // Get attendance by ID
   Future<AttendanceModel> getAttendanceById(String id) async {
     // Simulate API delay
