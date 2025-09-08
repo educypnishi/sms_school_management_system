@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/grade_model.dart';
 import '../services/grade_service.dart';
+import '../services/pdf_export_service.dart';
 import '../theme/app_theme.dart';
 import 'grade_detail_screen.dart';
 
@@ -21,7 +22,9 @@ class GradeReportScreen extends StatefulWidget {
 
 class _GradeReportScreenState extends State<GradeReportScreen> {
   final GradeService _gradeService = GradeService();
+  final PdfExportService _pdfExportService = PdfExportService();
   bool _isLoading = true;
+  bool _isExporting = false;
   List<GradeModel> _grades = [];
   Map<String, List<GradeModel>> _gradesByTerm = {};
   Map<String, double> _gpaByTerm = {};
@@ -141,6 +144,11 @@ class _GradeReportScreenState extends State<GradeReportScreen> {
             icon: const Icon(Icons.refresh),
             onPressed: _loadGradeData,
             tooltip: 'Refresh',
+          ),
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: _isExporting ? null : _exportToPdf,
+            tooltip: 'Export to PDF',
           ),
         ],
       ),
@@ -684,6 +692,111 @@ class _GradeReportScreenState extends State<GradeReportScreen> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+  
+  // Export grade report to PDF
+  Future<void> _exportToPdf() async {
+    try {
+      setState(() {
+        _isExporting = true;
+      });
+      
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Generating PDF report...'),
+            ],
+          ),
+        ),
+      );
+      
+      // Get student name (in a real app, this would come from the user profile)
+      const studentName = 'John Doe';
+      
+      // Generate PDF
+      final pdfBytes = await _pdfExportService.generateGradeReportPdf(
+        studentName: studentName,
+        studentId: widget.studentId,
+        overallGPA: _overallGPA,
+        gradesByTerm: _gradesByTerm,
+        gpaByTerm: _gpaByTerm,
+      );
+      
+      // Close loading dialog
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      
+      // Show options dialog
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('PDF Generated'),
+            content: const Text('What would you like to do with the PDF?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _pdfExportService.savePdfFile(
+                    pdfBytes,
+                    'grade_report_${DateTime.now().millisecondsSinceEpoch}.pdf',
+                  );
+                },
+                child: const Text('Save'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _pdfExportService.printPdf(pdfBytes);
+                },
+                child: const Text('Print'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _pdfExportService.sharePdf(
+                    pdfBytes,
+                    'grade_report_${DateTime.now().millisecondsSinceEpoch}.pdf',
+                  );
+                },
+                child: const Text('Share'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog if open
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+      
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting PDF: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isExporting = false;
+      });
+    }
   }
 }
 
