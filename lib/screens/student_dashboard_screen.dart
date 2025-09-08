@@ -4,6 +4,7 @@ import '../models/enrollment_model.dart';
 import '../services/enrollment_service.dart';
 import '../services/program_service.dart';
 import '../services/attendance_service.dart';
+import '../services/grade_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import '../widgets/notification_badge.dart';
@@ -15,6 +16,9 @@ import 'university_comparison_screen.dart';
 import 'cost_calculator_screen.dart';
 import 'attendance_record_list_screen.dart';
 import 'attendance_record_detail_screen.dart';
+import 'student_gradebook_screen.dart';
+import 'grade_report_screen.dart';
+import 'grade_detail_screen.dart';
 
 class StudentDashboardScreen extends StatefulWidget {
   const StudentDashboardScreen({super.key});
@@ -31,8 +35,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   final _enrollmentService = EnrollmentService();
   final _programService = ProgramService();
   final _attendanceService = AttendanceService();
+  final _gradeService = GradeService();
   List<ProgramModel> _featuredPrograms = [];
   List<EnrollmentModel> _enrollments = [];
+  double _overallGPA = 0.0;
+  List<Map<String, dynamic>> _recentGrades = [];
 
   @override
   void initState() {
@@ -40,6 +47,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     _loadUserData();
     _loadFeaturedPrograms();
     _loadEnrollments();
+    _loadGrades();
   }
   
   Future<void> _loadFeaturedPrograms() async {
@@ -65,6 +73,38 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       });
     } catch (e) {
       debugPrint('Error loading enrollment records: $e');
+    }
+  }
+  
+  Future<void> _loadGrades() async {
+    try {
+      // For demo purposes, generate sample grades if needed
+      await _gradeService.generateSampleGrades();
+      
+      // Get overall GPA
+      final gpa = await _gradeService.getStudentGPA('user123');
+      
+      // Get all grades for the student
+      final grades = await _gradeService.getGradesForStudent('user123');
+      
+      // Sort by date (newest first) and take the 3 most recent grades
+      grades.sort((a, b) => b.gradedDate.compareTo(a.gradedDate));
+      final recentGrades = grades.take(3).map((grade) => {
+        'id': grade.id,
+        'title': grade.assessmentType,
+        'courseName': grade.courseName,
+        'score': grade.score,
+        'maxScore': grade.maxScore,
+        'letterGrade': grade.letterGrade,
+        'date': grade.gradedDate,
+      }).toList();
+      
+      setState(() {
+        _overallGPA = gpa;
+        _recentGrades = recentGrades;
+      });
+    } catch (e) {
+      debugPrint('Error loading grades: $e');
     }
   }
 
@@ -307,6 +347,23 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           );
                         },
                       ),
+                      _buildActionCard(
+                        context,
+                        'Gradebook',
+                        Icons.grade,
+                        Colors.purple,
+                        () {
+                          // Navigate to student gradebook
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GradeReportScreen(
+                                studentId: 'user123', // Using a sample user ID for demo
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                   
@@ -503,6 +560,47 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                               .map((record) => _buildEnrollmentCard(record))
                               .toList(),
                         ),
+                        
+                  const SizedBox(height: 24),
+                  
+                  // Academic Performance
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Academic Performance',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GradeReportScreen(
+                                studentId: 'user123', // Using a sample user ID for demo
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('View All'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // GPA Card
+                  _buildGPACard(),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Recent Grades
+                  _recentGrades.isEmpty
+                      ? _buildEmptyGradesCard()
+                      : Column(
+                          children: _recentGrades
+                              .map((grade) => _buildGradeCard(grade))
+                              .toList(),
+                        ),
                 ],
               ),
             ),
@@ -651,6 +749,208 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     );
   }
   
+  Widget _buildGPACard() {
+    final Color color = _getGPAColor(_overallGPA);
+    
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.withOpacity(0.1),
+                border: Border.all(
+                  color: color,
+                  width: 3,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  _overallGPA.toStringAsFixed(2),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Current GPA',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _getGPADescription(_overallGPA),
+                    style: TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: _overallGPA / 4.0, // Assuming 4.0 scale
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildEmptyGradesCard() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'No grades yet',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Your grades will appear here once they are available',
+              style: TextStyle(color: AppTheme.lightTextColor),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GradeReportScreen(
+                      studentId: 'user123', // Using a sample user ID for demo
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.grade),
+              label: const Text('View Gradebook'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildGradeCard(Map<String, dynamic> grade) {
+    final letterGrade = grade['letterGrade'] as String;
+    final score = grade['score'] as double;
+    final maxScore = grade['maxScore'] as double;
+    final percentage = (score / maxScore) * 100;
+    final color = _getGradeColor(letterGrade);
+    final date = grade['date'] as DateTime;
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GradeDetailScreen(
+                gradeId: grade['id'] as String,
+              ),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color.withOpacity(0.1),
+                  border: Border.all(
+                    color: color,
+                    width: 2,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    letterGrade,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      grade['title'] as String,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      grade['courseName'] as String,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.lightTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${score.toStringAsFixed(1)}/${maxScore.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '${percentage.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
   Widget _buildEnrollmentCard(EnrollmentModel record) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -781,5 +1081,46 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         ),
       ),
     );
+  }
+  
+  Color _getGPAColor(double gpa) {
+    if (gpa >= 3.5) {
+      return Colors.green;
+    } else if (gpa >= 2.5) {
+      return Colors.blue;
+    } else if (gpa >= 1.5) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
+    }
+  }
+
+  String _getGPADescription(double gpa) {
+    if (gpa >= 3.5) {
+      return 'Excellent';
+    } else if (gpa >= 2.5) {
+      return 'Good';
+    } else if (gpa >= 1.5) {
+      return 'Satisfactory';
+    } else {
+      return 'Needs Improvement';
+    }
+  }
+
+  Color _getGradeColor(String letterGrade) {
+    switch (letterGrade) {
+      case 'A':
+        return Colors.green;
+      case 'B':
+        return Colors.blue;
+      case 'C':
+        return Colors.orange;
+      case 'D':
+        return Colors.deepOrange;
+      case 'F':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 }

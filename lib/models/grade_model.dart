@@ -9,6 +9,7 @@ class GradeModel {
   final String academicYear;
   final String term;
   final double score;
+  final double maxScore;
   final String letterGrade;
   final String? comments;
   final DateTime gradedDate;
@@ -17,6 +18,7 @@ class GradeModel {
   final bool isPublished;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  String get title => assessmentType; // Add title getter that returns assessmentType
 
   GradeModel({
     required this.id,
@@ -29,6 +31,7 @@ class GradeModel {
     required this.academicYear,
     required this.term,
     required this.score,
+    required this.maxScore,
     required this.letterGrade,
     this.comments,
     required this.gradedDate,
@@ -52,6 +55,7 @@ class GradeModel {
       academicYear: map['academicYear'] ?? '',
       term: map['term'] ?? '',
       score: map['score']?.toDouble() ?? 0.0,
+      maxScore: map['maxScore']?.toDouble() ?? 100.0,
       letterGrade: map['letterGrade'] ?? '',
       comments: map['comments'],
       gradedDate: map['gradedDate'] != null 
@@ -81,6 +85,7 @@ class GradeModel {
       'academicYear': academicYear,
       'term': term,
       'score': score,
+      'maxScore': maxScore,
       'letterGrade': letterGrade,
       'comments': comments,
       'gradedDate': gradedDate.toIso8601String(),
@@ -104,6 +109,7 @@ class GradeModel {
     String? academicYear,
     String? term,
     double? score,
+    double? maxScore,
     String? letterGrade,
     String? comments,
     DateTime? gradedDate,
@@ -124,6 +130,7 @@ class GradeModel {
       academicYear: academicYear ?? this.academicYear,
       term: term ?? this.term,
       score: score ?? this.score,
+      maxScore: maxScore ?? this.maxScore,
       letterGrade: letterGrade ?? this.letterGrade,
       comments: comments ?? this.comments,
       gradedDate: gradedDate ?? this.gradedDate,
