@@ -79,7 +79,7 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
   final List<String> _genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
   final List<String> _educationOptions = ['High School', 'Associate Degree', 'Bachelor\'s Degree', 'Master\'s Degree', 'PhD', 'Other'];
   final List<String> _programOptions = ['Computer Science', 'Business Administration', 'Medicine', 'Law', 'Engineering', 'Arts', 'Education', 'Tourism & Hospitality', 'Other'];
-  final List<String> _universityOptions = ['University of Cyprus', 'Cyprus University of Technology', 'European University Cyprus', 'University of Nicosia', 'Frederick University', 'Neapolis University Pafos', 'Other'];
+  final List<String> _universityOptions = ['University of Karachi', 'National University of Sciences and Technology (NUST)', 'Lahore University of Management Sciences (LUMS)', 'Aga Khan University', 'Institute of Business Administration (IBA) Karachi', 'University of Punjab', 'Other'];
   final List<String> _studyLevelOptions = ['Bachelor\'s', 'Master\'s', 'PhD', 'Certificate', 'Diploma'];
   final List<String> _startDateOptions = ['Fall 2025', 'Spring 2026', 'Fall 2026', 'Spring 2027'];
   final List<String> _fundingSourceOptions = ['Self-funded', 'Family Support', 'Scholarship', 'Student Loan', 'Employer Sponsored', 'Other'];

@@ -216,216 +216,106 @@ class SchoolFacility {
 class ClassModel {
   final String id;
   final String name;
-  final String description;
-  final String logoUrl;
-  final String location;
-  final int capacity;
-  final int currentEnrollment;
-  final String teacherId;
+  final String grade;
+  final String subject;
   final String teacherName;
-  final GradeLevel gradeLevel;
-  final double rating;
-  final int reviewCount;
-  final List<String> subjects;
-  final List<SchoolCourse> courses;
-  final List<SchoolFacility> facilities;
-  final String? virtualTourUrl;
-  final List<String> photoUrls;
-  final Map<String, dynamic> schedule;
-  final bool isFavorite;
+  final String room;
+  final String schedule;
+  final int capacity;
+  final int currentStudents;
+  final double averageGrade;
 
   ClassModel({
     required this.id,
     required this.name,
-    required this.description,
-    required this.logoUrl,
-    required this.location,
-    required this.capacity,
-    required this.currentEnrollment,
-    required this.teacherId,
+    required this.grade,
+    required this.subject,
     required this.teacherName,
-    required this.gradeLevel,
-    required this.rating,
-    required this.reviewCount,
-    required this.subjects,
-    required this.courses,
-    required this.facilities,
-    this.virtualTourUrl,
-    required this.photoUrls,
+    required this.room,
     required this.schedule,
-    this.isFavorite = false,
+    required this.capacity,
+    required this.currentStudents,
+    required this.averageGrade,
   });
 
-  /// Get the formatted grade level
-  String get formattedGradeLevel {
-    switch (gradeLevel) {
-      case GradeLevel.preschool:
-        return 'Preschool';
-      case GradeLevel.elementary:
-        return 'Elementary School';
-      case GradeLevel.middle:
-        return 'Middle School';
-      case GradeLevel.high:
-        return 'High School';
-      case GradeLevel.special:
-        return 'Special Education';
-    }
-  }
-
   /// Get the student-to-capacity ratio
-  double get enrollmentRatio => capacity > 0 ? currentEnrollment / capacity : 0;
+  double get enrollmentRatio => capacity > 0 ? currentStudents / capacity : 0;
 
   /// Get formatted enrollment ratio
   String get formattedEnrollmentRatio => capacity > 0 
-      ? '${(currentEnrollment / capacity * 100).toStringAsFixed(1)}%' 
+      ? '${(currentStudents / capacity * 100).toStringAsFixed(1)}%' 
       : 'N/A';
 
-  /// Get the minimum fee among all courses
-  double get minFee {
-    if (courses.isEmpty) return 0;
-    return courses.map((p) => p.feePerTerm).reduce((a, b) => a < b ? a : b);
-  }
+  /// Check if class is full
+  bool get isFull => currentStudents >= capacity;
 
-  /// Get the maximum fee among all courses
-  double get maxFee {
-    if (courses.isEmpty) return 0;
-    return courses.map((p) => p.feePerTerm).reduce((a, b) => a > b ? a : b);
-  }
+  /// Get available spots
+  int get availableSpots => capacity - currentStudents;
 
-  /// Get the fee range as a string
-  String get feeRange {
-    if (courses.isEmpty) return 'N/A';
-    final currency = courses.first.currency;
-    return '$minFee - $maxFee $currency per term';
+  /// Get grade letter based on average grade
+  String get gradeLevel {
+    if (averageGrade >= 90) return 'A';
+    if (averageGrade >= 80) return 'B';
+    if (averageGrade >= 70) return 'C';
+    if (averageGrade >= 60) return 'D';
+    return 'F';
   }
 
   /// Create a copy of this class with updated fields
   ClassModel copyWith({
     String? id,
     String? name,
-    String? description,
-    String? logoUrl,
-    String? location,
-    int? capacity,
-    int? currentEnrollment,
-    String? teacherId,
+    String? grade,
+    String? subject,
     String? teacherName,
-    GradeLevel? gradeLevel,
-    double? rating,
-    int? reviewCount,
-    List<String>? subjects,
-    List<SchoolCourse>? courses,
-    List<SchoolFacility>? facilities,
-    String? virtualTourUrl,
-    List<String>? photoUrls,
-    Map<String, dynamic>? schedule,
-    bool? isFavorite,
+    String? room,
+    String? schedule,
+    int? capacity,
+    int? currentStudents,
+    double? averageGrade,
   }) {
     return ClassModel(
       id: id ?? this.id,
       name: name ?? this.name,
-      description: description ?? this.description,
-      logoUrl: logoUrl ?? this.logoUrl,
-      location: location ?? this.location,
-      capacity: capacity ?? this.capacity,
-      currentEnrollment: currentEnrollment ?? this.currentEnrollment,
-      teacherId: teacherId ?? this.teacherId,
+      grade: grade ?? this.grade,
+      subject: subject ?? this.subject,
       teacherName: teacherName ?? this.teacherName,
-      gradeLevel: gradeLevel ?? this.gradeLevel,
-      rating: rating ?? this.rating,
-      reviewCount: reviewCount ?? this.reviewCount,
-      subjects: subjects ?? this.subjects,
-      courses: courses ?? this.courses,
-      facilities: facilities ?? this.facilities,
-      virtualTourUrl: virtualTourUrl ?? this.virtualTourUrl,
-      photoUrls: photoUrls ?? this.photoUrls,
+      room: room ?? this.room,
       schedule: schedule ?? this.schedule,
-      isFavorite: isFavorite ?? this.isFavorite,
+      capacity: capacity ?? this.capacity,
+      currentStudents: currentStudents ?? this.currentStudents,
+      averageGrade: averageGrade ?? this.averageGrade,
     );
   }
 
   /// Create a ClassModel from a map
-  factory ClassModel.fromMap(Map<String, dynamic> map) {
-    // Parse courses
-    final coursesList = <SchoolCourse>[];
-    if (map['courses'] != null) {
-      for (final course in map['courses']) {
-        coursesList.add(SchoolCourse.fromMap(course));
-      }
-    }
-    
-    // Parse facilities
-    final facilitiesList = <SchoolFacility>[];
-    if (map['facilities'] != null) {
-      for (final facility in map['facilities']) {
-        facilitiesList.add(SchoolFacility.fromMap(facility));
-      }
-    }
-    
+  factory ClassModel.fromMap(Map<String, dynamic> map, String id) {
     return ClassModel(
-      id: map['id'] ?? '',
+      id: id,
       name: map['name'] ?? '',
-      description: map['description'] ?? '',
-      logoUrl: map['logoUrl'] ?? '',
-      location: map['location'] ?? '',
-      capacity: map['capacity'] ?? 0,
-      currentEnrollment: map['currentEnrollment'] ?? 0,
-      teacherId: map['teacherId'] ?? '',
+      grade: map['grade'] ?? '',
+      subject: map['subject'] ?? '',
       teacherName: map['teacherName'] ?? '',
-      gradeLevel: _parseGradeLevel(map['gradeLevel']),
-      rating: map['rating']?.toDouble() ?? 0.0,
-      reviewCount: map['reviewCount'] ?? 0,
-      subjects: List<String>.from(map['subjects'] ?? []),
-      courses: coursesList,
-      facilities: facilitiesList,
-      virtualTourUrl: map['virtualTourUrl'],
-      photoUrls: List<String>.from(map['photoUrls'] ?? []),
-      schedule: Map<String, dynamic>.from(map['schedule'] ?? {}),
-      isFavorite: map['isFavorite'] ?? false,
+      room: map['room'] ?? '',
+      schedule: map['schedule'] ?? '',
+      capacity: map['capacity'] ?? 0,
+      currentStudents: map['currentStudents'] ?? 0,
+      averageGrade: map['averageGrade']?.toDouble() ?? 0.0,
     );
   }
 
   /// Convert ClassModel to a map
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
-      'description': description,
-      'logoUrl': logoUrl,
-      'location': location,
-      'capacity': capacity,
-      'currentEnrollment': currentEnrollment,
-      'teacherId': teacherId,
+      'grade': grade,
+      'subject': subject,
       'teacherName': teacherName,
-      'gradeLevel': gradeLevel.toString().split('.').last,
-      'rating': rating,
-      'reviewCount': reviewCount,
-      'subjects': subjects,
-      'courses': courses.map((p) => p.toMap()).toList(),
-      'facilities': facilities.map((f) => f.toMap()).toList(),
-      'virtualTourUrl': virtualTourUrl,
-      'photoUrls': photoUrls,
+      'room': room,
       'schedule': schedule,
-      'isFavorite': isFavorite,
+      'capacity': capacity,
+      'currentStudents': currentStudents,
+      'averageGrade': averageGrade,
     };
-  }
-  
-  /// Parse GradeLevel from string
-  static GradeLevel _parseGradeLevel(String? value) {
-    if (value == null) return GradeLevel.elementary;
-    
-    switch (value.toLowerCase()) {
-      case 'preschool':
-        return GradeLevel.preschool;
-      case 'middle':
-        return GradeLevel.middle;
-      case 'high':
-        return GradeLevel.high;
-      case 'special':
-        return GradeLevel.special;
-      case 'elementary':
-      default:
-        return GradeLevel.elementary;
-    }
   }
 }

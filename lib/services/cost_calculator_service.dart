@@ -361,9 +361,9 @@ class CostCalculatorService {
   Future<void> _createDefaultScenario() async {
     final defaultScenario = await createScenario(
       name: 'Standard Student Budget',
-      description: 'A typical budget for studying in Cyprus',
+      description: 'A typical budget for studying in Pakistan',
       durationMonths: 12,
-      currencyCode: 'EUR',
+      currencyCode: 'PKR',
       initialCostItems: getDefaultCostItems(),
     );
     

@@ -177,11 +177,11 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              _attendance!.notes.isNotEmpty
-                  ? _attendance!.notes
+              _attendance!.notes?.isNotEmpty == true
+                  ? _attendance!.notes!
                   : 'No notes available for this attendance record.',
               style: TextStyle(
-                color: _attendance!.notes.isNotEmpty ? Colors.black : Colors.grey,
+                color: _attendance!.notes?.isNotEmpty == true ? Colors.black : Colors.grey,
               ),
             ),
           ],

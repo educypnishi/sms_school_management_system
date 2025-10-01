@@ -691,7 +691,7 @@ class FeeService {
           
           await createFee(
             studentId: currentUser.id,
-            studentName: 'John Doe',
+            studentName: 'Ahmad Ali Khan',
             academicYear: academicYear,
             term: term,
             feeTitle: _getFeeTitle(feeType),
@@ -721,17 +721,17 @@ class FeeService {
     
     switch (feeType) {
       case FeeType.tuition:
-        return 5000.0 + random;
+        return 150000.0 + (random * 50); // PKR 150,000-200,000
       case FeeType.registration:
-        return 500.0 + (random / 10);
+        return 15000.0 + (random * 5); // PKR 15,000-20,000
       case FeeType.examination:
-        return 1000.0 + (random / 5);
+        return 25000.0 + (random * 10); // PKR 25,000-35,000
       case FeeType.library:
-        return 300.0 + (random / 20);
+        return 8000.0 + (random * 2); // PKR 8,000-10,000
       case FeeType.laboratory:
-        return 800.0 + (random / 8);
+        return 20000.0 + (random * 8); // PKR 20,000-28,000
       default:
-        return 200.0 + (random / 10);
+        return 5000.0 + (random * 3); // PKR 5,000-8,000
     }
   }
   

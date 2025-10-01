@@ -23,6 +23,7 @@ class EnrollmentModel {
   // Step 3: Course Selection
   final String? desiredClass;
   final String? desiredGrade;
+  final String? programName; // Program name for the enrollment
   final String? academicYear; // 2025-2026, etc.
   final String? preferredStartDate; // Fall 2025, Spring 2026, etc.
   final bool? needsTransportation;
@@ -71,6 +72,7 @@ class EnrollmentModel {
     this.certificates,
     this.desiredClass,
     this.desiredGrade,
+    this.programName,
     this.academicYear,
     this.preferredStartDate,
     this.needsTransportation,
@@ -126,6 +128,7 @@ class EnrollmentModel {
       // Step 3: Course Selection
       desiredClass: map['desiredClass'],
       desiredGrade: map['desiredGrade'],
+      programName: map['programName'],
       academicYear: map['academicYear'],
       preferredStartDate: map['preferredStartDate'],
       needsTransportation: map['needsTransportation'],
@@ -193,6 +196,7 @@ class EnrollmentModel {
       // Step 3: Course Selection
       'desiredClass': desiredClass,
       'desiredGrade': desiredGrade,
+      'programName': programName,
       'academicYear': academicYear,
       'preferredStartDate': preferredStartDate,
       'needsTransportation': needsTransportation,

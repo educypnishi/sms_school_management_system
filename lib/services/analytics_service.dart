@@ -70,7 +70,7 @@ class AnalyticsService {
     for (final app in filteredApplications) {
       // In a real app, we would get the program from the application and then get the university
       // For now, we'll use sample universities for demo purposes
-      final universities = ['Cyprus University', 'Eastern Mediterranean University', 'University of Nicosia'];
+      final universities = ['University of Karachi', 'NUST', 'LUMS', 'Aga Khan University', 'IBA Karachi'];
       final random = Random();
       final university = universities[random.nextInt(universities.length)];
       applicationsByUniversity[university] = (applicationsByUniversity[university] ?? 0) + 1;
@@ -78,10 +78,10 @@ class AnalyticsService {
     
     // Count applications by country (sample data)
     final applicationsByCountry = {
-      'Cyprus': 45,
-      'Turkey': 23,
-      'Greece': 18,
-      'United Kingdom': 12,
+      'Pakistan': 85,
+      'India': 23,
+      'Bangladesh': 18,
+      'Afghanistan': 12,
       'Other': 7,
     };
     
@@ -120,10 +120,10 @@ class AnalyticsService {
     
     // Sample user distribution by country
     final usersByCountry = {
-      'Cyprus': 85,
-      'Turkey': 65,
-      'Greece': 40,
-      'United Kingdom': 25,
+      'Pakistan': 185,
+      'India': 65,
+      'Bangladesh': 40,
+      'Afghanistan': 25,
       'Other': 35,
     };
     

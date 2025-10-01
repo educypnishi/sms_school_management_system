@@ -178,47 +178,77 @@ class ProgramService {
       await createProgram(
         title: 'Bachelor of Computer Science',
         description: 'A comprehensive program covering all aspects of computer science, including programming, algorithms, data structures, and software engineering.',
-        university: 'University of Cyprus',
+        university: 'National University of Sciences and Technology (NUST)',
         duration: '4 years',
         degreeType: 'Bachelor',
-        tuitionFee: '€3,500 per year',
+        tuitionFee: 'PKR 400,000 per year',
         imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
         requirements: [
-          'High school diploma',
-          'Mathematics proficiency',
-          'English language proficiency',
+          'Intermediate (FSc Pre-Engineering)',
+          'NET Entry Test',
+          'English proficiency',
         ],
       );
       
       await createProgram(
         title: 'Master of Business Administration',
         description: 'An advanced degree program designed to develop the skills required for careers in business and management.',
-        university: 'Cyprus International University',
+        university: 'Lahore University of Management Sciences (LUMS)',
         duration: '2 years',
         degreeType: 'Master',
-        tuitionFee: '€5,000 per year',
+        tuitionFee: 'PKR 1,200,000 per year',
         imageUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf',
         requirements: [
           'Bachelor\'s degree',
-          'Work experience (preferred)',
-          'English language proficiency',
-          'GMAT or GRE scores',
+          'Work experience (2+ years)',
+          'GMAT or GAT General',
+          'English proficiency',
         ],
       );
       
       await createProgram(
-        title: 'PhD in Environmental Science',
-        description: 'A research-focused program exploring environmental issues, sustainability, and conservation strategies.',
-        university: 'Eastern Mediterranean University',
-        duration: '3-5 years',
-        degreeType: 'Doctorate',
-        tuitionFee: '€4,200 per year',
+        title: 'MBBS (Bachelor of Medicine)',
+        description: 'A comprehensive medical program preparing students for careers in medicine and healthcare with international standards.',
+        university: 'Aga Khan University',
+        duration: '5 years',
+        degreeType: 'Bachelor',
+        tuitionFee: 'PKR 2,500,000 per year',
         imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b',
         requirements: [
-          'Master\'s degree in related field',
-          'Research proposal',
-          'English language proficiency',
-          'Academic references',
+          'Intermediate (FSc Pre-Medical)',
+          'MCAT Entry Test',
+          'Interview',
+          'English proficiency',
+        ],
+      );
+      
+      await createProgram(
+        title: 'Bachelor of Business Administration',
+        description: 'A comprehensive business program focusing on management, finance, marketing, and entrepreneurship.',
+        university: 'Institute of Business Administration (IBA) Karachi',
+        duration: '4 years',
+        degreeType: 'Bachelor',
+        tuitionFee: 'PKR 300,000 per year',
+        imageUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf',
+        requirements: [
+          'Intermediate (Any)',
+          'IBA Admission Test',
+          'English proficiency',
+        ],
+      );
+      
+      await createProgram(
+        title: 'Bachelor of Engineering (Electrical)',
+        description: 'An engineering program covering electrical systems, electronics, power generation, and telecommunications.',
+        university: 'University of Karachi',
+        duration: '4 years',
+        degreeType: 'Bachelor',
+        tuitionFee: 'PKR 150,000 per year',
+        imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
+        requirements: [
+          'Intermediate (FSc Pre-Engineering)',
+          'University Entry Test',
+          'English proficiency',
         ],
       );
     } catch (e) {

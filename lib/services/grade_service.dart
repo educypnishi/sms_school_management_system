@@ -98,6 +98,29 @@ class GradeService {
     }
   }
   
+  // Get all grades
+  Future<List<GradeModel>> getAllGrades() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final keys = prefs.getKeys().where((key) => key.startsWith('grade_')).toList();
+      
+      final grades = <GradeModel>[];
+      for (final key in keys) {
+        final gradeJson = prefs.getString(key);
+        if (gradeJson != null) {
+          final gradeMap = jsonDecode(gradeJson) as Map<String, dynamic>;
+          final gradeId = key.substring('grade_'.length);
+          grades.add(GradeModel.fromMap(gradeMap, gradeId));
+        }
+      }
+      
+      return grades;
+    } catch (e) {
+      debugPrint('Error getting all grades: $e');
+      return [];
+    }
+  }
+  
   // Update grade
   Future<GradeModel> updateGrade({
     required String id,
@@ -361,10 +384,12 @@ class GradeService {
       // Sample courses
       final courses = [
         {'id': 'course1', 'name': 'Mathematics'},
-        {'id': 'course2', 'name': 'Science'},
+        {'id': 'course2', 'name': 'Physics'},
         {'id': 'course3', 'name': 'English'},
-        {'id': 'course4', 'name': 'History'},
+        {'id': 'course4', 'name': 'Pakistan Studies'},
         {'id': 'course5', 'name': 'Computer Science'},
+        {'id': 'course6', 'name': 'Urdu'},
+        {'id': 'course7', 'name': 'Islamic Studies'},
       ];
       
       // Sample assessment types
@@ -387,18 +412,18 @@ class GradeService {
             
             await saveGrade(
               studentId: currentUser.id,
-              studentName: 'John Doe',
+              studentName: 'Fatima Sheikh',
               courseId: course['id'] as String,
               courseName: course['name'] as String,
               teacherId: 'teacher1',
-              teacherName: 'Ms. Smith',
+              teacherName: 'Prof. Dr. Ayesha Rahman',
               academicYear: '2025-2026',
               term: term,
               score: score,
               maxScore: 100.0,
               assessmentType: assessment['type'] as String,
               weightage: assessment['weightage'] as double,
-              comments: 'Good job!',
+              comments: 'Excellent work! Keep it up.',
               isPublished: true,
             );
           }

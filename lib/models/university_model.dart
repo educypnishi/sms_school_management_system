@@ -114,7 +114,7 @@ class UniversityProgram {
       level: _parseProgramLevel(map['level']),
       durationMonths: map['durationMonths'] ?? 0,
       tuitionFeePerYear: map['tuitionFeePerYear']?.toDouble() ?? 0.0,
-      currency: map['currency'] ?? 'EUR',
+      currency: map['currency'] ?? 'PKR',
       languages: List<String>.from(map['languages'] ?? []),
       requirements: List<String>.from(map['requirements'] ?? []),
       hasScholarship: map['hasScholarship'] ?? false,

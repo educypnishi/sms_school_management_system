@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+// import 'package:fl_chart/fl_chart.dart'; // Temporarily disabled
 import '../models/grade_model.dart';
 import '../services/grade_service.dart';
 import '../services/pdf_export_service.dart';
@@ -285,110 +285,27 @@ class _GradeReportScreenState extends State<GradeReportScreen> {
         return aNum.compareTo(bNum);
       });
     
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: 4.0,
-        barTouchData: BarTouchData(
-          enabled: true,
-          touchTooltipData: BarTouchTooltipData(
-            tooltipBgColor: Colors.blueGrey,
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              final term = sortedTerms[groupIndex];
-              final gpa = _gpaByTerm[term] ?? 0.0;
-              return BarTooltipItem(
-                '$term: ${gpa.toStringAsFixed(2)}',
-                const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              );
-            },
-          ),
-        ),
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                if (value < 0 || value >= sortedTerms.length) {
-                  return const SizedBox.shrink();
-                }
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    sortedTerms[value.toInt()].split(' ').last,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                );
-              },
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.trending_up, size: 48, color: Colors.grey),
+            SizedBox(height: 8),
+            Text(
+              'GPA Trend Chart',
+              style: TextStyle(color: Colors.grey, fontSize: 16),
             ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                if (value % 1 != 0) return const SizedBox.shrink();
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Text(
-                    value.toInt().toString(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                );
-              },
-              reservedSize: 30,
+            Text(
+              '(Chart temporarily disabled)',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
             ),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-        ),
-        gridData: FlGridData(
-          show: true,
-          getDrawingHorizontalLine: (value) {
-            return FlLine(
-              color: Colors.grey.withOpacity(0.3),
-              strokeWidth: 1,
-            );
-          },
-          drawVerticalLine: false,
-        ),
-        borderData: FlBorderData(
-          show: false,
-        ),
-        barGroups: List.generate(
-          sortedTerms.length,
-          (index) {
-            final term = sortedTerms[index];
-            final gpa = _gpaByTerm[term] ?? 0.0;
-            final color = _getGPAColor(gpa);
-            
-            return BarChartGroupData(
-              x: index,
-              barRods: [
-                BarChartRodData(
-                  toY: gpa,
-                  color: color,
-                  width: 20,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(4),
-                    topRight: Radius.circular(4),
-                  ),
-                ),
-              ],
-            );
-          },
+          ],
         ),
       ),
     );
@@ -419,115 +336,31 @@ class _GradeReportScreenState extends State<GradeReportScreen> {
       ),
     );
   }
-
   Widget _buildGradeDistributionChart(Map<String, double> distribution) {
     // Sort letter grades in descending order (A to F)
     final sortedGrades = ['A', 'B', 'C', 'D', 'F'];
     
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: 100,
-        barTouchData: BarTouchData(
-          enabled: true,
-          touchTooltipData: BarTouchTooltipData(
-            tooltipBgColor: Colors.blueGrey,
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              final grade = sortedGrades[groupIndex];
-              final percentage = distribution[grade] ?? 0.0;
-              return BarTooltipItem(
-                '$grade: ${percentage.toStringAsFixed(1)}%',
-                const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              );
-            },
-          ),
-        ),
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                if (value < 0 || value >= sortedGrades.length) {
-                  return const SizedBox.shrink();
-                }
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    sortedGrades[value.toInt()],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                );
-              },
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.bar_chart, size: 48, color: Colors.grey),
+            SizedBox(height: 8),
+            Text(
+              'Grade Chart',
+              style: TextStyle(color: Colors.grey, fontSize: 16),
             ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                if (value % 25 != 0) return const SizedBox.shrink();
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Text(
-                    '${value.toInt()}%',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                );
-              },
-              reservedSize: 40,
+            Text(
+              '(Chart temporarily disabled)',
+              style: TextStyle(color: Colors.grey, fontSize: 12),
             ),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-        ),
-        gridData: FlGridData(
-          show: true,
-          getDrawingHorizontalLine: (value) {
-            return FlLine(
-              color: Colors.grey.withOpacity(0.3),
-              strokeWidth: 1,
-            );
-          },
-          drawVerticalLine: false,
-        ),
-        borderData: FlBorderData(
-          show: false,
-        ),
-        barGroups: List.generate(
-          sortedGrades.length,
-          (index) {
-            final grade = sortedGrades[index];
-            final percentage = distribution[grade] ?? 0.0;
-            final color = _getGradeColor(grade);
-            
-            return BarChartGroupData(
-              x: index,
-              barRods: [
-                BarChartRodData(
-                  toY: percentage,
-                  color: color,
-                  width: 20,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(4),
-                    topRight: Radius.circular(4),
-                  ),
-                ),
-              ],
-            );
-          },
+          ],
         ),
       ),
     );
@@ -608,7 +441,7 @@ class _GradeReportScreenState extends State<GradeReportScreen> {
     return ListTile(
       title: Text(grade.assessmentType),
       subtitle: Text(
-        '${grade.assessmentType.capitalize()} • ${_formatDate(grade.gradedDate)}',
+        '${grade.assessmentType} • ${_formatDate(grade.gradedDate)}',
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

@@ -22,7 +22,7 @@ class ClassService {
         'name': 'Class 1-A',
         'grade': 'Grade 1',
         'subject': 'General',
-        'teacherName': 'Ms. Johnson',
+        'teacherName': 'Ms. Khadija Malik',
         'room': 'Room 101',
         'schedule': 'Mon-Fri, 8:00 AM - 2:30 PM',
         'capacity': 25,
@@ -34,7 +34,7 @@ class ClassService {
         'name': 'Class 2-B',
         'grade': 'Grade 2',
         'subject': 'General',
-        'teacherName': 'Mr. Smith',
+        'teacherName': 'Mr. Tariq Ahmed',
         'room': 'Room 102',
         'schedule': 'Mon-Fri, 8:30 AM - 3:00 PM',
         'capacity': 28,
@@ -46,7 +46,7 @@ class ClassService {
         'name': 'Class 3-C',
         'grade': 'Grade 3',
         'subject': 'General',
-        'teacherName': 'Mrs. Davis',
+        'teacherName': 'Mrs. Sadia Khan',
         'room': 'Room 103',
         'schedule': 'Mon-Fri, 8:00 AM - 3:00 PM',
         'capacity': 30,
@@ -58,7 +58,7 @@ class ClassService {
         'name': 'Math Advanced',
         'grade': 'Grade 4',
         'subject': 'Mathematics',
-        'teacherName': 'Dr. Wilson',
+        'teacherName': 'Dr. Imran Shah',
         'room': 'Room 201',
         'schedule': 'Mon/Wed/Fri, 9:00 AM - 10:30 AM',
         'capacity': 20,
@@ -67,10 +67,10 @@ class ClassService {
       },
       {
         'id': 'class5',
-        'name': 'Science Lab',
+        'name': 'Physics Lab',
         'grade': 'Grade 5',
-        'subject': 'Science',
-        'teacherName': 'Prof. Brown',
+        'subject': 'Physics',
+        'teacherName': 'Prof. Nadia Hussain',
         'room': 'Lab 101',
         'schedule': 'Tue/Thu, 10:00 AM - 12:00 PM',
         'capacity': 24,
@@ -82,7 +82,7 @@ class ClassService {
         'name': 'English Literature',
         'grade': 'Grade 6',
         'subject': 'English',
-        'teacherName': 'Ms. Taylor',
+        'teacherName': 'Ms. Rabia Iqbal',
         'room': 'Room 205',
         'schedule': 'Mon/Wed/Fri, 11:00 AM - 12:30 PM',
         'capacity': 26,
@@ -94,7 +94,7 @@ class ClassService {
         'name': 'Computer Science',
         'grade': 'Grade 7',
         'subject': 'Technology',
-        'teacherName': 'Mr. Anderson',
+        'teacherName': 'Mr. Asif Rahman',
         'room': 'Lab 202',
         'schedule': 'Tue/Thu, 1:00 PM - 3:00 PM',
         'capacity': 22,
@@ -106,7 +106,7 @@ class ClassService {
         'name': 'Art Studio',
         'grade': 'Grade 8',
         'subject': 'Art',
-        'teacherName': 'Mrs. Garcia',
+        'teacherName': 'Mrs. Amna Siddique',
         'room': 'Art Room',
         'schedule': 'Mon/Wed, 1:30 PM - 3:30 PM',
         'capacity': 18,
@@ -198,30 +198,3 @@ class ClassService {
   }
 }
 
-// Extension of ClassModel for the comparison screen
-extension ClassModelExtension on ClassModel {
-  // Constructor for the comparison screen
-  ClassModel({
-    required this.id,
-    required this.name,
-    required this.grade,
-    required this.subject,
-    required this.teacherName,
-    required this.room,
-    required this.schedule,
-    required this.capacity,
-    required this.currentStudents,
-    required this.averageGrade,
-  });
-  
-  final String id;
-  final String name;
-  final String grade;
-  final String subject;
-  final String teacherName;
-  final String room;
-  final String schedule;
-  final int capacity;
-  final int currentStudents;
-  final double averageGrade;
-}

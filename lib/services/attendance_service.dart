@@ -14,10 +14,12 @@ class AttendanceService {
     final random = Random();
     final studentId = 'student123';
     final courses = [
-      {'id': 'course1', 'name': 'Mathematics', 'teacher': 'John Smith', 'room': 'A101'},
-      {'id': 'course2', 'name': 'Science', 'teacher': 'Emily Johnson', 'room': 'B202'},
-      {'id': 'course3', 'name': 'English Literature', 'teacher': 'Michael Brown', 'room': 'C303'},
-      {'id': 'course4', 'name': 'Computer Science', 'teacher': 'Sarah Davis', 'room': 'D404'},
+      {'id': 'course1', 'name': 'Mathematics', 'teacher': 'Dr. Muhammad Hassan', 'room': 'A101'},
+      {'id': 'course2', 'name': 'Physics', 'teacher': 'Prof. Zara Ahmed', 'room': 'B202'},
+      {'id': 'course3', 'name': 'English Literature', 'teacher': 'Ms. Sana Malik', 'room': 'C303'},
+      {'id': 'course4', 'name': 'Computer Science', 'teacher': 'Dr. Ali Raza', 'room': 'D404'},
+      {'id': 'course5', 'name': 'Urdu', 'teacher': 'Prof. Farah Khan', 'room': 'E505'},
+      {'id': 'course6', 'name': 'Islamic Studies', 'teacher': 'Maulana Abdul Rahman', 'room': 'F606'},
     ];
     
     // Generate attendance for the last 3 months
@@ -82,7 +84,7 @@ class AttendanceService {
           _attendanceRecords.add(AttendanceModel(
             id: 'attendance_${_attendanceRecords.length + 1}',
             studentId: studentId,
-            studentName: 'John Doe',
+            studentName: 'Hassan Ali Shah',
             courseId: course['id'] as String,
             courseName: course['name'] as String,
             classId: 'class_${course['id']}',
@@ -103,24 +105,48 @@ class AttendanceService {
         }
       }
     }
-    
     // Sort by date (newest first)
     _attendanceRecords.sort((a, b) => b.date.compareTo(a.date));
   }
   
-  // Get attendance records for a student
-  Future<List<AttendanceModel>> getAttendanceForStudent(String studentId) async {
+  // Get all attendance records
+  Future<List<AttendanceModel>> getAllAttendanceRecords() async {
     // Simulate API delay
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    return List.from(_attendanceRecords);
+  }
+  
+  // Get attendance records for a specific date range
+  Future<List<AttendanceModel>> getAttendanceByDateRange(
+    String studentId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    // Simulate API delay
+    await Future.delayed(const Duration(milliseconds: 500));
     
     return _attendanceRecords
-        .where((record) => record.studentId == studentId)
+        .where((record) => 
+            record.studentId == studentId &&
+            record.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
+            record.date.isBefore(endDate.add(const Duration(days: 1))))
         .toList();
   }
   
   // Get attendance records for a user (alias for getAttendanceForStudent)
   Future<List<AttendanceModel>> getAttendanceRecordsForUser(String userId) async {
     return getAttendanceForStudent(userId);
+  }
+  
+  // Get attendance for student
+  Future<List<AttendanceModel>> getAttendanceForStudent(String studentId) async {
+    // Simulate API delay
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    return _attendanceRecords
+        .where((record) => record.studentId == studentId)
+        .toList();
   }
   
   // Get attendance by ID

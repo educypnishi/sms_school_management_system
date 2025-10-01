@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+// import 'package:fl_chart/fl_chart.dart'; // Temporarily disabled
 import '../models/gradebook_model.dart';
 import '../services/gradebook_service.dart';
 import '../theme/app_theme.dart';

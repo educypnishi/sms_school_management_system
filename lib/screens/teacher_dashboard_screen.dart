@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import '../services/application_service.dart';
+import '../services/class_service.dart';
+import '../services/grade_service.dart';
+import '../services/attendance_service.dart';
+import '../services/auth_service.dart';
+import '../models/class_model.dart';
+import '../models/grade_model.dart';
+import '../models/attendance_model.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import '../widgets/notification_badge.dart';
 import 'partner_applications_screen.dart';
+import 'teacher_classes_screen.dart';
+// import 'teacher_gradebook_screen.dart';
+import 'attendance_tracker_screen.dart';
 
 class TeacherDashboardScreen extends StatefulWidget {
   const TeacherDashboardScreen({super.key});
@@ -16,7 +26,18 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   String _teacherName = '';
   bool _isLoading = true;
   int _assignedClasses = 0;
+  int _totalStudents = 0;
+  double _averageGrade = 0.0;
+  int _pendingGrades = 0;
+  List<ClassModel> _classes = [];
+  List<GradeModel> _recentGrades = [];
+  Map<String, dynamic> _attendanceStats = {};
+  
   final ApplicationService _applicationService = ApplicationService();
+  final ClassService _classService = ClassService();
+  final GradeService _gradeService = GradeService();
+  final AttendanceService _attendanceService = AttendanceService();
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -30,25 +51,90 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     });
     
     try {
-      // In a real app, you would fetch teacher data from Firestore
-      // For now, we'll just use a placeholder name
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Get current user
+      final currentUser = await _authService.getCurrentUser();
       
-      // Get assigned applications count (will be classes in the future)
-      final applications = await _applicationService.getPartnerApplications();
+      // Load classes data
+      final classes = await _classService.getAllClasses();
+      
+      // Generate sample grades if needed
+      await _gradeService.generateSampleGrades();
+      
+      // Get grades for teacher's classes
+      final allGrades = await _gradeService.getAllGrades();
+      final teacherGrades = allGrades.where((grade) => 
+        grade.teacherName.contains('Prof.') || 
+        grade.teacherName.contains('Dr.') ||
+        grade.teacherName.contains('Ms.') ||
+        grade.teacherName.contains('Mr.')
+      ).toList();
+      
+      // Calculate statistics
+      final totalStudents = _calculateTotalStudents(classes);
+      final averageGrade = _calculateAverageGrade(teacherGrades);
+      final pendingGrades = _calculatePendingGrades(teacherGrades);
+      final recentGrades = _getRecentGrades(teacherGrades, 5);
+      
+      // Get attendance statistics
+      final attendanceRecords = await _attendanceService.getAllAttendanceRecords();
+      final attendanceStats = _calculateAttendanceStats(attendanceRecords);
       
       setState(() {
-        _teacherName = 'Teacher';
-        _assignedClasses = applications.length;
+        _teacherName = currentUser?.name ?? 'Dr. Ayesha Rahman';
+        _assignedClasses = classes.length;
+        _totalStudents = totalStudents;
+        _averageGrade = averageGrade;
+        _pendingGrades = pendingGrades;
+        _classes = classes.take(3).toList(); // Show first 3 classes
+        _recentGrades = recentGrades;
+        _attendanceStats = attendanceStats;
         _isLoading = false;
       });
     } catch (e) {
       debugPrint('Error loading teacher data: $e');
       setState(() {
-        _teacherName = 'Teacher';
+        _teacherName = 'Dr. Ayesha Rahman';
         _isLoading = false;
       });
     }
+  }
+  
+  int _calculateTotalStudents(List<ClassModel> classes) {
+    return classes.fold(0, (sum, classModel) => sum + classModel.currentStudents);
+  }
+  
+  double _calculateAverageGrade(List<GradeModel> grades) {
+    if (grades.isEmpty) return 0.0;
+    final total = grades.fold(0.0, (sum, grade) => sum + grade.score);
+    return total / grades.length;
+  }
+  
+  int _calculatePendingGrades(List<GradeModel> grades) {
+    // In a real app, this would check for ungraded assignments
+    return (grades.length * 0.2).round(); // Simulate 20% pending
+  }
+  
+  List<GradeModel> _getRecentGrades(List<GradeModel> grades, int count) {
+    grades.sort((a, b) => b.gradedDate.compareTo(a.gradedDate));
+    return grades.take(count).toList();
+  }
+  
+  Map<String, dynamic> _calculateAttendanceStats(List<AttendanceModel> records) {
+    if (records.isEmpty) {
+      return {'present': 0, 'absent': 0, 'late': 0, 'rate': 0.0};
+    }
+    
+    final present = records.where((r) => r.status == 'present').length;
+    final absent = records.where((r) => r.status == 'absent').length;
+    final late = records.where((r) => r.status == 'late').length;
+    final rate = (present / records.length) * 100;
+    
+    return {
+      'present': present,
+      'absent': absent,
+      'late': late,
+      'rate': rate,
+    };
   }
 
   Future<void> _logout() async {
@@ -64,6 +150,11 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
         actions: [
           const NotificationBadge(),
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadTeacherData,
+            tooltip: 'Refresh',
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.pushNamed(context, AppConstants.settingsRoute);
@@ -74,187 +165,307 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Welcome Card
-                  Card(
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome, $_teacherName!',
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Manage your classes and student enrollments',
-                            style: TextStyle(color: AppTheme.lightTextColor),
-                          ),
-                        ],
+          : RefreshIndicator(
+              onRefresh: _loadTeacherData,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Welcome Card
+                    Card(
+                      elevation: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: AppTheme.primaryColor,
+                              child: Text(
+                                _teacherName.isNotEmpty ? _teacherName[0].toUpperCase() : 'T',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Welcome, $_teacherName!',
+                                    style: Theme.of(context).textTheme.headlineSmall,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Managing $_assignedClasses classes • $_totalStudents students',
+                                    style: const TextStyle(color: AppTheme.lightTextColor),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  // Quick Actions
-                  Text(
-                    'Quick Actions',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Action Buttons
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    children: [
-                      _buildActionCard(
-                        context,
-                        'Manage Classes',
-                        Icons.class_,
-                        AppTheme.primaryColor,
-                        () {
-                          // Navigate to classes management
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PartnerApplicationsScreen(),
-                            ),
-                          ).then((_) => _loadTeacherData()); // Refresh data when returning
-                        },
-                      ),
-                      _buildActionCard(
-                        context,
-                        'Student Records',
-                        Icons.folder_shared,
-                        AppTheme.secondaryColor,
-                        () {
-                          // Navigate to student records
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Student records will be available soon')),
-                          );
-                        },
-                      ),
-                      _buildActionCard(
-                        context,
-                        'Take Attendance',
-                        Icons.fact_check,
-                        Colors.green,
-                        () {
-                          // Navigate to attendance taking
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Attendance feature will be available soon')),
-                          );
-                        },
-                      ),
-                      _buildActionCard(
-                        context,
-                        'Grade Assignments',
-                        Icons.grading,
-                        Colors.orange,
-                        () {
-                          // Navigate to grading
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Grading feature will be available soon')),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Assigned Classes
-                  Text(
-                    'Assigned Classes',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  _assignedClasses > 0
-                    ? Card(
-                        elevation: 2,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                    const SizedBox(height: 24),
+                    
+                    // Statistics Cards
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildStatCard(
+                            'Classes',
+                            _assignedClasses.toString(),
+                            Icons.class_,
+                            AppTheme.primaryColor,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildStatCard(
+                            'Students',
+                            _totalStudents.toString(),
+                            Icons.people,
+                            Colors.blue,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildStatCard(
+                            'Avg Grade',
+                            _averageGrade.toStringAsFixed(1),
+                            Icons.grade,
+                            Colors.green,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildStatCard(
+                            'Attendance',
+                            '${(_attendanceStats['rate'] ?? 0.0).toStringAsFixed(1)}%',
+                            Icons.fact_check,
+                            Colors.orange,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // Quick Actions
+                    Text(
+                      'Quick Actions',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Action Buttons
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      childAspectRatio: 1.2,
+                      children: [
+                        _buildActionCard(
+                          context,
+                          'My Classes',
+                          Icons.class_,
+                          AppTheme.primaryColor,
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const TeacherClassesScreen(),
+                              ),
+                            ).then((_) => _loadTeacherData());
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
+                          'Gradebook',
+                          Icons.grading,
+                          Colors.green,
+                          () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Gradebook temporarily disabled')),
+                            );
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
+                          'Attendance',
+                          Icons.fact_check,
+                          Colors.blue,
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AttendanceTrackerScreen(userId: 'teacher123'),
+                              ),
+                            ).then((_) => _loadTeacherData());
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
+                          'Analytics',
+                          Icons.analytics,
+                          Colors.purple,
+                          () {
+                            Navigator.pushNamed(
+                              context,
+                              AppConstants.analyticsDashboardRoute,
+                              arguments: {'userRole': 'teacher'},
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // My Classes Section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'My Classes',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const TeacherClassesScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text('View All'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    _classes.isNotEmpty
+                        ? Column(
+                            children: _classes.map((classModel) => 
+                              _buildClassCard(classModel)
+                            ).toList(),
+                          )
+                        : Card(
+                            elevation: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.class_,
-                                    color: AppTheme.primaryColor,
+                                    size: 48,
+                                    color: Colors.grey[400],
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '$_assignedClasses Classes Assigned',
-                                    style: const TextStyle(
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'No classes assigned yet',
+                                    style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Classes will be assigned by the admin',
+                                    style: TextStyle(color: AppTheme.lightTextColor),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                'Manage your classes and student enrollments',
-                                style: TextStyle(color: AppTheme.lightTextColor),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const PartnerApplicationsScreen(),
-                                    ),
-                                  ).then((_) => _loadTeacherData());
-                                },
-                                icon: const Icon(Icons.visibility),
-                                label: const Text('View Classes'),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      )
-                    : const Card(
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Recent Grades Section
+                    if (_recentGrades.isNotEmpty) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Recent Grades',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Gradebook temporarily disabled')),
+                              );
+                            },
+                            child: const Text('View All'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      Card(
                         elevation: 2,
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'No classes assigned yet',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Classes will be assigned by admin',
-                                style: TextStyle(color: AppTheme.lightTextColor),
-                              ),
-                            ],
-                          ),
+                        child: Column(
+                          children: _recentGrades.take(3).map((grade) => 
+                            _buildGradeItem(grade)
+                          ).toList(),
                         ),
                       ),
-                ],
+                    ],
+                  ],
+                ),
               ),
             ),
     );
   }
 
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.lightTextColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
   Widget _buildActionCard(
     BuildContext context,
     String title,
@@ -274,16 +485,16 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             children: [
               Icon(
                 icon,
-                size: 40,
+                size: 32,
                 color: color,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Text(
                 title,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
             ],
@@ -291,5 +502,168 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
         ),
       ),
     );
+  }
+  
+  Widget _buildClassCard(ClassModel classModel) {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.class_,
+                    color: AppTheme.primaryColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        classModel.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        '${classModel.grade} • ${classModel.subject}',
+                        style: const TextStyle(
+                          color: AppTheme.lightTextColor,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${classModel.currentStudents}/${classModel.capacity}',
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                const SizedBox(width: 4),
+                Text(
+                  classModel.room,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+                const SizedBox(width: 16),
+                Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    classModel.schedule,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildGradeItem(GradeModel grade) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: _getGradeColor(grade.letterGrade),
+        child: Text(
+          grade.letterGrade,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      title: Text(
+        grade.courseName,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(
+        '${grade.assessmentType} • ${grade.studentName}',
+        style: const TextStyle(fontSize: 12),
+      ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '${grade.score.toStringAsFixed(1)}/${grade.maxScore.toStringAsFixed(0)}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+          Text(
+            _formatDate(grade.gradedDate),
+            style: const TextStyle(
+              color: AppTheme.lightTextColor,
+              fontSize: 10,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Color _getGradeColor(String letterGrade) {
+    switch (letterGrade) {
+      case 'A':
+        return Colors.green;
+      case 'B':
+        return Colors.blue;
+      case 'C':
+        return Colors.orange;
+      case 'D':
+        return Colors.red;
+      case 'F':
+        return Colors.red[800]!;
+      default:
+        return Colors.grey;
+    }
+  }
+  
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date).inDays;
+    
+    if (difference == 0) {
+      return 'Today';
+    } else if (difference == 1) {
+      return 'Yesterday';
+    } else if (difference < 7) {
+      return '$difference days ago';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
   }
 }

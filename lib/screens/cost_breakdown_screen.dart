@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+// import 'package:fl_chart/fl_chart.dart'; // Temporarily disabled
 import '../models/cost_calculator_model.dart';
 import '../services/cost_calculator_service.dart';
 import '../theme/app_theme.dart';
@@ -127,7 +127,7 @@ class _CostBreakdownScreenState extends State<CostBreakdownScreen> with SingleTi
     nonZeroCategories.sort((a, b) => b.value.compareTo(a.value));
     
     // Prepare pie chart sections
-    final pieChartSections = <PieChartSectionData>[];
+    final pieChartSections = <Map<String, dynamic>>[];
     
     for (var i = 0; i < nonZeroCategories.length; i++) {
       final entry = nonZeroCategories[i];
@@ -135,25 +135,12 @@ class _CostBreakdownScreenState extends State<CostBreakdownScreen> with SingleTi
       final cost = entry.value;
       final percentage = totalCost > 0 ? (cost / totalCost * 100) : 0;
       
-      pieChartSections.add(
-        PieChartSectionData(
-          color: category.color,
-          value: cost,
-          title: '${percentage.toStringAsFixed(1)}%',
-          radius: 100,
-          titleStyle: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          badgeWidget: nonZeroCategories.length <= 5 ? Icon(
-            category.icon,
-            size: 20,
-            color: Colors.white,
-          ) : null,
-          badgePositionPercentageOffset: 0.8,
-        ),
-      );
+      pieChartSections.add({
+        'color': category.color,
+        'value': cost,
+        'title': '${percentage.toStringAsFixed(1)}%',
+        'category': category.name,
+      });
     }
     
     return SingleChildScrollView(
@@ -191,13 +178,27 @@ class _CostBreakdownScreenState extends State<CostBreakdownScreen> with SingleTi
                       ],
                     ),
                   )
-                : PieChart(
-                    PieChartData(
-                      sections: pieChartSections,
-                      sectionsSpace: 2,
-                      centerSpaceRadius: 40,
-                      startDegreeOffset: -90,
-                      centerSpaceColor: Colors.white,
+                : Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[300]!),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.pie_chart, size: 48, color: Colors.grey),
+                          SizedBox(height: 8),
+                          Text(
+                            'Cost Distribution Chart',
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
+                          Text(
+                            '(Chart temporarily disabled)',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
           ),
