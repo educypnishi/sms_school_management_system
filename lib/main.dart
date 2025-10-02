@@ -24,6 +24,18 @@ import 'screens/calendar_screen.dart';
 import 'screens/program_comparison_screen.dart' as original_program_comparison;
 import 'screens/saved_comparisons_screen.dart';
 // import 'screens/analytics_dashboard_screen.dart'; // Temporarily disabled
+import 'screens/timetable_generator_screen.dart';
+import 'screens/timetable_viewer_screen.dart';
+// import 'screens/learning_management_screen.dart';
+// Temporarily disabled due to compilation issues
+// import 'screens/assignment_creator_screen.dart';
+// import 'screens/assignment_list_screen.dart';
+// Temporarily disabled for compilation
+// import 'screens/quiz_builder_screen.dart';
+// import 'screens/employee_dashboard_screen.dart';
+// import 'screens/employee_management_screen.dart';
+// import 'screens/payroll_management_screen.dart';
+// import 'screens/payment_gateway_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/constants.dart';
 
@@ -124,6 +136,21 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
+        
+        // Timetable Routes
+        AppConstants.timetableGeneratorRoute: (context) => const TimetableGeneratorScreen(),
+        AppConstants.timetableViewerRoute: (context) => const TimetableViewerScreen(),
+        
+        // Learning Management Routes - Temporarily disabled
+        // AppConstants.learningManagementRoute: (context) => const LearningManagementScreen(),
+        // Temporarily disabled routes
+        // AppConstants.assignmentCreatorRoute: (context) => const AssignmentCreatorScreen(),
+        // AppConstants.assignmentListRoute: (context) => const AssignmentListScreen(),
+        // AppConstants.quizBuilderRoute: (context) => const QuizBuilderScreen(),
+        // AppConstants.employeeDashboardRoute: (context) => const EmployeeDashboardScreen(),
+        // AppConstants.employeeManagementRoute: (context) => const EmployeeManagementScreen(),
+        // AppConstants.payrollManagementRoute: (context) => const PayrollManagementScreen(),
+        // AppConstants.paymentGatewayRoute: (context) => PaymentGatewayScreen(...),
       },
     );
   }

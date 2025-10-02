@@ -27,6 +27,24 @@ class AppConstants {
   static const String savedComparisonsRoute = '/courses/comparisons';
   static const String analyticsDashboardRoute = '/analytics';
   
+  // Timetable Routes
+  static const String timetableGeneratorRoute = '/timetable/generator';
+  static const String timetableViewerRoute = '/timetable/viewer';
+  
+  // Learning Management Routes
+  static const String learningManagementRoute = '/learning';
+  static const String assignmentCreatorRoute = '/assignment/creator';
+  static const String assignmentListRoute = '/assignment/list';
+  static const String quizBuilderRoute = '/quiz/builder';
+  
+  // Employee Management Routes
+  static const String employeeDashboardRoute = '/employee/dashboard';
+  static const String employeeManagementRoute = '/employee/management';
+  static const String payrollManagementRoute = '/payroll/management';
+  
+  // Payment Routes
+  static const String paymentGatewayRoute = '/payment/gateway';
+  
   // Shared Preferences Keys
   static const String userIdKey = 'userId';
   static const String userNameKey = 'userName';

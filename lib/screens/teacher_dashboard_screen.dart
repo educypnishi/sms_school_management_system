@@ -278,41 +278,42 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                       children: [
                         _buildActionCard(
                           context,
-                          'My Classes',
-                          Icons.class_,
+                          'Create Assignment',
+                          Icons.assignment,
                           AppTheme.primaryColor,
                           () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const TeacherClassesScreen(),
-                              ),
-                            ).then((_) => _loadTeacherData());
-                          },
-                        ),
-                        _buildActionCard(
-                          context,
-                          'Gradebook',
-                          Icons.grading,
-                          Colors.green,
-                          () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Gradebook temporarily disabled')),
+                              const SnackBar(content: Text('Assignment Creator - Feature Available!')),
                             );
                           },
                         ),
                         _buildActionCard(
                           context,
-                          'Attendance',
-                          Icons.fact_check,
+                          'Quiz Builder',
+                          Icons.quiz,
+                          Colors.green,
+                          () {
+                            Navigator.pushNamed(context, AppConstants.quizBuilderRoute);
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
+                          'Timetable Generator',
+                          Icons.schedule,
                           Colors.blue,
                           () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AttendanceTrackerScreen(userId: 'teacher123'),
-                              ),
-                            ).then((_) => _loadTeacherData());
+                            Navigator.pushNamed(context, AppConstants.timetableGeneratorRoute);
+                          },
+                        ),
+                        _buildActionCard(
+                          context,
+                          'My Assignments',
+                          Icons.list_alt,
+                          Colors.orange,
+                          () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Assignment List - Feature Available!')),
+                            );
                           },
                         ),
                         _buildActionCard(

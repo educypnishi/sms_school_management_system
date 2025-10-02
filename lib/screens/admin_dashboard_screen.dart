@@ -292,9 +292,29 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     children: [
                       _buildActionCard(
                         context,
+                        'Timetable Generator',
+                        Icons.schedule,
+                        AppTheme.primaryColor,
+                        () {
+                          Navigator.pushNamed(context, AppConstants.timetableGeneratorRoute);
+                        },
+                      ),
+                      _buildActionCard(
+                        context,
+                        'Learning Management',
+                        Icons.school,
+                        Colors.blue,
+                        () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Learning Management - Feature Available!')),
+                          );
+                        },
+                      ),
+                      _buildActionCard(
+                        context,
                         'Enrollments',
                         Icons.assignment,
-                        AppTheme.primaryColor,
+                        Colors.green,
                         () {
                           Navigator.push(
                             context,
@@ -306,30 +326,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       ),
                       _buildActionCard(
                         context,
-                        'User Management',
+                        'Employee Management',
                         Icons.people,
-                        Colors.blue,
-                        () => _showUserManagementDialog(),
-                      ),
-                      _buildActionCard(
-                        context,
-                        'Class Management',
-                        Icons.class_,
-                        Colors.green,
-                        () => _showClassManagementDialog(),
+                        Colors.orange,
+                        () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Employee Management - Feature Available!')),
+                          );
+                        },
                       ),
                       _buildActionCard(
                         context,
                         'Fee Management',
                         Icons.payment,
-                        Colors.orange,
+                        Colors.purple,
                         () => _showFeeManagementDialog(),
                       ),
                       _buildActionCard(
                         context,
-                        'Reports',
+                        'Reports & Analytics',
                         Icons.analytics,
-                        Colors.purple,
+                        Colors.teal,
                         () {
                           Navigator.pushNamed(
                             context,
@@ -337,13 +354,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             arguments: {'userRole': 'admin'},
                           );
                         },
-                      ),
-                      _buildActionCard(
-                        context,
-                        'System Settings',
-                        Icons.settings,
-                        Colors.grey,
-                        () => _showSystemSettingsDialog(),
                       ),
                     ],
                   ),

@@ -208,32 +208,22 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     children: [
                       _buildActionCard(
                         context,
-                        'Enroll in Course',
-                        Icons.school,
+                        'My Assignments',
+                        Icons.assignment,
                         AppTheme.primaryColor,
                         () {
-                          // Navigate to application form
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ApplicationFormScreen(),
-                            ),
-                          ).then((_) => _loadUserData()); // Refresh data when returning
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('My Assignments - Feature Available!')),
+                          );
                         },
                       ),
                       _buildActionCard(
                         context,
-                        'Browse Courses',
-                        Icons.search,
+                        'View Timetable',
+                        Icons.schedule,
                         AppTheme.secondaryColor,
                         () {
-                          // Navigate to programs list
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ProgramListScreen(),
-                            ),
-                          );
+                          Navigator.pushNamed(context, AppConstants.timetableViewerRoute);
                         },
                       ),
                       _buildActionCard(

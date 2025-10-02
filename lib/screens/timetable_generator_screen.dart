@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../services/timetable_service.dart';
+import '../models/timetable_model.dart';
 
 class TimetableGeneratorScreen extends StatefulWidget {
   const TimetableGeneratorScreen({super.key});
@@ -13,6 +15,9 @@ class _TimetableGeneratorScreenState extends State<TimetableGeneratorScreen> wit
   bool _isGenerating = false;
   String _selectedClass = 'Class 9-A';
   String _selectedTerm = 'Spring 2025';
+  final TimetableService _timetableService = TimetableService();
+  TimetableModel? _generatedTimetable;
+  Map<String, List<String>> _validationErrors = {};
 
   @override
   void initState() {
@@ -551,37 +556,281 @@ class _TimetableGeneratorScreenState extends State<TimetableGeneratorScreen> wit
   void _generateTimetable() async {
     setState(() {
       _isGenerating = true;
+      _validationErrors = {};
     });
     
-    // Simulate timetable generation
-    await Future.delayed(const Duration(seconds: 3));
-    
-    setState(() {
-      _isGenerating = false;
-    });
-    
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Timetable Generated'),
-          content: const Text('Timetable has been successfully generated for the selected class. You can now review and make adjustments if needed.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _tabController.animateTo(1); // Switch to manual tab
-              },
-              child: const Text('Review & Edit'),
-            ),
-          ],
-        ),
+    try {
+      // Generate timetable using the service
+      final timetable = await _timetableService.generateAutoTimetable(
+        className: _selectedClass,
+        term: _selectedTerm,
+        constraints: {
+          'avoidConsecutiveSameSubjects': true,
+          'prioritizeCoreSubjectsInMorning': true,
+          'considerTeacherAvailability': true,
+          'includeLabSessions': true,
+        },
       );
+      
+      // Validate the generated timetable
+      final conflicts = _timetableService.validateTimetable(timetable);
+      
+      setState(() {
+        _generatedTimetable = timetable;
+        _validationErrors = conflicts;
+        _isGenerating = false;
+      });
+      
+      if (mounted) {
+        if (conflicts.isEmpty) {
+          // Show success dialog
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green),
+                  SizedBox(width: 8),
+                  Text('Timetable Generated Successfully'),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Timetable has been successfully generated for $_selectedClass.'),
+                  const SizedBox(height: 16),
+                  Text('Statistics:', style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 8),
+                  ...timetable.getStatistics().entries.where((e) => e.key.startsWith('total')).map(
+                    (stat) => Text('• ${stat.key.replaceAll('total', '').replaceAll(RegExp(r'(?=[A-Z])'), ' ').trim()}: ${stat.value}'),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showTimetablePreview();
+                  },
+                  child: const Text('View Timetable'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          // Show conflicts dialog
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.warning, color: Colors.orange),
+                  SizedBox(width: 8),
+                  Text('Timetable Generated with Conflicts'),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('The timetable was generated but has some conflicts:'),
+                  const SizedBox(height: 16),
+                  ...conflicts.entries.map((conflict) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(conflict.key, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      ...conflict.value.map((issue) => Text('• $issue')),
+                      const SizedBox(height: 8),
+                    ],
+                  )),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _generateTimetable(); // Try again
+                  },
+                  child: const Text('Regenerate'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showTimetablePreview();
+                  },
+                  child: const Text('View Anyway'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isGenerating = false;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error generating timetable: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
+  }
+
+  void _showTimetablePreview() {
+    if (_generatedTimetable == null) return;
+    
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: MediaQuery.of(context).size.height * 0.8,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Timetable Preview - $_selectedClass',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: _buildTimetablePreview(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _tabController.animateTo(1); // Switch to manual tab
+                    },
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Edit'),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Timetable saved successfully!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimetablePreview() {
+    if (_generatedTimetable == null) return const SizedBox();
+    
+    final timeSlots = ['08:00 - 08:45', '08:45 - 09:30', '09:30 - 10:15', '10:15 - 10:30', 
+                      '10:30 - 11:15', '11:15 - 12:00', '12:00 - 12:45', '12:45 - 13:30',
+                      '13:30 - 14:15', '14:15 - 15:00', '15:00 - 15:45'];
+    final days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columns: [
+          const DataColumn(label: Text('Time', style: TextStyle(fontWeight: FontWeight.bold))),
+          ...days.map((day) => DataColumn(label: Text(day, style: const TextStyle(fontWeight: FontWeight.bold)))),
+        ],
+        rows: timeSlots.map((timeSlot) {
+          return DataRow(
+            cells: [
+              DataCell(Text(timeSlot, style: const TextStyle(fontSize: 12))),
+              ...days.map((day) {
+                final slot = _generatedTimetable!.schedule[day]?[timeSlot];
+                if (slot == null) {
+                  return const DataCell(Text(''));
+                }
+                
+                if (slot.isBreak) {
+                  return DataCell(
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        slot.subject,
+                        style: const TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                }
+                
+                return DataCell(
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          slot.subject,
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          slot.teacher,
+                          style: const TextStyle(fontSize: 8),
+                        ),
+                        Text(
+                          slot.room,
+                          style: const TextStyle(fontSize: 8, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          );
+        }).toList(),
+      ),
+    );
   }
 
   void _showAddPeriodDialog() {

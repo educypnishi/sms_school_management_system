@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../services/assignment_service.dart';
+import '../models/assignment_model.dart';
 
 class AssignmentCreatorScreen extends StatefulWidget {
   const AssignmentCreatorScreen({super.key});
@@ -10,12 +12,19 @@ class AssignmentCreatorScreen extends StatefulWidget {
 
 class _AssignmentCreatorScreenState extends State<AssignmentCreatorScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final AssignmentService _assignmentService = AssignmentService();
+  
   String _selectedClass = 'Class 9-A';
   String _selectedSubject = 'Mathematics';
   DateTime _dueDate = DateTime.now().add(const Duration(days: 7));
   TimeOfDay _dueTime = const TimeOfDay(hour: 23, minute: 59);
   bool _allowLateSubmission = true;
   int _maxMarks = 100;
+  bool _isCreating = false;
+  List<String> _attachments = [];
+  List<Map<String, dynamic>> _rubricCriteria = [];
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +59,7 @@ class _AssignmentCreatorScreenState extends State<AssignmentCreatorScreen> {
                       const SizedBox(height: 16),
                       
                       TextFormField(
+                        controller: _titleController,
                         decoration: const InputDecoration(
                           labelText: 'Assignment Title *',
                           border: OutlineInputBorder(),
@@ -95,12 +105,14 @@ class _AssignmentCreatorScreenState extends State<AssignmentCreatorScreen> {
                       const SizedBox(height: 16),
                       
                       TextFormField(
+                        controller: _descriptionController,
                         decoration: const InputDecoration(
                           labelText: 'Description',
                           border: OutlineInputBorder(),
                           hintText: 'Assignment instructions and description',
                         ),
                         maxLines: 4,
+                        validator: (value) => value?.isEmpty ?? true ? 'Description is required' : null,
                       ),
                     ],
                   ),
@@ -309,12 +321,25 @@ class _AssignmentCreatorScreenState extends State<AssignmentCreatorScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _createAssignment,
+                      onPressed: _isCreating ? null : _createAssignment,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('Create Assignment'),
+                      child: _isCreating
+                          ? const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                                SizedBox(width: 12),
+                                Text('Creating...'),
+                              ],
+                            )
+                          : const Text('Create Assignment'),
                     ),
                   ),
                 ],
@@ -409,15 +434,49 @@ class _AssignmentCreatorScreenState extends State<AssignmentCreatorScreen> {
     );
   }
 
-  void _createAssignment() {
+  void _createAssignment() async {
     if (_formKey.currentState?.validate() ?? false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Assignment created successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context);
+      setState(() => _isCreating = true);
+      
+      try {
+        await _assignmentService.createAssignment(
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          className: _selectedClass,
+          subject: _selectedSubject,
+          teacherId: 'teacher_${DateTime.now().millisecondsSinceEpoch}', // Mock teacher ID
+          teacherName: 'Current Teacher', // Mock teacher name
+          dueDate: _dueDate,
+          dueTime: _dueTime,
+          maxMarks: _maxMarks,
+          allowLateSubmission: _allowLateSubmission,
+          attachments: _attachments,
+          rubricCriteria: _rubricCriteria,
+        );
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Assignment created successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error creating assignment: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isCreating = false);
+        }
+      }
     }
   }
 }
