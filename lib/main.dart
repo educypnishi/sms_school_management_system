@@ -23,21 +23,26 @@ import 'screens/document_management_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/program_comparison_screen.dart' as original_program_comparison;
 import 'screens/saved_comparisons_screen.dart';
-// import 'screens/analytics_dashboard_screen.dart'; // Temporarily disabled
-// import 'screens/timetable_generator_screen.dart';
-// import 'screens/timetable_viewer_screen.dart';
-// import 'screens/notification_center_screen.dart';
-// import 'screens/student_performance_analytics_screen.dart';
-// import 'screens/learning_management_screen.dart';
-// Temporarily disabled due to compilation issues
-// import 'screens/assignment_creator_screen.dart';
-// import 'screens/assignment_list_screen.dart';
-// Temporarily disabled for compilation
-// import 'screens/quiz_builder_screen.dart';
-// import 'screens/employee_dashboard_screen.dart';
-// import 'screens/employee_management_screen.dart';
-// import 'screens/payroll_management_screen.dart';
-// import 'screens/payment_gateway_screen.dart';
+import 'screens/analytics_dashboard_screen.dart';
+import 'screens/timetable_generator_screen.dart';
+import 'screens/timetable_viewer_screen.dart';
+import 'screens/notification_center_screen.dart';
+import 'screens/student_performance_analytics_screen.dart';
+import 'screens/learning_management_screen.dart';
+import 'screens/assignment_creator_screen.dart';
+import 'screens/assignment_list_screen.dart';
+import 'screens/quiz_builder_screen.dart';
+import 'screens/employee_dashboard_screen.dart';
+import 'screens/employee_management_screen.dart';
+import 'screens/payroll_management_screen.dart';
+import 'screens/payment_gateway_screen.dart';
+import 'screens/grade_analytics_screen.dart';
+import 'screens/attendance_tracker_screen.dart';
+import 'screens/exam_scheduler_screen.dart';
+// import 'screens/fee_payment_screen.dart';
+import 'screens/student_fee_dashboard_screen.dart';
+import 'screens/university_comparison_screen.dart';
+import 'screens/visa_application_detail_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/constants.dart';
 
@@ -127,41 +132,62 @@ class _MyAppState extends State<MyApp> {
         AppConstants.savedComparisonsRoute: (context) => SavedComparisonsScreen(
           userId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['userId'] as String,
         ),
-        AppConstants.analyticsDashboardRoute: (context) => Scaffold(
-          appBar: AppBar(title: const Text('Analytics Dashboard')),
-          body: const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.analytics, size: 64, color: Colors.grey),
-                SizedBox(height: 16),
-                Text('Analytics Dashboard', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text('(Temporarily disabled)', style: TextStyle(color: Colors.grey)),
-              ],
-            ),
-          ),
+        AppConstants.analyticsDashboardRoute: (context) => const AnalyticsDashboardScreen(
+          userRole: 'admin',
         ),
         
-        // Timetable Routes - Temporarily disabled
-        // AppConstants.timetableGeneratorRoute: (context) => const TimetableGeneratorScreen(),
-        // AppConstants.timetableViewerRoute: (context) => const TimetableViewerScreen(),
+        // Timetable Routes
+        AppConstants.timetableGeneratorRoute: (context) => const TimetableGeneratorScreen(),
+        AppConstants.timetableViewerRoute: (context) => const TimetableViewerScreen(),
         
-        // Notification Routes - Temporarily disabled
-        // AppConstants.notificationCenterRoute: (context) => const NotificationCenterScreen(),
+        // Notification Routes
+        AppConstants.notificationCenterRoute: (context) => const NotificationCenterScreen(),
         
-        // Analytics Routes - Temporarily disabled
-        // AppConstants.studentPerformanceAnalyticsRoute: (context) => const StudentPerformanceAnalyticsScreen(),
+        // Analytics Routes
+        AppConstants.studentPerformanceAnalyticsRoute: (context) => const StudentPerformanceAnalyticsScreen(),
         
-        // Learning Management Routes - Temporarily disabled
-        // AppConstants.learningManagementRoute: (context) => const LearningManagementScreen(),
-        // Temporarily disabled routes
-        // AppConstants.assignmentCreatorRoute: (context) => const AssignmentCreatorScreen(),
-        // AppConstants.assignmentListRoute: (context) => const AssignmentListScreen(),
-        // AppConstants.quizBuilderRoute: (context) => const QuizBuilderScreen(),
-        // AppConstants.employeeDashboardRoute: (context) => const EmployeeDashboardScreen(),
-        // AppConstants.employeeManagementRoute: (context) => const EmployeeManagementScreen(),
-        // AppConstants.payrollManagementRoute: (context) => const PayrollManagementScreen(),
-        // AppConstants.paymentGatewayRoute: (context) => PaymentGatewayScreen(...),
+        // Learning Management Routes
+        AppConstants.learningManagementRoute: (context) => const LearningManagementScreen(),
+        AppConstants.assignmentCreatorRoute: (context) => const AssignmentCreatorScreen(),
+        AppConstants.assignmentListRoute: (context) => const AssignmentListScreen(),
+        AppConstants.quizBuilderRoute: (context) => const QuizBuilderScreen(),
+        
+        // Employee Management Routes
+        AppConstants.employeeDashboardRoute: (context) => const EmployeeDashboardScreen(),
+        AppConstants.employeeManagementRoute: (context) => const EmployeeManagementScreen(),
+        AppConstants.payrollManagementRoute: (context) => const PayrollManagementScreen(),
+        
+        // Payment Routes
+        AppConstants.paymentGatewayRoute: (context) => PaymentGatewayScreen(
+          studentId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['studentId'] as String,
+          amount: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['amount'] as double,
+          description: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['description'] as String,
+        ),
+        AppConstants.feePaymentRoute: (context) => Scaffold(
+          appBar: AppBar(title: const Text('Fee Payment')),
+          body: const Center(child: Text('Fee Payment - Coming Soon!')),
+        ),
+        AppConstants.studentFeeDashboardRoute: (context) => const StudentFeeDashboardScreen(
+          studentId: 'demo_student',
+        ),
+        
+        // Additional Analytics Routes - Temporarily disabled
+        AppConstants.gradeAnalyticsRoute: (context) => Scaffold(
+          appBar: AppBar(title: const Text('Grade Analytics')),
+          body: const Center(child: Text('Grade Analytics - Coming Soon!')),
+        ),
+        
+        // Additional Academic Routes
+        AppConstants.attendanceTrackerRoute: (context) => const AttendanceTrackerScreen(
+          userId: 'demo_user',
+        ),
+        AppConstants.examSchedulerRoute: (context) => const ExamSchedulerScreen(),
+        
+        // University & Visa Routes
+        AppConstants.universityComparisonRoute: (context) => const UniversityComparisonScreen(),
+        AppConstants.visaApplicationDetailRoute: (context) => const VisaApplicationDetailScreen(
+          visaApplicationId: 'demo_visa_app',
+        ),
       },
     );
   }

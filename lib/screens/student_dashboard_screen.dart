@@ -280,9 +280,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         Icons.assignment,
                         AppTheme.secondaryColor,
                         () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('My Assignments - Feature Available!')),
-                          );
+                          Navigator.pushNamed(context, AppConstants.assignmentListRoute);
                         },
                       ),
                       _buildActionCard(
@@ -402,9 +400,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         Icons.analytics,
                         Colors.purple,
                         () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Performance Analytics - Feature Available!')),
-                          );
+                          Navigator.pushNamed(context, AppConstants.studentPerformanceAnalyticsRoute);
                         },
                       ),
                     ],

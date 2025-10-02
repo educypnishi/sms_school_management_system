@@ -20,12 +20,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
         actions: [
-          NotificationBadge(
-            count: 3,
-            onTap: () {
-              // Navigate to notifications
-            },
-          ),
+          const NotificationBadge(),
           const SizedBox(width: 16),
         ],
       ),

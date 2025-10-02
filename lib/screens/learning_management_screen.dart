@@ -185,7 +185,7 @@ class _LearningManagementScreenState extends State<LearningManagementScreen> wit
                     child: Text('${assignment['submissions']}', 
                         style: const TextStyle(color: Colors.white, fontSize: 12)),
                   ),
-                  title: Text(assignment['title']!),
+                  title: Text(assignment['title']! as String),
                   subtitle: Text('${assignment['subject']} • Due: ${assignment['due']}'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
@@ -245,7 +245,7 @@ class _LearningManagementScreenState extends State<LearningManagementScreen> wit
                     child: Text('${quiz['questions']}', 
                         style: const TextStyle(color: Colors.white)),
                   ),
-                  title: Text(quiz['title']!),
+                  title: Text(quiz['title']! as String),
                   subtitle: Text('${quiz['subject']} • ${quiz['attempts']} attempts'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {

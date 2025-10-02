@@ -50,6 +50,17 @@ class AppConstants {
   
   // Analytics Routes
   static const String studentPerformanceAnalyticsRoute = '/analytics/student-performance';
+  static const String gradeAnalyticsRoute = '/analytics/grades';
+  
+  // Additional Academic Routes
+  static const String attendanceTrackerRoute = '/attendance/tracker';
+  static const String examSchedulerRoute = '/exam/scheduler';
+  static const String feePaymentRoute = '/fee/payment';
+  static const String studentFeeDashboardRoute = '/student/fee-dashboard';
+  
+  // University & Visa Routes
+  static const String universityComparisonRoute = '/university/comparison';
+  static const String visaApplicationDetailRoute = '/visa/application/detail';
   
   // Shared Preferences Keys
   static const String userIdKey = 'userId';

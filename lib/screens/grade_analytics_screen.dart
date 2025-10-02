@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-// import 'package:fl_chart/fl_chart.dart'; // Temporarily disabled
+import 'package:fl_chart/fl_chart.dart';
 import '../models/gradebook_model.dart';
 import '../services/gradebook_service.dart';
 import '../theme/app_theme.dart';
 
 class GradeAnalyticsScreen extends StatefulWidget {
-  final String courseId;
-  final String courseName;
-  final bool isTeacher;
-
   const GradeAnalyticsScreen({
     super.key,
-    required this.courseId,
-    required this.courseName,
-    this.isTeacher = false,
   });
 
   @override
@@ -40,8 +33,8 @@ class _GradeAnalyticsScreenState extends State<GradeAnalyticsScreen> {
     });
 
     try {
-      final studentSummaries = await _gradebookService.getAllStudentGradeSummariesForCourse(widget.courseId);
-      final assignments = await _gradebookService.getAssignmentsForCourse(widget.courseId);
+      final studentSummaries = await _gradebookService.getAllStudentGradeSummariesForCourse('demo_course');
+      final assignments = await _gradebookService.getAssignmentsForCourse('demo_course');
       
       // Calculate grade distribution
       final gradeDistribution = <String, Map<String, int>>{};
@@ -99,7 +92,7 @@ class _GradeAnalyticsScreenState extends State<GradeAnalyticsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.isTeacher ? "Class" : "My"} Analytics: ${widget.courseName}'),
+        title: const Text('Grade Analytics Dashboard'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -162,10 +155,8 @@ class _GradeAnalyticsScreenState extends State<GradeAnalyticsScreen> {
           _buildGradeDistributionSection(),
           const SizedBox(height: 24),
           _buildAssignmentPerformanceSection(),
-          if (widget.isTeacher) ...[
-            const SizedBox(height: 24),
-            _buildStudentPerformanceSection(),
-          ],
+          const SizedBox(height: 24),
+          _buildStudentPerformanceSection(),
         ],
       ),
     );
@@ -217,7 +208,7 @@ class _GradeAnalyticsScreenState extends State<GradeAnalyticsScreen> {
                 _buildSummaryItem(
                   'Class Average',
                   '${classAverage.toStringAsFixed(1)}%',
-                  _getGradeColor(classAverage),
+                  _getGradeColor(classAverage.toDouble()),
                 ),
                 _buildSummaryItem(
                   'Total Students',
@@ -231,7 +222,7 @@ class _GradeAnalyticsScreenState extends State<GradeAnalyticsScreen> {
                 ),
               ],
             ),
-            if (widget.isTeacher && _studentSummaries.length > 1) ...[
+            if (_studentSummaries.length > 1) ...[
               const SizedBox(height: 16),
               const Divider(),
               const SizedBox(height: 16),
@@ -355,7 +346,6 @@ class _GradeAnalyticsScreenState extends State<GradeAnalyticsScreen> {
   Widget _buildGradeDistributionChart() {
     final distribution = _gradeDistribution['overall']!;
     final totalStudents = _studentSummaries.length;
-    
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
@@ -363,7 +353,7 @@ class _GradeAnalyticsScreenState extends State<GradeAnalyticsScreen> {
         barTouchData: BarTouchData(
           enabled: true,
           touchTooltipData: BarTouchTooltipData(
-            tooltipBgColor: Colors.blueGrey.shade800,
+            getTooltipColor: (group) => Colors.blueGrey.shade800,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               final grade = ['A', 'B', 'C', 'D', 'F'][groupIndex];
               final count = distribution[grade] ?? 0;
@@ -512,7 +502,7 @@ class _GradeAnalyticsScreenState extends State<GradeAnalyticsScreen> {
       LineChartData(
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
-            tooltipBgColor: Colors.blueGrey.shade800,
+            getTooltipColor: (touchedSpot) => Colors.blueGrey.shade800,
             getTooltipItems: (touchedSpots) {
               return touchedSpots.map((spot) {
                 final assignment = sortedAssignments[spot.x.toInt()];

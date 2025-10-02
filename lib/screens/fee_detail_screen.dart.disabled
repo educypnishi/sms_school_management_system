@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/fee_model.dart';
-import '../models/payment_model.dart';
+import '../models/payment_model.dart' as payment;
 import '../services/fee_service.dart';
 import '../services/receipt_service.dart';
 import '../theme/app_theme.dart';
