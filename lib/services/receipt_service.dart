@@ -180,7 +180,7 @@ class ReceiptService {
                       ),
                       pw.SizedBox(height: 4),
                       pw.Text(
-                        payment.studentName,
+                        payment.studentName ?? 'Student',
                         style: pw.TextStyle(
                           font: fontBold,
                           fontSize: 12,

@@ -225,103 +225,6 @@ class FeeModel {
   }
 }
 
-class PaymentModel {
-  final String id;
-  final String feeId;
-  final String studentId;
-  final String studentName;
-  final double amount;
-  final PaymentMethod method;
-  final String? transactionId;
-  final String? receiptNumber;
-  final DateTime paymentDate;
-  final String? notes;
-  final String? paymentProofUrl;
-  final bool isVerified;
-  final String? verifiedById;
-  final DateTime? verifiedAt;
-  final DateTime createdAt;
-
-  PaymentModel({
-    required this.id,
-    required this.feeId,
-    required this.studentId,
-    required this.studentName,
-    required this.amount,
-    required this.method,
-    this.transactionId,
-    this.receiptNumber,
-    required this.paymentDate,
-    this.notes,
-    this.paymentProofUrl,
-    required this.isVerified,
-    this.verifiedById,
-    this.verifiedAt,
-    required this.createdAt,
-  });
-
-  // Create a PaymentModel from a map (e.g., from Firestore)
-  factory PaymentModel.fromMap(Map<String, dynamic> map, String id) {
-    return PaymentModel(
-      id: id,
-      feeId: map['feeId'] ?? '',
-      studentId: map['studentId'] ?? '',
-      studentName: map['studentName'] ?? '',
-      amount: map['amount']?.toDouble() ?? 0.0,
-      method: _parsePaymentMethod(map['method']),
-      transactionId: map['transactionId'],
-      receiptNumber: map['receiptNumber'],
-      paymentDate: map['paymentDate'] != null 
-          ? DateTime.parse(map['paymentDate']) 
-          : DateTime.now(),
-      notes: map['notes'],
-      paymentProofUrl: map['paymentProofUrl'],
-      isVerified: map['isVerified'] ?? false,
-      verifiedById: map['verifiedById'],
-      verifiedAt: map['verifiedAt'] != null 
-          ? DateTime.parse(map['verifiedAt']) 
-          : null,
-      createdAt: map['createdAt'] != null 
-          ? DateTime.parse(map['createdAt']) 
-          : DateTime.now(),
-    );
-  }
-
-  // Convert PaymentModel to a map (e.g., for Firestore)
-  Map<String, dynamic> toMap() {
-    return {
-      'feeId': feeId,
-      'studentId': studentId,
-      'studentName': studentName,
-      'amount': amount,
-      'method': describeEnum(method),
-      'transactionId': transactionId,
-      'receiptNumber': receiptNumber,
-      'paymentDate': paymentDate.toIso8601String(),
-      'notes': notes,
-      'paymentProofUrl': paymentProofUrl,
-      'isVerified': isVerified,
-      'verifiedById': verifiedById,
-      'verifiedAt': verifiedAt?.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
-    };
-  }
-
-  // Helper method to parse PaymentMethod from string
-  static PaymentMethod _parsePaymentMethod(String? value) {
-    if (value == null) return PaymentMethod.other;
-    
-    try {
-      return PaymentMethod.values.firstWhere(
-        (method) => describeEnum(method) == value,
-        orElse: () => PaymentMethod.other,
-      );
-    } catch (_) {
-      return PaymentMethod.other;
-    }
-  }
-}
-
 class FeeStructureModel {
   final String id;
   final String academicYear;
@@ -329,13 +232,13 @@ class FeeStructureModel {
   final String title;
   final FeeType feeType;
   final double amount;
+  final DateTime createdAt;
   final String? gradeLevel;
   final String? program;
   final bool isRecurring;
   final String? recurringFrequency;
   final String? description;
   final DateTime dueDate;
-  final DateTime createdAt;
   final DateTime? updatedAt;
   final bool isActive;
 

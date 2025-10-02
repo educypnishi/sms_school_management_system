@@ -171,11 +171,8 @@ class _MyAppState extends State<MyApp> {
           studentId: 'demo_student',
         ),
         
-        // Additional Analytics Routes - Temporarily disabled
-        AppConstants.gradeAnalyticsRoute: (context) => Scaffold(
-          appBar: AppBar(title: const Text('Grade Analytics')),
-          body: const Center(child: Text('Grade Analytics - Coming Soon!')),
-        ),
+        // Additional Analytics Routes
+        AppConstants.gradeAnalyticsRoute: (context) => const GradeAnalyticsScreen(),
         
         // Additional Academic Routes
         AppConstants.attendanceTrackerRoute: (context) => const AttendanceTrackerScreen(

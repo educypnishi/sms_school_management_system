@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/fee_model.dart';
+import '../models/payment_model.dart' as payment;
 import '../services/auth_service.dart';
 
 class FeeService {
@@ -292,7 +293,7 @@ class FeeService {
   }
   
   // Record a payment
-  Future<PaymentModel> recordPayment({
+  Future<payment.PaymentModel> recordPayment({
     required String feeId,
     required double amount,
     required PaymentMethod method,
@@ -318,26 +319,23 @@ class FeeService {
       final paymentId = DateTime.now().millisecondsSinceEpoch.toString();
       
       // Create payment model
-      final payment = PaymentModel(
+      final paymentRecord = payment.PaymentModel(
         id: paymentId,
         feeId: feeId,
         studentId: fee.studentId,
         studentName: fee.studentName,
         amount: amount,
-        method: method,
+        paymentMethod: method,
+        status: 'completed',
+        paymentDate: paymentDate,
         transactionId: transactionId,
         receiptNumber: receiptNumber,
-        paymentDate: paymentDate,
         notes: notes,
-        paymentProofUrl: paymentProofUrl,
         isVerified: isVerified,
-        verifiedById: verifiedById,
-        verifiedAt: verifiedAt,
-        createdAt: DateTime.now(),
       );
       
       // Save payment to SharedPreferences
-      await prefs.setString('payment_$paymentId', jsonEncode(payment.toMap()));
+      await prefs.setString('payment_$paymentId', jsonEncode(paymentRecord.toMap()));
       
       // Add payment ID to fee's payments list
       final feePayments = prefs.getStringList('fee_payments_$feeId') ?? [];
@@ -375,7 +373,7 @@ class FeeService {
         await prefs.setString('fee_$feeId', jsonEncode(finalFee.toMap()));
       }
       
-      return payment;
+      return paymentRecord;
     } catch (e) {
       debugPrint('Error recording payment: $e');
       rethrow;
@@ -383,7 +381,7 @@ class FeeService {
   }
   
   // Get payment by ID
-  Future<PaymentModel?> getPaymentById(String paymentId) async {
+  Future<payment.PaymentModel?> getPaymentById(String paymentId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       
@@ -395,7 +393,7 @@ class FeeService {
       
       // Parse payment
       final paymentMap = jsonDecode(paymentJson) as Map<String, dynamic>;
-      return PaymentModel.fromMap(paymentMap, paymentId);
+      return payment.PaymentModel.fromMap(paymentMap, paymentId);
     } catch (e) {
       debugPrint('Error getting payment: $e');
       return null;
@@ -403,7 +401,7 @@ class FeeService {
   }
   
   // Get payments for a fee
-  Future<List<PaymentModel>> getPaymentsForFee(String feeId) async {
+  Future<List<payment.PaymentModel>> getPaymentsForFee(String feeId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       
@@ -411,11 +409,11 @@ class FeeService {
       final paymentIds = prefs.getStringList('fee_payments_$feeId') ?? [];
       
       // Get payments
-      final payments = <PaymentModel>[];
+      final payments = <payment.PaymentModel>[];
       for (final id in paymentIds) {
-        final payment = await getPaymentById(id);
-        if (payment != null) {
-          payments.add(payment);
+        final paymentObj = await getPaymentById(id);
+        if (paymentObj != null) {
+          payments.add(paymentObj);
         }
       }
       
@@ -430,7 +428,7 @@ class FeeService {
   }
   
   // Get payments for a student
-  Future<List<PaymentModel>> getPaymentsForStudent(String studentId) async {
+  Future<List<payment.PaymentModel>> getPaymentsForStudent(String studentId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       
@@ -439,14 +437,14 @@ class FeeService {
       final paymentKeys = allKeys.where((key) => key.startsWith('payment_')).toList();
       
       // Get payments
-      final payments = <PaymentModel>[];
+      final payments = <payment.PaymentModel>[];
       for (final key in paymentKeys) {
         final paymentJson = prefs.getString(key);
         if (paymentJson != null) {
           final paymentMap = jsonDecode(paymentJson) as Map<String, dynamic>;
           if (paymentMap['studentId'] == studentId) {
             final paymentId = key.substring('payment_'.length);
-            payments.add(PaymentModel.fromMap(paymentMap, paymentId));
+            payments.add(payment.PaymentModel.fromMap(paymentMap, paymentId));
           }
         }
       }
@@ -462,7 +460,7 @@ class FeeService {
   }
   
   // Verify payment
-  Future<PaymentModel> verifyPayment(String paymentId) async {
+  Future<payment.PaymentModel> verifyPayment(String paymentId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       
@@ -474,7 +472,7 @@ class FeeService {
       
       // Parse payment
       final paymentMap = jsonDecode(paymentJson) as Map<String, dynamic>;
-      final payment = PaymentModel.fromMap(paymentMap, paymentId);
+      final paymentObj = payment.PaymentModel.fromMap(paymentMap, paymentId);
       
       // Get current user (for verification)
       final authService = AuthService();
@@ -485,22 +483,19 @@ class FeeService {
       }
       
       // Create updated payment
-      final updatedPayment = PaymentModel(
-        id: payment.id,
-        feeId: payment.feeId,
-        studentId: payment.studentId,
-        studentName: payment.studentName,
-        amount: payment.amount,
-        method: payment.method,
-        transactionId: payment.transactionId,
-        receiptNumber: payment.receiptNumber,
-        paymentDate: payment.paymentDate,
-        notes: payment.notes,
-        paymentProofUrl: payment.paymentProofUrl,
+      final updatedPayment = payment.PaymentModel(
+        id: paymentObj.id,
+        feeId: paymentObj.feeId,
+        studentId: paymentObj.studentId,
+        studentName: paymentObj.studentName,
+        amount: paymentObj.amount,
+        paymentMethod: paymentObj.paymentMethod,
+        status: paymentObj.status,
+        paymentDate: paymentObj.paymentDate,
+        transactionId: paymentObj.transactionId,
+        receiptNumber: paymentObj.receiptNumber,
+        notes: paymentObj.notes,
         isVerified: true,
-        verifiedById: currentUser.id,
-        verifiedAt: DateTime.now(),
-        createdAt: payment.createdAt,
       );
       
       // Save updated payment to SharedPreferences

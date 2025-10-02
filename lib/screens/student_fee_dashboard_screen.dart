@@ -5,7 +5,7 @@ import '../services/fee_service.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import 'fee_payment_screen.dart';
-// import 'fee_detail_screen.dart'; // Temporarily disabled
+import 'fee_detail_screen.dart';
 
 class StudentFeeDashboardScreen extends StatefulWidget {
   final String studentId;
@@ -324,8 +324,13 @@ class _StudentFeeDashboardScreenState extends State<StudentFeeDashboardScreen> w
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Fee Details - Coming Soon!')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FeeDetailScreen(
+                feeId: fee.id,
+              ),
+            ),
           );
         },
         child: Column(

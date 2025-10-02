@@ -25,7 +25,7 @@ class _FeeDetailScreenState extends State<FeeDetailScreen> {
   bool _isLoading = true;
   bool _isGeneratingReceipt = false;
   FeeModel? _fee;
-  List<PaymentModel> _payments = [];
+  List<payment.PaymentModel> _payments = [];
 
   @override
   void initState() {
@@ -410,37 +410,36 @@ class _FeeDetailScreenState extends State<FeeDetailScreen> {
             // Days Remaining/Overdue
             if (_fee!.status != PaymentStatus.paid && 
                 _fee!.status != PaymentStatus.waived && 
-                _fee!.status != PaymentStatus.refunded) {
-              if (_fee!.isOverdue) {
+                _fee!.status != PaymentStatus.refunded) ...[
+              if (_fee!.isOverdue)
                 _buildDetailRow(
                   'Overdue',
                   '${_fee!.daysOverdue} days',
                   valueColor: Colors.red,
-                );
-              } else {
+                )
+              else
                 _buildDetailRow(
                   'Days Remaining',
                   '${_fee!.daysRemaining} days',
-                );
-              }
-            },
+                ),
+            ],
             
             // Recurring
-            if (_fee!.isRecurring) {
+            if (_fee!.isRecurring) ...[
               _buildDetailRow(
                 'Recurring',
                 'Yes (${_fee!.recurringFrequency ?? 'Not specified'})',
-              );
-            },
+              ),
+            ],
             
             // Description
-            if (_fee!.description != null && _fee!.description!.isNotEmpty) {
+            if (_fee!.description != null && _fee!.description!.isNotEmpty) ...[
               _buildDetailRow(
                 'Description',
                 _fee!.description!,
                 isMultiLine: true,
-              );
-            },
+              ),
+            ],
           ],
         ),
       ),
@@ -475,13 +474,13 @@ class _FeeDetailScreenState extends State<FeeDetailScreen> {
                 ),
               )
             : Column(
-                children: _payments.map((payment) => _buildPaymentCard(payment)).toList(),
+                children: _payments.map<Widget>((payment) => _buildPaymentCard(payment)).toList(),
               ),
       ],
     );
   }
 
-  Future<void> _generateReceipt(PaymentModel payment) async {
+  Future<void> _generateReceipt(payment.PaymentModel payment) async {
     setState(() {
       _isGeneratingReceipt = true;
     });
@@ -582,7 +581,7 @@ class _FeeDetailScreenState extends State<FeeDetailScreen> {
     }
   }
 
-  Widget _buildPaymentCard(PaymentModel payment) {
+  Widget _buildPaymentCard(payment.PaymentModel payment) {
     final currencyFormat = NumberFormat.currency(symbol: '\$');
     
     return Card(
@@ -619,20 +618,20 @@ class _FeeDetailScreenState extends State<FeeDetailScreen> {
             ),
             
             // Transaction ID
-            if (payment.transactionId != null && payment.transactionId!.isNotEmpty) {
+            if (payment.transactionId != null && payment.transactionId!.isNotEmpty) ...[
               _buildDetailRow(
                 'Transaction ID',
                 payment.transactionId!,
-              );
-            },
+              ),
+            ],
             
             // Receipt Number
-            if (payment.receiptNumber != null && payment.receiptNumber!.isNotEmpty) {
+            if (payment.receiptNumber != null && payment.receiptNumber!.isNotEmpty) ...[
               _buildDetailRow(
                 'Receipt Number',
                 payment.receiptNumber!,
-              );
-            },
+              ),
+            ],
             
             // Verification Status
             _buildDetailRow(
@@ -642,13 +641,13 @@ class _FeeDetailScreenState extends State<FeeDetailScreen> {
             ),
             
             // Notes
-            if (payment.notes != null && payment.notes!.isNotEmpty) {
+            if (payment.notes != null && payment.notes!.isNotEmpty) ...[
               _buildDetailRow(
                 'Notes',
                 payment.notes!,
                 isMultiLine: true,
-              );
-            },
+              ),
+            ],
             
             // Receipt Button
             const SizedBox(height: 12),

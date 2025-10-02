@@ -18,8 +18,53 @@ class PaymentGatewayScreen extends StatefulWidget {
 }
 
 class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
-  String _selectedPaymentMethod = 'Credit Card';
+  String _selectedPaymentMethod = 'JazzCash';
   bool _isProcessing = false;
+  
+  final List<Map<String, dynamic>> _pakistaniPaymentMethods = [
+    {
+      'name': 'JazzCash',
+      'icon': Icons.phone_android,
+      'description': 'Pay using JazzCash mobile wallet',
+      'color': Colors.red,
+    },
+    {
+      'name': 'EasyPaisa',
+      'icon': Icons.account_balance_wallet,
+      'description': 'Pay using EasyPaisa mobile wallet',
+      'color': Colors.green,
+    },
+    {
+      'name': 'HBL Bank',
+      'icon': Icons.account_balance,
+      'description': 'Habib Bank Limited online banking',
+      'color': Colors.blue,
+    },
+    {
+      'name': 'UBL Bank',
+      'icon': Icons.account_balance,
+      'description': 'United Bank Limited online banking',
+      'color': Colors.purple,
+    },
+    {
+      'name': 'MCB Bank',
+      'icon': Icons.account_balance,
+      'description': 'Muslim Commercial Bank online banking',
+      'color': Colors.orange,
+    },
+    {
+      'name': 'Credit Card',
+      'icon': Icons.credit_card,
+      'description': 'Visa, MasterCard, or local bank cards',
+      'color': Colors.indigo,
+    },
+    {
+      'name': 'Bank Transfer',
+      'icon': Icons.account_balance_wallet,
+      'description': 'Direct bank account transfer',
+      'color': Colors.teal,
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +152,6 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
             ),
             
             const SizedBox(height: 16),
-            
             // Payment Methods
             Card(
               child: Padding(
@@ -115,9 +159,15 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 24),
+            
+                    // Payment Method Selection
                     const Text('Select Payment Method', 
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
+                    
+                    // Pakistani Payment Methods
+                    ..._pakistaniPaymentMethods.map((method) => _buildPaymentMethodCard(method)),
                     
                     _buildPaymentMethodTile(
                       'Credit Card',
@@ -422,6 +472,78 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
               onChanged: (value) {},
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodCard(Map<String, dynamic> method) {
+    final bool isSelected = _selectedPaymentMethod == method['name'];
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      elevation: isSelected ? 4 : 1,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedPaymentMethod = method['name'];
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? method['color'] : Colors.grey.shade300,
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: method['color'].withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  method['icon'],
+                  color: method['color'],
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      method['name'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: isSelected ? method['color'] : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      method['description'],
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (isSelected)
+                Icon(
+                  Icons.check_circle,
+                  color: method['color'],
+                  size: 24,
+                ),
+            ],
+          ),
         ),
       ),
     );

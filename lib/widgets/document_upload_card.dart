@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/document_model.dart';
 import '../theme/app_theme.dart';
 
@@ -175,23 +176,27 @@ class _DocumentUploadCardState extends State<DocumentUploadCard> {
   }
 
   Future<void> _selectFile() async {
-    // In a real app, we would use a file picker plugin
-    // For this demo, we'll just simulate selecting a file
-    await Future.delayed(const Duration(milliseconds: 300));
-    
-    // Simulate a selected file
-    setState(() {
-      _selectedFile = File('document.pdf');
-    });
-    
-    // Show a snackbar
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('File selected (simulated)'),
-          duration: Duration(seconds: 1),
-        ),
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+        allowMultiple: false,
       );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _selectedFile = File(result.files.single.path!);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error selecting file: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
