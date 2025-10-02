@@ -8,11 +8,16 @@ class NotificationService {
   // Notification prefix for SharedPreferences keys
   static const String _notificationPrefix = 'notification_';
   
-  // Notification types
+  // School-specific notification types
   static const String typeGeneral = 'general';
-  static const String typeApplication = 'application';
-  static const String typeProgram = 'program';
-  static const String typeMessage = 'message';
+  static const String typeAssignment = 'assignment';
+  static const String typeGrade = 'grade';
+  static const String typeAttendance = 'attendance';
+  static const String typeFee = 'fee';
+  static const String typeTimetable = 'timetable';
+  static const String typeAnnouncement = 'announcement';
+  static const String typeExam = 'exam';
+  static const String typeEmergency = 'emergency';
   
   // Get all notifications for current user
   Future<List<NotificationModel>> getUserNotifications() async {
@@ -203,48 +208,156 @@ class NotificationService {
     }
   }
   
-  // Create sample notifications for testing
+  // Create sample school notifications for testing
   Future<void> _createSampleNotifications(String userId) async {
     try {
-      // Create sample notifications
+      // Create sample school notifications
       await createNotification(
         userId: userId,
-        title: 'Welcome to EduCyp',
-        message: 'Thank you for joining EduCyp. We\'re excited to help you find the perfect educational program in Cyprus.',
-        type: typeGeneral,
-      );
-      
-      await createNotification(
-        userId: userId,
-        title: 'New Programs Available',
-        message: 'Check out the new educational programs that have been added to our platform.',
-        type: typeProgram,
+        title: 'New Assignment Posted',
+        message: 'Mathematics Assignment #3 has been posted. Due date: March 15, 2025',
+        type: typeAssignment,
         data: {
-          'programId': '1',
+          'assignmentId': 'math_003',
+          'subject': 'Mathematics',
+          'dueDate': '2025-03-15',
         },
       );
       
       await createNotification(
         userId: userId,
-        title: 'Application Status Updated',
-        message: 'Your application status has been updated. Click to view details.',
-        type: typeApplication,
+        title: 'Grade Updated',
+        message: 'Your Physics Quiz grade has been updated: A- (87%)',
+        type: typeGrade,
         data: {
-          'applicationId': '1',
+          'subject': 'Physics',
+          'grade': 'A-',
+          'percentage': 87,
         },
       );
       
       await createNotification(
         userId: userId,
-        title: 'New Message',
-        message: 'You have received a new message from the admissions team.',
-        type: typeMessage,
+        title: 'Attendance Alert',
+        message: 'Your attendance is below 75%. Please contact your class teacher.',
+        type: typeAttendance,
         data: {
-          'conversationId': '1',
+          'attendancePercentage': 72,
+        },
+      );
+      
+      await createNotification(
+        userId: userId,
+        title: 'Fee Payment Reminder',
+        message: 'Monthly fee payment is due on March 10, 2025. Amount: PKR 15,000',
+        type: typeFee,
+        data: {
+          'amount': 15000,
+          'dueDate': '2025-03-10',
+          'currency': 'PKR',
+        },
+      );
+      
+      await createNotification(
+        userId: userId,
+        title: 'Timetable Updated',
+        message: 'Class 9-A timetable has been updated. Chemistry lab moved to Friday.',
+        type: typeTimetable,
+        data: {
+          'className': 'Class 9-A',
+          'changes': 'Chemistry lab moved to Friday',
+        },
+      );
+      
+      await createNotification(
+        userId: userId,
+        title: 'School Announcement',
+        message: 'Parent-Teacher meeting scheduled for March 20, 2025 at 2:00 PM',
+        type: typeAnnouncement,
+        data: {
+          'eventDate': '2025-03-20',
+          'eventTime': '14:00',
         },
       );
     } catch (e) {
       debugPrint('Error creating sample notifications: $e');
     }
+  }
+  
+  // Helper methods for creating specific notification types
+  Future<NotificationModel> createAssignmentNotification({
+    required String userId,
+    required String assignmentTitle,
+    required String subject,
+    required DateTime dueDate,
+    String? assignmentId,
+  }) async {
+    return await createNotification(
+      userId: userId,
+      title: 'New Assignment: $assignmentTitle',
+      message: '$subject assignment posted. Due: ${dueDate.day}/${dueDate.month}/${dueDate.year}',
+      type: typeAssignment,
+      data: {
+        'assignmentId': assignmentId,
+        'subject': subject,
+        'dueDate': dueDate.toIso8601String(),
+      },
+    );
+  }
+  
+  Future<NotificationModel> createGradeNotification({
+    required String userId,
+    required String subject,
+    required String grade,
+    required double percentage,
+    String? assessmentType,
+  }) async {
+    return await createNotification(
+      userId: userId,
+      title: 'Grade Posted: $subject',
+      message: '${assessmentType ?? 'Assessment'} grade: $grade (${percentage.toStringAsFixed(1)}%)',
+      type: typeGrade,
+      data: {
+        'subject': subject,
+        'grade': grade,
+        'percentage': percentage,
+        'assessmentType': assessmentType,
+      },
+    );
+  }
+  
+  Future<NotificationModel> createFeeReminderNotification({
+    required String userId,
+    required double amount,
+    required DateTime dueDate,
+    String feeType = 'Monthly Fee',
+  }) async {
+    return await createNotification(
+      userId: userId,
+      title: 'Fee Payment Reminder',
+      message: '$feeType payment due: PKR ${amount.toStringAsFixed(0)} by ${dueDate.day}/${dueDate.month}/${dueDate.year}',
+      type: typeFee,
+      data: {
+        'amount': amount,
+        'dueDate': dueDate.toIso8601String(),
+        'feeType': feeType,
+        'currency': 'PKR',
+      },
+    );
+  }
+  
+  Future<NotificationModel> createAnnouncementNotification({
+    required String userId,
+    required String title,
+    required String message,
+    Map<String, dynamic>? eventData,
+  }) async {
+    return await createNotification(
+      userId: userId,
+      title: title,
+      message: message,
+      type: typeAnnouncement,
+      data: eventData,
+    );
   }
 }

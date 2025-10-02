@@ -26,6 +26,7 @@ import 'screens/saved_comparisons_screen.dart';
 // import 'screens/analytics_dashboard_screen.dart'; // Temporarily disabled
 import 'screens/timetable_generator_screen.dart';
 import 'screens/timetable_viewer_screen.dart';
+// import 'screens/notification_center_screen.dart';
 // import 'screens/learning_management_screen.dart';
 // Temporarily disabled due to compilation issues
 // import 'screens/assignment_creator_screen.dart';
@@ -96,7 +97,10 @@ class _MyAppState extends State<MyApp> {
         AppConstants.courseDetailRoute: (context) => CourseDetailScreen(
           programId: ModalRoute.of(context)!.settings.arguments as String,
         ),
-        AppConstants.notificationsRoute: (context) => const NotificationsScreen(),
+        AppConstants.notificationsRoute: (context) => Scaffold(
+          appBar: AppBar(title: const Text('Notifications')),
+          body: const Center(child: Text('Notification Center - Coming Soon!')),
+        ),
         AppConstants.conversationsRoute: (context) => const ConversationsScreen(),
         AppConstants.chatRoute: (context) => ChatScreen(
           conversationId: (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['conversationId'] as String,
@@ -140,6 +144,9 @@ class _MyAppState extends State<MyApp> {
         // Timetable Routes
         AppConstants.timetableGeneratorRoute: (context) => const TimetableGeneratorScreen(),
         AppConstants.timetableViewerRoute: (context) => const TimetableViewerScreen(),
+        
+        // Notification Routes - Temporarily disabled
+        // AppConstants.notificationCenterRoute: (context) => const NotificationCenterScreen(),
         
         // Learning Management Routes - Temporarily disabled
         // AppConstants.learningManagementRoute: (context) => const LearningManagementScreen(),

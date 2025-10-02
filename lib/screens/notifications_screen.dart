@@ -202,37 +202,48 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
     
     // Handle navigation based on notification type
     switch (notification.type) {
-      case NotificationService.typeApplication:
+      case NotificationService.typeGeneral:
         if (notification.data != null && notification.data!['applicationId'] != null) {
           // Navigate to application details
           if (!mounted) return;
           Navigator.pushNamed(context, AppConstants.enrollmentFormRoute);
         }
         break;
-      case NotificationService.typeProgram:
-        if (notification.data != null && notification.data!['programId'] != null) {
-          // Navigate to program details
-          if (!mounted) return;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProgramDetailScreen(
-                programId: notification.data!['programId'],
-              ),
-            ),
+      case NotificationService.typeAssignment:
+        if (notification.data != null && notification.data!['assignmentId'] != null) {
+          // Navigate to assignment details
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Opening assignment: ${notification.data!['assignmentId']}')),
           );
         }
         break;
-      case NotificationService.typeMessage:
-        // Navigate to messages
-        if (!mounted) return;
-        ToastUtil.showToast(
-      context: context,
-      message: 'Messages will be available in future phases',
-    );
+      case NotificationService.typeGrade:
+        // Show grade details
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Grade: ${notification.data?['grade'] ?? 'N/A'}')),
+        );
+        break;
+      case NotificationService.typeFee:
+        // Navigate to fee payment
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fee amount: PKR ${notification.data?['amount'] ?? 'N/A'}')),
+        );
+        break;
+      case NotificationService.typeTimetable:
+        // Navigate to timetable
+        Navigator.pushNamed(context, '/timetable/viewer');
+        break;
+      case NotificationService.typeAnnouncement:
+        // Show announcement details
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Opening announcement details')),
+        );
         break;
       default:
-        // Do nothing for general notifications
+        // Handle general notifications
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Notification opened')),
+        );
         break;
     }
   }
@@ -307,16 +318,36 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
     Color iconColor;
     
     switch (notification.type) {
-      case NotificationService.typeApplication:
+      case NotificationService.typeAssignment:
         icon = Icons.assignment;
-        iconColor = Colors.orange;
-        break;
-      case NotificationService.typeProgram:
-        icon = Icons.school;
         iconColor = Colors.blue;
         break;
-      case NotificationService.typeMessage:
-        icon = Icons.message;
+      case NotificationService.typeGrade:
+        icon = Icons.grade;
+        iconColor = Colors.green;
+        break;
+      case NotificationService.typeAttendance:
+        icon = Icons.fact_check;
+        iconColor = Colors.orange;
+        break;
+      case NotificationService.typeFee:
+        icon = Icons.payment;
+        iconColor = Colors.purple;
+        break;
+      case NotificationService.typeTimetable:
+        icon = Icons.schedule;
+        iconColor = Colors.indigo;
+        break;
+      case NotificationService.typeAnnouncement:
+        icon = Icons.campaign;
+        iconColor = Colors.teal;
+        break;
+      case NotificationService.typeExam:
+        icon = Icons.quiz;
+        iconColor = Colors.red;
+        break;
+      case NotificationService.typeEmergency:
+        icon = Icons.warning;
         iconColor = Colors.green;
         break;
       default:

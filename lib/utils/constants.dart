@@ -45,6 +45,9 @@ class AppConstants {
   // Payment Routes
   static const String paymentGatewayRoute = '/payment/gateway';
   
+  // Notification Routes
+  static const String notificationCenterRoute = '/notifications/center';
+  
   // Shared Preferences Keys
   static const String userIdKey = 'userId';
   static const String userNameKey = 'userName';

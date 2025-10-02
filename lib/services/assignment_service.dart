@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/assignment_model.dart';
+import '../services/notification_service.dart';
 
 class AssignmentService {
   // Create a new assignment
@@ -56,6 +57,9 @@ class AssignmentService {
       // Save to local storage
       await _saveAssignment(assignment);
       
+      // Create notification for students in the class
+      await _createAssignmentNotification(assignment);
+      
       debugPrint('Assignment created successfully: $title');
       return assignment;
       
@@ -94,6 +98,33 @@ class AssignmentService {
     } catch (e) {
       debugPrint('Error loading assignments: $e');
       return [];
+    }
+  }
+  
+  // Create notification for assignment
+  Future<void> _createAssignmentNotification(AssignmentModel assignment) async {
+    try {
+      final notificationService = NotificationService();
+      
+      // In a real app, you would get the list of students in the class
+      // For demo purposes, we'll create a notification for the current user
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userId');
+      
+      if (userId != null) {
+        await notificationService.createAssignmentNotification(
+          userId: userId,
+          assignmentTitle: assignment.title,
+          subject: assignment.subject,
+          dueDate: assignment.dueDate,
+          assignmentId: assignment.id,
+        );
+        
+        debugPrint('Assignment notification created for user: $userId');
+      }
+    } catch (e) {
+      debugPrint('Error creating assignment notification: $e');
+      // Don't rethrow - notification failure shouldn't break assignment creation
     }
   }
 
