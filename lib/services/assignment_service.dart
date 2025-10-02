@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/assignment_model.dart';
-import '../services/notification_service.dart';
+// import '../services/notification_service.dart';
 
 class AssignmentService {
   // Create a new assignment
@@ -58,7 +58,7 @@ class AssignmentService {
       await _saveAssignment(assignment);
       
       // Create notification for students in the class
-      await _createAssignmentNotification(assignment);
+      // await _createAssignmentNotification(assignment);
       
       debugPrint('Assignment created successfully: $title');
       return assignment;

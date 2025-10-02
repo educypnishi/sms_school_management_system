@@ -31,7 +31,7 @@ class NotificationService {
       }
       
       // Check if we have any notifications stored
-      final notificationsJson = prefs.getString('${_notificationPrefix}${currentUser.id}_list');
+      final notificationsJson = prefs.getString('$_notificationPrefix${currentUser.id}_list');
       
       // If no notifications exist, create sample notifications
       if (notificationsJson == null) {
@@ -39,7 +39,7 @@ class NotificationService {
       }
       
       // Get all notification IDs for current user
-      final notificationIds = prefs.getStringList('${_notificationPrefix}${currentUser.id}_list') ?? [];
+      final notificationIds = prefs.getStringList('$_notificationPrefix${currentUser.id}_list') ?? [];
       
       // Get notifications
       final notifications = <NotificationModel>[];
@@ -66,7 +66,7 @@ class NotificationService {
       final prefs = await SharedPreferences.getInstance();
       
       // Get notification from SharedPreferences
-      final notificationJson = prefs.getString('${_notificationPrefix}$notificationId');
+      final notificationJson = prefs.getString('$_notificationPrefix$notificationId');
       if (notificationJson == null) {
         return null;
       }
@@ -107,12 +107,12 @@ class NotificationService {
       );
       
       // Save notification to SharedPreferences
-      await prefs.setString('${_notificationPrefix}$notificationId', jsonEncode(notification.toMap()));
+      await prefs.setString('$_notificationPrefix$notificationId', jsonEncode(notification.toMap()));
       
       // Add notification ID to user's notification list
-      final notificationIds = prefs.getStringList('${_notificationPrefix}${userId}_list') ?? [];
+      final notificationIds = prefs.getStringList('$_notificationPrefix${userId}_list') ?? [];
       notificationIds.add(notificationId);
-      await prefs.setStringList('${_notificationPrefix}${userId}_list', notificationIds);
+      await prefs.setStringList('$_notificationPrefix${userId}_list', notificationIds);
       
       return notification;
     } catch (e) {
@@ -127,7 +127,7 @@ class NotificationService {
       final prefs = await SharedPreferences.getInstance();
       
       // Get notification from SharedPreferences
-      final notificationJson = prefs.getString('${_notificationPrefix}$notificationId');
+      final notificationJson = prefs.getString('$_notificationPrefix$notificationId');
       if (notificationJson == null) {
         throw Exception('Notification not found');
       }
@@ -142,7 +142,7 @@ class NotificationService {
       );
       
       // Save updated notification to SharedPreferences
-      await prefs.setString('${_notificationPrefix}$notificationId', jsonEncode(updatedNotification.toMap()));
+      await prefs.setString('$_notificationPrefix$notificationId', jsonEncode(updatedNotification.toMap()));
       
       return updatedNotification;
     } catch (e) {
@@ -157,7 +157,7 @@ class NotificationService {
       final prefs = await SharedPreferences.getInstance();
       
       // Get all notification IDs for user
-      final notificationIds = prefs.getStringList('${_notificationPrefix}${userId}_list') ?? [];
+      final notificationIds = prefs.getStringList('$_notificationPrefix${userId}_list') ?? [];
       
       // Mark each notification as read
       for (final id in notificationIds) {
@@ -175,7 +175,7 @@ class NotificationService {
       final prefs = await SharedPreferences.getInstance();
       
       // Get notification from SharedPreferences
-      final notificationJson = prefs.getString('${_notificationPrefix}$notificationId');
+      final notificationJson = prefs.getString('$_notificationPrefix$notificationId');
       if (notificationJson == null) {
         return;
       }
@@ -185,12 +185,12 @@ class NotificationService {
       final notification = NotificationModel.fromMap(notificationMap, notificationId);
       
       // Remove notification from SharedPreferences
-      await prefs.remove('${_notificationPrefix}$notificationId');
+      await prefs.remove('$_notificationPrefix$notificationId');
       
       // Remove notification ID from user's notification list
-      final notificationIds = prefs.getStringList('${_notificationPrefix}${notification.userId}_list') ?? [];
+      final notificationIds = prefs.getStringList('$_notificationPrefix${notification.userId}_list') ?? [];
       notificationIds.remove(notificationId);
-      await prefs.setStringList('${_notificationPrefix}${notification.userId}_list', notificationIds);
+      await prefs.setStringList('$_notificationPrefix${notification.userId}_list', notificationIds);
     } catch (e) {
       debugPrint('Error deleting notification: $e');
       rethrow;

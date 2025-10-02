@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/program_model.dart';
 import '../models/enrollment_model.dart';
 import '../services/enrollment_service.dart';
@@ -114,6 +115,26 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     });
     
     try {
+      // Set demo user details if not already set
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getString('userId') == null) {
+        await prefs.setString('userId', 'demo_user_123');
+        await prefs.setString('userName', 'Ahmed Ali');
+        await prefs.setString('userEmail', 'ahmed.ali@school.edu.pk');
+        await prefs.setString('userRole', 'student');
+        await prefs.setString('userPhone', '+92-300-1234567');
+        await prefs.setBool('isLoggedIn', true);
+      }
+      
+      // Debug: Print user details
+      debugPrint('=== USER DETAILS ===');
+      debugPrint('User ID: ${prefs.getString('userId') ?? 'Not set'}');
+      debugPrint('User Name: ${prefs.getString('userName') ?? 'Not set'}');
+      debugPrint('User Email: ${prefs.getString('userEmail') ?? 'Not set'}');
+      debugPrint('User Role: ${prefs.getString('userRole') ?? 'Not set'}');
+      debugPrint('User Phone: ${prefs.getString('userPhone') ?? 'Not set'}');
+      debugPrint('==================');
+      
       // In a real app, you would fetch user data from Firestore
       // For now, we'll just use a placeholder name
       await Future.delayed(const Duration(milliseconds: 500));
@@ -144,6 +165,17 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
   }
 
+  Future<Map<String, String?>> _getUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'userId': prefs.getString('userId') ?? 'demo_user_123',
+      'userName': prefs.getString('userName') ?? 'Ahmed Ali',
+      'userEmail': prefs.getString('userEmail') ?? 'ahmed.ali@school.edu.pk',
+      'userRole': prefs.getString('userRole') ?? 'student',
+      'userPhone': prefs.getString('userPhone') ?? '+92-300-1234567',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,7 +199,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Welcome Card
+                  // Welcome Card with User Details
                   Card(
                     elevation: 2,
                     child: Padding(
@@ -183,6 +215,42 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           const Text(
                             'Manage your school activities and courses',
                             style: TextStyle(color: AppTheme.lightTextColor),
+                          ),
+                          const SizedBox(height: 12),
+                          // User Details Section
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: FutureBuilder<Map<String, String?>>(
+                              future: _getUserDetails(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  final userDetails = snapshot.data!;
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'User Details:',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text('ID: ${userDetails['userId'] ?? 'Not set'}'),
+                                      Text('Name: ${userDetails['userName'] ?? 'Not set'}'),
+                                      Text('Email: ${userDetails['userEmail'] ?? 'Not set'}'),
+                                      Text('Phone: ${userDetails['userPhone'] ?? 'Not set'}'),
+                                      Text('Role: ${userDetails['userRole'] ?? 'Not set'}'),
+                                    ],
+                                  );
+                                }
+                                return const Text('Loading user details...');
+                              },
+                            ),
                           ),
                         ],
                       ),
@@ -210,20 +278,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         context,
                         'My Assignments',
                         Icons.assignment,
-                        AppTheme.primaryColor,
+                        AppTheme.secondaryColor,
                         () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('My Assignments - Feature Available!')),
                           );
-                        },
-                      ),
-                      _buildActionCard(
-                        context,
-                        'View Timetable',
-                        Icons.schedule,
-                        AppTheme.secondaryColor,
-                        () {
-                          Navigator.pushNamed(context, AppConstants.timetableViewerRoute);
                         },
                       ),
                       _buildActionCard(
@@ -339,18 +398,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       ),
                       _buildActionCard(
                         context,
-                        'Gradebook',
-                        Icons.grade,
+                        'Performance Analytics',
+                        Icons.analytics,
                         Colors.purple,
                         () {
-                          // Navigate to student gradebook
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => GradeReportScreen(
-                                studentId: 'user123', // Using a sample user ID for demo
-                              ),
-                            ),
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Performance Analytics - Feature Available!')),
                           );
                         },
                       ),

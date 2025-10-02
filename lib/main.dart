@@ -24,9 +24,10 @@ import 'screens/calendar_screen.dart';
 import 'screens/program_comparison_screen.dart' as original_program_comparison;
 import 'screens/saved_comparisons_screen.dart';
 // import 'screens/analytics_dashboard_screen.dart'; // Temporarily disabled
-import 'screens/timetable_generator_screen.dart';
-import 'screens/timetable_viewer_screen.dart';
+// import 'screens/timetable_generator_screen.dart';
+// import 'screens/timetable_viewer_screen.dart';
 // import 'screens/notification_center_screen.dart';
+// import 'screens/student_performance_analytics_screen.dart';
 // import 'screens/learning_management_screen.dart';
 // Temporarily disabled due to compilation issues
 // import 'screens/assignment_creator_screen.dart';
@@ -141,12 +142,15 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         
-        // Timetable Routes
-        AppConstants.timetableGeneratorRoute: (context) => const TimetableGeneratorScreen(),
-        AppConstants.timetableViewerRoute: (context) => const TimetableViewerScreen(),
+        // Timetable Routes - Temporarily disabled
+        // AppConstants.timetableGeneratorRoute: (context) => const TimetableGeneratorScreen(),
+        // AppConstants.timetableViewerRoute: (context) => const TimetableViewerScreen(),
         
         // Notification Routes - Temporarily disabled
         // AppConstants.notificationCenterRoute: (context) => const NotificationCenterScreen(),
+        
+        // Analytics Routes - Temporarily disabled
+        // AppConstants.studentPerformanceAnalyticsRoute: (context) => const StudentPerformanceAnalyticsScreen(),
         
         // Learning Management Routes - Temporarily disabled
         // AppConstants.learningManagementRoute: (context) => const LearningManagementScreen(),

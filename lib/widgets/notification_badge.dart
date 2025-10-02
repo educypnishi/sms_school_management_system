@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import '../services/notification_service.dart';
+// import '../services/notification_service.dart';
 import '../screens/notifications_screen.dart';
 
 class NotificationBadge extends StatefulWidget {
@@ -11,7 +11,7 @@ class NotificationBadge extends StatefulWidget {
 }
 
 class _NotificationBadgeState extends State<NotificationBadge> {
-  final NotificationService _notificationService = NotificationService();
+  // final NotificationService _notificationService = NotificationService();
   final AuthService _authService = AuthService();
   int _unreadCount = 0;
   bool _isLoading = true;
@@ -24,24 +24,15 @@ class _NotificationBadgeState extends State<NotificationBadge> {
 
   Future<void> _loadUnreadCount() async {
     try {
-      final currentUser = await _authService.getCurrentUser();
+      // Temporarily disabled notification service
+      // final currentUser = await _authService.getCurrentUser();
       
-      if (currentUser != null) {
-        final unreadCount = await _notificationService.getUnreadCount(currentUser.id);
-        
-        if (mounted) {
-          setState(() {
-            _unreadCount = unreadCount;
-            _isLoading = false;
-          });
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _unreadCount = 0;
-            _isLoading = false;
-          });
-        }
+      // Simulate some unread notifications for demo
+      if (mounted) {
+        setState(() {
+          _unreadCount = 3; // Demo count
+          _isLoading = false;
+        });
       }
     } catch (e) {
       debugPrint('Error loading unread count: $e');

@@ -48,6 +48,9 @@ class AppConstants {
   // Notification Routes
   static const String notificationCenterRoute = '/notifications/center';
   
+  // Analytics Routes
+  static const String studentPerformanceAnalyticsRoute = '/analytics/student-performance';
+  
   // Shared Preferences Keys
   static const String userIdKey = 'userId';
   static const String userNameKey = 'userName';
