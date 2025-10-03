@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/fee_model.dart';
 import '../services/fee_service.dart';
 import '../services/push_notification_service.dart';
-import '../utils/responsive_helper.dart';
+import '../utils/enhanced_responsive_helper.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 
@@ -192,78 +192,164 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
-              child: ResponsiveLayout(
-                mobile: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildFeeSummaryCard(),
-                    const SizedBox(height: 16),
-                    _buildTodayClassesCard(),
-                    const SizedBox(height: 16),
-                    _buildUpcomingExamsCard(),
-                    const SizedBox(height: 16),
-                    _buildQuickActionsCard(),
-                  ],
-                ),
-                tablet: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        children: [
-                          _buildFeeSummaryCard(),
-                          const SizedBox(height: 16),
-                          _buildTodayClassesCard(),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          _buildUpcomingExamsCard(),
-                          const SizedBox(height: 16),
-                          _buildQuickActionsCard(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                desktop: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(child: _buildFeeSummaryCard()),
-                              const SizedBox(width: 16),
-                              Expanded(child: _buildTodayClassesCard()),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          _buildQuickActionsCard(),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 1,
-                      child: _buildUpcomingExamsCard(),
-                    ),
-                  ],
-                ),
+              child: EnhancedResponsiveLayout(
+                smallMobile: _buildSmallMobileLayout(),
+                mobile: _buildMobileLayout(),
+                largeMobile: _buildLargeMobileLayout(),
+                tablet: _buildTabletLayout(),
+                desktop: _buildDesktopLayout(),
+                largeDesktop: _buildLargeDesktopLayout(),
               ),
             ),
     );
   }
 
+  // Enhanced layout methods for different screen sizes
+  Widget _buildSmallMobileLayout() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFeeSummaryCard(),
+        SizedBox(height: EnhancedResponsiveHelper.getEnhancedResponsiveValue(context, smallMobile: 12.0)),
+        _buildTodayClassesCard(),
+        SizedBox(height: EnhancedResponsiveHelper.getEnhancedResponsiveValue(context, smallMobile: 12.0)),
+        _buildUpcomingExamsCard(),
+        SizedBox(height: EnhancedResponsiveHelper.getEnhancedResponsiveValue(context, smallMobile: 12.0)),
+        _buildQuickActionsCard(),
+      ],
+    );
+  }
+  
+  Widget _buildMobileLayout() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFeeSummaryCard(),
+        const SizedBox(height: 16),
+        _buildTodayClassesCard(),
+        const SizedBox(height: 16),
+        _buildUpcomingExamsCard(),
+        const SizedBox(height: 16),
+        _buildQuickActionsCard(),
+      ],
+    );
+  }
+  
+  Widget _buildLargeMobileLayout() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Two-column layout for fee and classes on large mobile
+        Row(
+          children: [
+            Expanded(child: _buildFeeSummaryCard()),
+            const SizedBox(width: 12),
+            Expanded(child: _buildTodayClassesCard()),
+          ],
+        ),
+        const SizedBox(height: 20),
+        _buildUpcomingExamsCard(),
+        const SizedBox(height: 20),
+        _buildQuickActionsCard(),
+      ],
+    );
+  }
+  
+  Widget _buildTabletLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              _buildFeeSummaryCard(),
+              const SizedBox(height: 20),
+              _buildTodayClassesCard(),
+            ],
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          flex: 1,
+          child: Column(
+            children: [
+              _buildUpcomingExamsCard(),
+              const SizedBox(height: 20),
+              _buildQuickActionsCard(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildDesktopLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 3,
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(child: _buildFeeSummaryCard()),
+                  const SizedBox(width: 24),
+                  Expanded(child: _buildTodayClassesCard()),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _buildQuickActionsCard(),
+            ],
+          ),
+        ),
+        const SizedBox(width: 24),
+        Expanded(
+          flex: 1,
+          child: _buildUpcomingExamsCard(),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildLargeDesktopLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              _buildFeeSummaryCard(),
+              const SizedBox(height: 32),
+              _buildTodayClassesCard(),
+            ],
+          ),
+        ),
+        const SizedBox(width: 32),
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              _buildUpcomingExamsCard(),
+              const SizedBox(height: 32),
+              _buildQuickActionsCard(),
+            ],
+          ),
+        ),
+        const SizedBox(width: 32),
+        Expanded(
+          flex: 1,
+          child: _buildAdditionalInfoCard(),
+        ),
+      ],
+    );
+  }
+
   Widget _buildFeeSummaryCard() {
-    return ResponsiveCard(
+    return EnhancedResponsiveCard(
+      enableTouchFeedback: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -315,20 +401,13 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             ],
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, '/student_fee_dashboard');
-              },
-              icon: const Icon(Icons.payment),
-              label: const Text('Pay Fees'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
+          EnhancedResponsiveButton(
+            text: 'Pay Fees',
+            icon: const Icon(Icons.payment),
+            onPressed: () {
+              Navigator.pushNamed(context, '/student_fee_dashboard');
+            },
+            enableHapticFeedback: true,
           ),
         ],
       ),
@@ -370,7 +449,8 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   }
 
   Widget _buildTodayClassesCard() {
-    return ResponsiveCard(
+    return EnhancedResponsiveCard(
+      enableTouchFeedback: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -475,7 +555,8 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   }
 
   Widget _buildUpcomingExamsCard() {
-    return ResponsiveCard(
+    return EnhancedResponsiveCard(
+      enableTouchFeedback: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -594,7 +675,8 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   }
 
   Widget _buildQuickActionsCard() {
-    return ResponsiveCard(
+    return EnhancedResponsiveCard(
+      enableTouchFeedback: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -608,10 +690,28 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: ResponsiveHelper.getScreenType(context) == ScreenType.mobile ? 2 : 4,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.2,
+            crossAxisCount: EnhancedResponsiveHelper.getEnhancedGridColumns(context),
+            mainAxisSpacing: EnhancedResponsiveHelper.getEnhancedResponsiveValue(
+              context,
+              smallMobile: 8.0,
+              mobile: 12.0,
+              tablet: 16.0,
+              desktop: 20.0,
+            ),
+            crossAxisSpacing: EnhancedResponsiveHelper.getEnhancedResponsiveValue(
+              context,
+              smallMobile: 8.0,
+              mobile: 12.0,
+              tablet: 16.0,
+              desktop: 20.0,
+            ),
+            childAspectRatio: EnhancedResponsiveHelper.getEnhancedResponsiveValue(
+              context,
+              smallMobile: 1.1,
+              mobile: 1.2,
+              tablet: 1.3,
+              desktop: 1.4,
+            ),
             children: [
               _buildActionCard(
                 'My Assignments',
@@ -658,12 +758,40 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
 
   Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      onTap: () {
+        EnhancedResponsiveHelper.provideTouchFeedback(context);
+        onTap();
+      },
+      borderRadius: BorderRadius.circular(
+        EnhancedResponsiveHelper.getEnhancedResponsiveValue(
+          context,
+          smallMobile: 8.0,
+          mobile: 12.0,
+          tablet: 16.0,
+          desktop: 20.0,
+        ),
+      ),
       child: Container(
+        padding: EdgeInsets.all(
+          EnhancedResponsiveHelper.getEnhancedResponsiveValue(
+            context,
+            smallMobile: 8.0,
+            mobile: 12.0,
+            tablet: 16.0,
+            desktop: 20.0,
+          ),
+        ),
         decoration: BoxDecoration(
           color: color.withAlpha(25),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(
+            EnhancedResponsiveHelper.getEnhancedResponsiveValue(
+              context,
+              smallMobile: 8.0,
+              mobile: 12.0,
+              tablet: 16.0,
+              desktop: 20.0,
+            ),
+          ),
           border: Border.all(color: color.withAlpha(76)),
         ),
         child: Column(
@@ -671,32 +799,92 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           children: [
             Icon(
               icon,
-              size: ResponsiveHelper.getResponsiveValue(
-                context,
-                mobile: 32.0,
-                tablet: 36.0,
-                desktop: 40.0,
-              ),
+              size: EnhancedResponsiveHelper.getTouchFriendlySize(context, 32.0),
               color: color,
             ),
-            const SizedBox(height: 8),
-            ResponsiveText(
+            SizedBox(
+              height: EnhancedResponsiveHelper.getEnhancedResponsiveValue(
+                context,
+                smallMobile: 6.0,
+                mobile: 8.0,
+                tablet: 10.0,
+                desktop: 12.0,
+              ),
+            ),
+            EnhancedResponsiveText(
               title,
               textAlign: TextAlign.center,
+              baseFontSize: 12.0,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: ResponsiveHelper.getResponsiveValue(
-                  context,
-                  mobile: 12.0,
-                  tablet: 14.0,
-                  desktop: 16.0,
-                ),
                 color: color,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+  
+  // Additional info card for large desktop layout
+  Widget _buildAdditionalInfoCard() {
+    return EnhancedResponsiveCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Quick Stats',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildStatItem('Total Students', '1,234', Icons.people, Colors.blue),
+          const SizedBox(height: 12),
+          _buildStatItem('Active Courses', '45', Icons.book, Colors.green),
+          const SizedBox(height: 12),
+          _buildStatItem('This Month', 'PKR 50,000', Icons.trending_up, Colors.orange),
+          const SizedBox(height: 12),
+          _buildStatItem('Attendance', '95%', Icons.check_circle, Colors.purple),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildStatItem(String title, String value, IconData icon, Color color) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withAlpha(25),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
