@@ -749,6 +749,12 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                 Colors.orange,
                 () => Navigator.pushNamed(context, '/calendar'),
               ),
+              _buildActionCard(
+                'Security Test',
+                Icons.security,
+                Colors.red,
+                () => Navigator.pushNamed(context, '/security_test'),
+              ),
             ],
           ),
         ],
