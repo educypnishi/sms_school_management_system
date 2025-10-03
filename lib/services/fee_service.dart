@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/fee_model.dart';
@@ -806,6 +807,191 @@ class FeeService {
         return 'Activities Fee';
       case FeeType.other:
         return 'Miscellaneous Fee';
+    }
+  }
+  
+  // Enhanced Fee Management Automation Features
+  
+  // Calculate and apply late fees automatically
+  Future<void> calculateAndApplyLateFees() async {
+    try {
+      final overdueFees = await getOverdueFees();
+      
+      for (final fee in overdueFees) {
+        if (fee.status == PaymentStatus.overdue) {
+          continue; // Already marked as overdue
+        }
+        
+        // Calculate late fee amount (5% of remaining amount or minimum PKR 500)
+        final lateFeeAmount = math.max(fee.remainingAmount * 0.05, 500.0);
+        
+        // Create late fee
+        await createFee(
+          studentId: fee.studentId,
+          studentName: fee.studentName,
+          academicYear: fee.academicYear,
+          term: fee.term,
+          feeTitle: 'Late Fee - ${fee.feeTitle}',
+          feeType: FeeType.other,
+          amount: lateFeeAmount,
+          dueDate: DateTime.now().add(const Duration(days: 7)),
+          description: 'Late fee for overdue payment of ${fee.feeTitle}',
+        );
+        
+        // Update original fee status to overdue
+        await updateFee(
+          feeId: fee.id,
+          status: PaymentStatus.overdue,
+        );
+      }
+    } catch (e) {
+      debugPrint('Error calculating late fees: $e');
+    }
+  }
+  
+  // Create installment plan for a fee
+  Future<List<FeeModel>> createInstallmentPlan({
+    required String feeId,
+    required int numberOfInstallments,
+    required DateTime firstInstallmentDate,
+    int intervalDays = 30,
+  }) async {
+    try {
+      final originalFee = await getFeeById(feeId);
+      if (originalFee == null) {
+        throw Exception('Fee not found');
+      }
+      
+      if (originalFee.amountPaid > 0) {
+        throw Exception('Cannot create installment plan for partially paid fee');
+      }
+      
+      final installmentAmount = originalFee.amount / numberOfInstallments;
+      final installments = <FeeModel>[];
+      
+      // Mark original fee as converted to installments
+      await updateFee(
+        feeId: feeId,
+        status: PaymentStatus.waived,
+        description: '${originalFee.description ?? ''} - Converted to $numberOfInstallments installments',
+      );
+      
+      // Create installment fees
+      for (int i = 0; i < numberOfInstallments; i++) {
+        final installmentDate = firstInstallmentDate.add(Duration(days: i * intervalDays));
+        
+        final installment = await createFee(
+          studentId: originalFee.studentId,
+          studentName: originalFee.studentName,
+          academicYear: originalFee.academicYear,
+          term: originalFee.term,
+          feeTitle: '${originalFee.feeTitle} - Installment ${i + 1}/$numberOfInstallments',
+          feeType: originalFee.feeType,
+          amount: installmentAmount,
+          dueDate: installmentDate,
+          description: 'Installment ${i + 1} of ${originalFee.feeTitle}',
+        );
+        
+        installments.add(installment);
+      }
+      
+      return installments;
+    } catch (e) {
+      debugPrint('Error creating installment plan: $e');
+      rethrow;
+    }
+  }
+  
+  // Process bulk payments (for multiple students)
+  Future<List<payment.PaymentModel>> processBulkPayments({
+    required List<Map<String, dynamic>> paymentData,
+    required PaymentMethod method,
+    required DateTime paymentDate,
+    String? batchId,
+  }) async {
+    try {
+      final processedPayments = <payment.PaymentModel>[];
+      final batchIdGenerated = batchId ?? DateTime.now().millisecondsSinceEpoch.toString();
+      
+      for (final data in paymentData) {
+        try {
+          final paymentRecord = await recordPayment(
+            feeId: data['feeId'] as String,
+            amount: data['amount'] as double,
+            method: method,
+            paymentDate: paymentDate,
+            notes: 'Bulk payment - Batch ID: $batchIdGenerated',
+            transactionId: data['transactionId'] as String?,
+          );
+          
+          processedPayments.add(paymentRecord);
+        } catch (e) {
+          debugPrint('Error processing payment for fee ${data['feeId']}: $e');
+          // Continue with other payments
+        }
+      }
+      
+      return processedPayments;
+    } catch (e) {
+      debugPrint('Error processing bulk payments: $e');
+      rethrow;
+    }
+  }
+  
+  // Calculate fee summary for a student
+  Future<Map<String, dynamic>> calculateFeesSummary(String studentId) async {
+    try {
+      final fees = await getFeesForStudent(studentId);
+      
+      double totalAmount = 0;
+      double totalPaid = 0;
+      double totalDiscount = 0;
+      double totalOverdue = 0;
+      double totalPending = 0;
+      
+      int paidCount = 0;
+      int pendingCount = 0;
+      int overdueCount = 0;
+      
+      for (final fee in fees) {
+        totalAmount += fee.amount;
+        totalPaid += fee.amountPaid;
+        totalDiscount += fee.discount;
+        
+        switch (fee.status) {
+          case PaymentStatus.paid:
+            paidCount++;
+            break;
+          case PaymentStatus.pending:
+          case PaymentStatus.partiallyPaid:
+            pendingCount++;
+            totalPending += fee.remainingAmount;
+            break;
+          case PaymentStatus.overdue:
+            overdueCount++;
+            totalOverdue += fee.remainingAmount;
+            break;
+          default:
+            break;
+        }
+      }
+      
+      return {
+        'totalAmount': totalAmount,
+        'totalPaid': totalPaid,
+        'totalDiscount': totalDiscount,
+        'totalRemaining': totalAmount - totalPaid - totalDiscount,
+        'totalOverdue': totalOverdue,
+        'totalPending': totalPending,
+        'paidCount': paidCount,
+        'pendingCount': pendingCount,
+        'overdueCount': overdueCount,
+        'totalFeesCount': fees.length,
+        'paymentPercentage': totalAmount > 0 ? (totalPaid / totalAmount) * 100 : 0,
+      };
+    } catch (e) {
+      debugPrint('Error calculating fees summary: $e');
+      return {};
     }
   }
 }

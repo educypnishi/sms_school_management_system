@@ -6,6 +6,7 @@ import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/student_dashboard_screen.dart';
+import 'screens/enhanced_student_dashboard.dart';
 import 'screens/teacher_dashboard_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
 import 'screens/admin_applications_screen.dart';
@@ -93,7 +94,7 @@ class _MyAppState extends State<MyApp> {
         AppConstants.splashRoute: (context) => const SplashScreen(),
         AppConstants.loginRoute: (context) => const LoginScreen(),
         AppConstants.signupRoute: (context) => const SignupScreen(),
-        AppConstants.studentDashboardRoute: (context) => const StudentDashboardScreen(),
+        AppConstants.studentDashboardRoute: (context) => const EnhancedStudentDashboard(),
         AppConstants.teacherDashboardRoute: (context) => const TeacherDashboardScreen(),
         AppConstants.adminDashboardRoute: (context) => const AdminDashboardScreen(),
         AppConstants.enrollmentFormRoute: (context) => const EnrollmentFormScreen(),
