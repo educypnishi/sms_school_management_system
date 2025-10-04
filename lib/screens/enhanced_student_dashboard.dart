@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/firebase_auth_service.dart';
 import '../services/firebase_student_service.dart';
+import '../services/firebase_class_service.dart';
+import '../services/firebase_grade_service.dart';
+import '../services/firebase_assignment_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 
@@ -25,6 +28,8 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   int _notificationCount = 3;
   List<Map<String, dynamic>> _todayClasses = [];
   List<Map<String, dynamic>> _upcomingExams = [];
+  List<Map<String, dynamic>> _recentGrades = [];
+  List<Map<String, dynamic>> _pendingAssignments = [];
 
   @override
   void initState() {
@@ -40,7 +45,18 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
     try {
       // Load data from Firebase if user is authenticated
       if (FirebaseAuthService.isAuthenticated) {
-        final dashboardData = await FirebaseStudentService.getStudentDashboardData();
+        final userId = FirebaseAuthService.currentUserId!;
+        
+        // Load all real data in parallel
+        final results = await Future.wait([
+          FirebaseStudentService.getStudentDashboardData(),
+          FirebaseGradeService.getStudentGrades(userId),
+          FirebaseAssignmentService.getStudentAssignments(userId),
+        ]);
+        
+        final dashboardData = results[0] as Map<String, dynamic>;
+        final grades = results[1] as List;
+        final assignments = results[2] as List;
         
         setState(() {
           _userName = dashboardData['user']['fullName'] ?? 'Student';
@@ -50,6 +66,25 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           _notificationCount = dashboardData['notificationCount'] ?? 0;
           _todayClasses = List<Map<String, dynamic>>.from(dashboardData['todayClasses'] ?? []);
           _upcomingExams = List<Map<String, dynamic>>.from(dashboardData['upcomingExams'] ?? []);
+          
+          // Process real grades data
+          _recentGrades = grades.take(3).map((grade) => {
+            'subject': grade.courseName,
+            'score': grade.score,
+            'maxScore': grade.maxScore,
+            'letterGrade': grade.letterGrade,
+            'date': grade.gradedDate,
+          }).toList();
+          
+          // Process real assignments data
+          _pendingAssignments = assignments.where((assignment) {
+            return assignment.dueDate.isAfter(DateTime.now());
+          }).take(3).map((assignment) => {
+            'title': assignment.title,
+            'subject': assignment.subject,
+            'dueDate': assignment.dueDate,
+            'maxMarks': assignment.maxMarks,
+          }).toList();
         });
       } else {
         // Load sample data if not authenticated

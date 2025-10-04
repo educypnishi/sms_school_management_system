@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import '../services/firebase_auth_service.dart';
+import '../services/firebase_class_service.dart';
+import '../services/firebase_grade_service.dart';
+import '../services/firebase_assignment_service.dart';
 import '../services/application_service.dart';
-import '../services/class_service.dart';
-import '../services/grade_service.dart';
 import '../services/attendance_service.dart';
-import '../services/auth_service.dart';
 import '../models/class_model.dart';
 import '../models/grade_model.dart';
 import '../models/attendance_model.dart';
@@ -34,10 +35,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   Map<String, dynamic> _attendanceStats = {};
   
   final ApplicationService _applicationService = ApplicationService();
-  final ClassService _classService = ClassService();
-  final GradeService _gradeService = GradeService();
   final AttendanceService _attendanceService = AttendanceService();
-  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -51,55 +49,62 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     });
     
     try {
-      // Get current user
-      final currentUser = await _authService.getCurrentUser();
-      
-      // Load classes data
-      final classes = await _classService.getAllClasses();
-      
-      // Generate sample grades if needed
-      await _gradeService.generateSampleGrades();
-      
-      // Get grades for teacher's classes
-      final allGrades = await _gradeService.getAllGrades();
-      final teacherGrades = allGrades.where((grade) => 
-        grade.teacherName.contains('Prof.') || 
-        grade.teacherName.contains('Dr.') ||
-        grade.teacherName.contains('Ms.') ||
-        grade.teacherName.contains('Mr.')
-      ).toList();
-      
-      // Calculate statistics
-      final totalStudents = _calculateTotalStudents(classes);
-      final averageGrade = _calculateAverageGrade(teacherGrades);
-      final pendingGrades = _calculatePendingGrades(teacherGrades);
-      final recentGrades = _getRecentGrades(teacherGrades, 5);
-      
-      // Get attendance statistics
-      final attendanceRecords = await _attendanceService.getAllAttendanceRecords();
-      final attendanceStats = _calculateAttendanceStats(attendanceRecords);
-      
-      setState(() {
-        _teacherName = currentUser?.name ?? 'Dr. Ayesha Rahman';
-        _assignedClasses = classes.length;
-        _totalStudents = totalStudents;
-        _averageGrade = averageGrade;
-        _pendingGrades = pendingGrades;
-        _classes = classes.isNotEmpty ? classes.take(3).toList() : []; // Show first 3 classes
-        _recentGrades = recentGrades.isNotEmpty ? recentGrades : [];
-        _attendanceStats = attendanceStats;
-        _isLoading = false;
-      });
+      // Load real Firebase data if authenticated
+      if (FirebaseAuthService.isAuthenticated) {
+        final teacherId = FirebaseAuthService.currentUserId!;
+        
+        // Get teacher info
+        final teacherDoc = await FirebaseAuthService.currentUser;
+        
+        // Load teacher's classes and grades in parallel
+        final results = await Future.wait([
+          FirebaseClassService.getClassesByTeacher(teacherId),
+          FirebaseGradeService.getTeacherGrades(teacherId),
+        ]);
+        
+        final classes = results[0] as List<ClassModel>;
+        final allGrades = results[1] as List<GradeModel>;
+        
+        // Calculate statistics
+        final totalStudents = _calculateTotalStudents(classes);
+        final averageGrade = _calculateAverageGrade(allGrades);
+        final pendingGrades = _calculatePendingGrades(allGrades);
+        final recentGrades = _getRecentGrades(allGrades, 5);
+        
+        // Get attendance statistics (using existing service for now)
+        final attendanceRecords = await _attendanceService.getAllAttendanceRecords();
+        final attendanceStats = _calculateAttendanceStats(attendanceRecords);
+        
+        setState(() {
+          _teacherName = teacherDoc?.displayName ?? 'Teacher';
+          _assignedClasses = classes.length;
+          _totalStudents = totalStudents;
+          _averageGrade = averageGrade;
+          _pendingGrades = pendingGrades;
+          _classes = classes.isNotEmpty ? classes.take(3).toList() : [];
+          _recentGrades = recentGrades.isNotEmpty ? recentGrades : [];
+          _attendanceStats = attendanceStats;
+          _isLoading = false;
+        });
+      } else {
+        // Fallback to sample data
+        await _loadSampleData();
+      }
     } catch (e) {
       debugPrint('Error loading teacher data: $e');
-      setState(() {
-        _teacherName = 'Dr. Ayesha Rahman';
-        _assignedClasses = 8; // Default sample data
-        _totalStudents = 169; // Default sample data
-        _attendanceStats = {'rate': 62.3}; // Default sample data
-        _isLoading = false;
-      });
+      await _loadSampleData();
     }
+  }
+  
+  Future<void> _loadSampleData() async {
+    setState(() {
+      _teacherName = 'Dr. Ayesha Rahman';
+      _assignedClasses = 8;
+      _totalStudents = 169;
+      _attendanceStats = {'rate': 62.3};
+      _isLoading = false;
+    });
+  }
   }
   
   int _calculateTotalStudents(List<ClassModel> classes) {
