@@ -59,6 +59,10 @@ dependencies:
   
   # Security and encryption
   crypto: ^3.0.3
+  
+  # QR Code functionality
+  qr_flutter: ^4.1.0
+  
 
 dev_dependencies:
   flutter_test:

@@ -378,10 +378,10 @@ class FirebaseAssignmentService {
     switch (status) {
       case 'active':
         return AssignmentStatus.active;
-      case 'completed':
-        return AssignmentStatus.completed;
-      case 'cancelled':
-        return AssignmentStatus.cancelled;
+      case 'closed':
+        return AssignmentStatus.closed;
+      case 'archived':
+        return AssignmentStatus.archived;
       default:
         return AssignmentStatus.active;
     }

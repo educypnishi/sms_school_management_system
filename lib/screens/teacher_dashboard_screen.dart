@@ -3,8 +3,11 @@ import '../services/firebase_auth_service.dart';
 import '../services/firebase_class_service.dart';
 import '../services/firebase_grade_service.dart';
 import '../services/firebase_assignment_service.dart';
+import '../services/firebase_attendance_service.dart';
 import '../services/application_service.dart';
 import '../services/attendance_service.dart';
+import 'teacher_attendance_screen.dart';
+import 'qr_attendance_screen.dart';
 import '../models/class_model.dart';
 import '../models/grade_model.dart';
 import '../models/attendance_model.dart';
@@ -104,7 +107,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       _attendanceStats = {'rate': 62.3};
       _isLoading = false;
     });
-  }
   }
   
   int _calculateTotalStudents(List<ClassModel> classes) {
@@ -715,7 +717,18 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           // Student Management Section
           _buildDrawerSection('👥 Student Management', [
             _buildDrawerItem(Icons.people, 'Student List', '/student_list'),
-            _buildDrawerItem(Icons.check_circle, 'Attendance', '/attendance'),
+            _buildDrawerItem(Icons.check_circle, 'Mark Attendance', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TeacherAttendanceScreen()),
+              );
+            }),
+            _buildDrawerItem(Icons.qr_code, 'QR Attendance', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const QRAttendanceScreen(isTeacher: true)),
+              );
+            }),
             _buildDrawerItem(Icons.analytics, 'Student Performance', '/student_performance'),
             _buildDrawerItem(Icons.assessment, 'Progress Reports', '/progress_reports'),
           ]),
@@ -785,14 +798,18 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     );
   }
 
-  Widget _buildDrawerItem(IconData icon, String title, String route) {
+  Widget _buildDrawerItem(IconData icon, String title, dynamic action) {
     return ListTile(
       leading: Icon(icon, size: 20),
       title: Text(title),
       contentPadding: const EdgeInsets.only(left: 32, right: 16),
       onTap: () {
         Navigator.pop(context);
-        Navigator.pushNamed(context, route);
+        if (action is String) {
+          Navigator.pushNamed(context, action);
+        } else if (action is Function) {
+          action();
+        }
       },
     );
   }

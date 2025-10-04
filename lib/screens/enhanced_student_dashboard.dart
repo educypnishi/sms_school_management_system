@@ -7,8 +7,13 @@ import '../services/firebase_student_service.dart';
 import '../services/firebase_class_service.dart';
 import '../services/firebase_grade_service.dart';
 import '../services/firebase_assignment_service.dart';
+import '../services/firebase_attendance_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
+import 'student_attendance_analytics_screen.dart';
+import 'qr_attendance_screen.dart';
+import 'attendance_calendar_screen.dart';
+import '../widgets/attendance_alerts_widget.dart';
 
 class EnhancedStudentDashboard extends StatefulWidget {
   const EnhancedStudentDashboard({super.key});
@@ -30,6 +35,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   List<Map<String, dynamic>> _upcomingExams = [];
   List<Map<String, dynamic>> _recentGrades = [];
   List<Map<String, dynamic>> _pendingAssignments = [];
+  Map<String, dynamic> _attendanceStats = {};
 
   @override
   void initState() {
@@ -52,11 +58,17 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           FirebaseStudentService.getStudentDashboardData(),
           FirebaseGradeService.getStudentGrades(userId),
           FirebaseAssignmentService.getStudentAssignments(userId),
+          FirebaseAttendanceService.getStudentAttendanceStats(
+            studentId: userId,
+            startDate: DateTime.now().subtract(const Duration(days: 30)),
+            endDate: DateTime.now(),
+          ),
         ]);
         
         final dashboardData = results[0] as Map<String, dynamic>;
         final grades = results[1] as List;
         final assignments = results[2] as List;
+        final attendanceStats = results[3] as Map<String, dynamic>;
         
         setState(() {
           _userName = dashboardData['user']['fullName'] ?? 'Student';
@@ -85,6 +97,9 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             'dueDate': assignment.dueDate,
             'maxMarks': assignment.maxMarks,
           }).toList();
+          
+          // Set attendance stats
+          _attendanceStats = attendanceStats;
         });
       } else {
         // Load sample data if not authenticated
@@ -539,10 +554,6 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                           const SizedBox(height: 4),
                           Text(
                             DateFormat('MMM dd').format(exam['date']),
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
                           ),
                         ],
                       ),
@@ -551,7 +562,8 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                 );
               }).toList(),
             ),
-          const SizedBox(height: 12),
+          
+          const SizedBox(height: 16),
           TextButton.icon(
             onPressed: () {
               Navigator.pushNamed(context, '/exam_scheduler');

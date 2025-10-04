@@ -152,8 +152,9 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen> {
             const SizedBox(height: 16),
             _buildDetailRow('Course', _attendance!.courseName),
             _buildDetailRow('Teacher', _attendance!.teacherName),
-            _buildDetailRow('Time', '${_formatTime(_attendance!.startTime)} - ${_formatTime(_attendance!.endTime)}'),
-            _buildDetailRow('Room', _attendance!.roomNumber),
+            _buildDetailRow('Subject', _attendance!.subject),
+            if (_attendance!.checkInTime != null)
+              _buildDetailRow('Check-in Time', _formatTime(_attendance!.checkInTime!)),
           ],
         ),
       ),

@@ -4,20 +4,16 @@ class AttendanceModel {
   final String studentName;
   final String courseId;
   final String courseName;
-  final String classId;
-  final String className;
+  final String teacherId;
+  final String teacherName;
+  final String subject;
   final DateTime date;
   final String status; // present, absent, late, excused
   final String? reason;
   final String? notes;
-  final String markedById;
-  final String markedByName;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-  final DateTime startTime;
-  final DateTime endTime;
-  final String roomNumber;
-  final String teacherName;
+  final DateTime? checkInTime;
+  final DateTime? checkOutTime;
+  final DateTime markedAt;
 
   AttendanceModel({
     required this.id,
@@ -25,20 +21,16 @@ class AttendanceModel {
     required this.studentName,
     required this.courseId,
     required this.courseName,
-    required this.classId,
-    required this.className,
+    required this.teacherId,
+    required this.teacherName,
+    required this.subject,
     required this.date,
     required this.status,
     this.reason,
     this.notes,
-    required this.markedById,
-    required this.markedByName,
-    required this.createdAt,
-    this.updatedAt,
-    required this.startTime,
-    required this.endTime,
-    required this.roomNumber,
-    required this.teacherName,
+    this.checkInTime,
+    this.checkOutTime,
+    required this.markedAt,
   });
 
   // Create an AttendanceModel from a map (e.g., from Firestore)
@@ -49,30 +41,24 @@ class AttendanceModel {
       studentName: map['studentName'] ?? '',
       courseId: map['courseId'] ?? '',
       courseName: map['courseName'] ?? '',
-      classId: map['classId'] ?? '',
-      className: map['className'] ?? '',
+      teacherId: map['teacherId'] ?? '',
+      teacherName: map['teacherName'] ?? '',
+      subject: map['subject'] ?? '',
       date: map['date'] != null 
           ? DateTime.parse(map['date']) 
           : DateTime.now(),
       status: map['status'] ?? 'absent',
       reason: map['reason'],
       notes: map['notes'],
-      markedById: map['markedById'] ?? '',
-      markedByName: map['markedByName'] ?? '',
-      createdAt: map['createdAt'] != null 
-          ? DateTime.parse(map['createdAt']) 
-          : DateTime.now(),
-      updatedAt: map['updatedAt'] != null 
-          ? DateTime.parse(map['updatedAt']) 
+      checkInTime: map['checkInTime'] != null 
+          ? DateTime.parse(map['checkInTime']) 
           : null,
-      startTime: map['startTime'] != null 
-          ? DateTime.parse(map['startTime']) 
+      checkOutTime: map['checkOutTime'] != null 
+          ? DateTime.parse(map['checkOutTime']) 
+          : null,
+      markedAt: map['markedAt'] != null 
+          ? DateTime.parse(map['markedAt']) 
           : DateTime.now(),
-      endTime: map['endTime'] != null 
-          ? DateTime.parse(map['endTime']) 
-          : DateTime.now().add(const Duration(hours: 1)),
-      roomNumber: map['roomNumber'] ?? '',
-      teacherName: map['teacherName'] ?? '',
     );
   }
 
@@ -83,20 +69,16 @@ class AttendanceModel {
       'studentName': studentName,
       'courseId': courseId,
       'courseName': courseName,
-      'classId': classId,
-      'className': className,
+      'teacherId': teacherId,
+      'teacherName': teacherName,
+      'subject': subject,
       'date': date.toIso8601String(),
       'status': status,
       'reason': reason,
       'notes': notes,
-      'markedById': markedById,
-      'markedByName': markedByName,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
-      'startTime': startTime.toIso8601String(),
-      'endTime': endTime.toIso8601String(),
-      'roomNumber': roomNumber,
-      'teacherName': teacherName,
+      'checkInTime': checkInTime?.toIso8601String(),
+      'checkOutTime': checkOutTime?.toIso8601String(),
+      'markedAt': markedAt.toIso8601String(),
     };
   }
 
@@ -107,20 +89,16 @@ class AttendanceModel {
     String? studentName,
     String? courseId,
     String? courseName,
-    String? classId,
-    String? className,
+    String? teacherId,
+    String? teacherName,
+    String? subject,
     DateTime? date,
     String? status,
     String? reason,
     String? notes,
-    String? markedById,
-    String? markedByName,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? startTime,
-    DateTime? endTime,
-    String? roomNumber,
-    String? teacherName,
+    DateTime? checkInTime,
+    DateTime? checkOutTime,
+    DateTime? markedAt,
   }) {
     return AttendanceModel(
       id: id ?? this.id,
@@ -128,20 +106,16 @@ class AttendanceModel {
       studentName: studentName ?? this.studentName,
       courseId: courseId ?? this.courseId,
       courseName: courseName ?? this.courseName,
-      classId: classId ?? this.classId,
-      className: className ?? this.className,
+      teacherId: teacherId ?? this.teacherId,
+      teacherName: teacherName ?? this.teacherName,
+      subject: subject ?? this.subject,
       date: date ?? this.date,
       status: status ?? this.status,
       reason: reason ?? this.reason,
       notes: notes ?? this.notes,
-      markedById: markedById ?? this.markedById,
-      markedByName: markedByName ?? this.markedByName,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      startTime: startTime ?? this.startTime,
-      endTime: endTime ?? this.endTime,
-      roomNumber: roomNumber ?? this.roomNumber,
-      teacherName: teacherName ?? this.teacherName,
+      checkInTime: checkInTime ?? this.checkInTime,
+      checkOutTime: checkOutTime ?? this.checkOutTime,
+      markedAt: markedAt ?? this.markedAt,
     );
   }
 }
