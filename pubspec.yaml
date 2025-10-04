@@ -54,8 +54,8 @@ dependencies:
   pdf: ^3.10.7
   path_provider: ^2.1.2
   printing: ^5.12.0
-  open_file: ^3.3.2
-  file_picker: ^6.1.1
+  # open_file: ^3.3.2  # Disabled for web compatibility
+  # file_picker: ^6.1.1  # Disabled for web compatibility
   
   # Security and encryption
   crypto: ^3.0.3

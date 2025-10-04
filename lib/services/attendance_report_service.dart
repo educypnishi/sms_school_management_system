@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+// import 'package:open_file/open_file.dart';  // Disabled for web
+// import 'package:file_picker/file_picker.dart';  // Disabled for web
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'web_file_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import '../services/firebase_attendance_service.dart';
@@ -280,22 +283,6 @@ class AttendanceReportService {
                 }).toList(),
               ],
             ),
-          ];
-        },
-      ),
-    );
-
-    // Save PDF
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/attendance_report_${studentName.replaceAll(' ', '_')}_${DateFormat('yyyyMMdd').format(now)}.pdf');
-    await file.writeAsBytes(await pdf.save());
-    
-    debugPrint('✅ Student PDF report generated: ${file.path}');
-    return file.path;
-  }
-
-  static Future<String> _generateClassPDFReport({
-    required ClassModel? classModel,
     required Map<String, dynamic> classStats,
     required Map<String, Map<String, dynamic>> studentAttendanceData,
     DateTime? startDate,
