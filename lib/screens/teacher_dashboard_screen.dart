@@ -163,6 +163,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           ),
         ],
       ),
+      drawer: _buildTeacherDrawer(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -666,5 +667,124 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }
+  }
+
+  Widget _buildTeacherDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          UserAccountsDrawerHeader(
+            accountName: Text(_teacherName),
+            accountEmail: const Text('teacher@school.edu.pk'),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Text(
+                _teacherName.split(' ').map((e) => e[0]).join(''),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryColor,
+                ),
+              ),
+            ),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          
+          // Teaching Section
+          _buildDrawerSection('👨‍🏫 Teaching', [
+            _buildDrawerItem(Icons.class_, 'My Classes', '/teacher_classes'),
+            _buildDrawerItem(Icons.assignment, 'Assignments', '/teacher_assignments'),
+            _buildDrawerItem(Icons.quiz, 'Create Quiz', '/create_quiz'),
+            _buildDrawerItem(Icons.grade, 'Gradebook', '/gradebook'),
+            _buildDrawerItem(Icons.schedule, 'Class Schedule', '/class_schedule'),
+            _buildDrawerItem(Icons.event, 'Calendar', '/calendar'),
+          ]),
+          
+          // Student Management Section
+          _buildDrawerSection('👥 Student Management', [
+            _buildDrawerItem(Icons.people, 'Student List', '/student_list'),
+            _buildDrawerItem(Icons.check_circle, 'Attendance', '/attendance'),
+            _buildDrawerItem(Icons.analytics, 'Student Performance', '/student_performance'),
+            _buildDrawerItem(Icons.assessment, 'Progress Reports', '/progress_reports'),
+          ]),
+          
+          // Communication Section
+          _buildDrawerSection('💬 Communication', [
+            _buildDrawerItem(Icons.message, 'Messages', '/messages'),
+            _buildDrawerItem(Icons.notifications, 'Announcements', '/announcements'),
+            _buildDrawerItem(Icons.forum, 'Class Discussions', '/class_discussions'),
+            _buildDrawerItem(Icons.support_agent, 'AI Assistant', '/ai_chatbot'),
+          ]),
+          
+          // Resources Section
+          _buildDrawerSection('📚 Resources', [
+            _buildDrawerItem(Icons.folder, 'Course Materials', '/course_materials'),
+            _buildDrawerItem(Icons.library_books, 'Digital Library', '/library'),
+            _buildDrawerItem(Icons.upload_file, 'Upload Resources', '/upload_resources'),
+            _buildDrawerItem(Icons.video_library, 'Video Lectures', '/video_lectures'),
+          ]),
+          
+          // Assessment Section
+          _buildDrawerSection('📊 Assessment', [
+            _buildDrawerItem(Icons.quiz, 'Online Exams', '/online_exams'),
+            _buildDrawerItem(Icons.auto_awesome, 'AI Grading', '/ai_grading'),
+            _buildDrawerItem(Icons.analytics, 'Grade Analytics', '/grade_analytics'),
+            _buildDrawerItem(Icons.trending_up, 'Performance Trends', '/performance_trends'),
+          ]),
+          
+          // AI Features Section
+          _buildDrawerSection('🤖 AI Features', [
+            _buildDrawerItem(Icons.smart_toy, 'AI Teaching Assistant', '/ai_chatbot'),
+            _buildDrawerItem(Icons.auto_awesome, 'AI Features Test', '/ai_features_test'),
+            _buildDrawerItem(Icons.psychology, 'Student Insights', '/student_insights'),
+            _buildDrawerItem(Icons.lightbulb, 'Teaching Recommendations', '/teaching_recommendations'),
+          ]),
+          
+          // Settings Section
+          _buildDrawerSection('⚙️ Settings', [
+            _buildDrawerItem(Icons.settings, 'Settings', '/settings'),
+            _buildDrawerItem(Icons.security, 'Security', '/security_test'),
+            _buildDrawerItem(Icons.account_circle, 'Profile', '/profile'),
+            _buildDrawerItem(Icons.help, 'Help & Support', '/help'),
+          ]),
+          
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Logout', style: TextStyle(color: Colors.red)),
+            onTap: () => _logout(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerSection(String title, List<Widget> items) {
+    return ExpansionTile(
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+      initiallyExpanded: false,
+      children: items,
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, String route) {
+    return ListTile(
+      leading: Icon(icon, size: 20),
+      title: Text(title),
+      contentPadding: const EdgeInsets.only(left: 32, right: 16),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.pushNamed(context, route);
+      },
+    );
   }
 }

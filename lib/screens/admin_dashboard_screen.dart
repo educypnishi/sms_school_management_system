@@ -194,6 +194,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
         ],
       ),
+      drawer: _buildAdminDrawer(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -384,7 +385,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       ? Card(
                           elevation: 2,
                           child: Column(
-                            children: _recentActivities.map((activity) => 
+                            children: _recentActivities.map<Widget>((activity) => 
                               _buildActivityItem(activity)
                             ).toList(),
                           ),
@@ -1099,7 +1100,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       ),
     );
   }
-  
+
   void _showAllActivitiesDialog() {
     showDialog(
       context: context,
@@ -1126,6 +1127,149 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+
+  String _formatActivityTime(DateTime time) {
+    final now = DateTime.now();
+    final difference = now.difference(time);
+    
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else {
+      return '${difference.inDays}d ago';
+    }
+  }
+
+  Widget _buildAdminDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          UserAccountsDrawerHeader(
+            accountName: Text(_adminName.isEmpty ? 'Admin' : _adminName),
+            accountEmail: const Text('admin@school.edu.pk'),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(
+                Icons.admin_panel_settings,
+                size: 30,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          
+          // Student Management Section
+          _buildDrawerSection('👥 Student Management', [
+            _buildDrawerItem(Icons.people, 'All Students', '/all_students'),
+            _buildDrawerItem(Icons.person_add, 'Enrollments', '/admin_enrollments'),
+            _buildDrawerItem(Icons.school, 'Student Records', '/student_records'),
+            _buildDrawerItem(Icons.assignment_ind, 'Student Assignments', '/student_assignments'),
+            _buildDrawerItem(Icons.check_circle, 'Attendance Reports', '/attendance_reports'),
+          ]),
+          
+          // Teacher Management Section
+          _buildDrawerSection('👨‍🏫 Teacher Management', [
+            _buildDrawerItem(Icons.group, 'All Teachers', '/all_teachers'),
+            _buildDrawerItem(Icons.person_add_alt, 'Add Teacher', '/add_teacher'),
+            _buildDrawerItem(Icons.class_, 'Class Assignments', '/class_assignments'),
+            _buildDrawerItem(Icons.schedule, 'Teacher Schedules', '/teacher_schedules'),
+            _buildDrawerItem(Icons.assessment, 'Performance Reviews', '/teacher_reviews'),
+          ]),
+          
+          // Academic Management Section
+          _buildDrawerSection('📚 Academic Management', [
+            _buildDrawerItem(Icons.book, 'Courses', '/courses'),
+            _buildDrawerItem(Icons.class_, 'Classes', '/classes'),
+            _buildDrawerItem(Icons.schedule, 'Timetables', '/timetables'),
+            _buildDrawerItem(Icons.quiz, 'Exams', '/exams'),
+            _buildDrawerItem(Icons.grade, 'Grade Management', '/grade_management'),
+          ]),
+          
+          // Financial Management Section
+          _buildDrawerSection('💰 Financial Management', [
+            _buildDrawerItem(Icons.payment, 'Fee Management', '/fee_management'),
+            _buildDrawerItem(Icons.receipt, 'Payment History', '/payment_history'),
+            _buildDrawerItem(Icons.account_balance, 'Revenue Reports', '/revenue_reports'),
+            _buildDrawerItem(Icons.credit_card, 'Payment Gateway', '/payment_gateway'),
+            _buildDrawerItem(Icons.account_balance_wallet, 'Scholarships', '/scholarships'),
+          ]),
+          
+          // Analytics & Reports Section
+          _buildDrawerSection('📊 Analytics & Reports', [
+            _buildDrawerItem(Icons.analytics, 'Analytics Dashboard', '/analytics'),
+            _buildDrawerItem(Icons.trending_up, 'Performance Analytics', '/performance_analytics'),
+            _buildDrawerItem(Icons.bar_chart, 'Financial Reports', '/financial_reports'),
+            _buildDrawerItem(Icons.pie_chart, 'Attendance Analytics', '/attendance_analytics'),
+            _buildDrawerItem(Icons.assessment, 'Academic Reports', '/academic_reports'),
+          ]),
+          
+          // Communication Section
+          _buildDrawerSection('💬 Communication', [
+            _buildDrawerItem(Icons.message, 'Messages', '/messages'),
+            _buildDrawerItem(Icons.notifications, 'Announcements', '/announcements'),
+            _buildDrawerItem(Icons.email, 'Email System', '/email_system'),
+            _buildDrawerItem(Icons.sms, 'SMS Notifications', '/sms_notifications'),
+            _buildDrawerItem(Icons.support_agent, 'AI Assistant', '/ai_chatbot'),
+          ]),
+          
+          // AI Features Section
+          _buildDrawerSection('🤖 AI Features', [
+            _buildDrawerItem(Icons.smart_toy, 'AI Admin Assistant', '/ai_chatbot'),
+            _buildDrawerItem(Icons.auto_awesome, 'AI Features Test', '/ai_features_test'),
+            _buildDrawerItem(Icons.psychology, 'Predictive Analytics', '/predictive_analytics'),
+            _buildDrawerItem(Icons.lightbulb, 'AI Recommendations', '/ai_recommendations'),
+          ]),
+          
+          // System Management Section
+          _buildDrawerSection('⚙️ System Management', [
+            _buildDrawerItem(Icons.settings, 'System Settings', '/system_settings'),
+            _buildDrawerItem(Icons.security, 'Security Management', '/security_test'),
+            _buildDrawerItem(Icons.backup, 'Data Backup', '/data_backup'),
+            _buildDrawerItem(Icons.update, 'System Updates', '/system_updates'),
+            _buildDrawerItem(Icons.help, 'Help & Support', '/help'),
+          ]),
+          
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Logout', style: TextStyle(color: Colors.red)),
+            onTap: () => _logout(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerSection(String title, List<Widget> items) {
+    return ExpansionTile(
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+      initiallyExpanded: false,
+      children: items,
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, String route) {
+    return ListTile(
+      leading: Icon(icon, size: 20),
+      title: Text(title),
+      contentPadding: const EdgeInsets.only(left: 32, right: 16),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.pushNamed(context, route);
+      },
     );
   }
 }

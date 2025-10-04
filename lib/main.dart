@@ -6,8 +6,15 @@ import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/student_dashboard_screen.dart';
-import 'screens/enhanced_student_dashboard.dart';
+import 'screens/enhanced_student_dashboard_working.dart';
 import 'screens/security_test_screen.dart';
+import 'screens/ai_chatbot_screen.dart';
+import 'screens/ai_features_test_screen.dart';
+import 'screens/assignment_list_screen.dart';
+import 'screens/document_management_screen.dart';
+import 'screens/grade_analytics_screen.dart';
+import 'screens/attendance_tracker_screen.dart';
+import 'screens/calendar_screen.dart';
 import 'screens/teacher_dashboard_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
 import 'screens/admin_applications_screen.dart';
@@ -20,8 +27,10 @@ import 'screens/conversations_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/timetable_viewer_screen.dart';
+import 'screens/notification_center_screen.dart';
 import 'screens/enrollment_progress_screen.dart' as original_enrollment_progress;
-import 'screens/document_management_screen.dart';
+import 'screens/simple_document_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/program_comparison_screen.dart' as original_program_comparison;
 import 'screens/saved_comparisons_screen.dart';
@@ -97,6 +106,20 @@ class _MyAppState extends State<MyApp> {
         AppConstants.signupRoute: (context) => const SignupScreen(),
         AppConstants.studentDashboardRoute: (context) => const EnhancedStudentDashboard(),
         '/security_test': (context) => const SecurityTestScreen(),
+        '/ai_chatbot': (context) => const AIChatbotScreen(),
+        '/ai_features_test': (context) => const AIFeaturesTestScreen(),
+        '/assignments': (context) => const AssignmentListScreen(),
+        '/grades': (context) => const GradeAnalyticsScreen(),
+        '/fee_payment': (context) => const StudentFeeDashboardScreen(studentId: 'demo_student'),
+        '/documents': (context) => const SimpleDocumentScreen(),
+        '/messages': (context) => const ConversationsScreen(),
+        '/performance': (context) => const GradeAnalyticsScreen(),
+        '/attendance': (context) => const AttendanceTrackerScreen(userId: 'demo_student'),
+        '/calendar': (context) => const CalendarScreen(userId: 'demo_student'),
+        '/timetable_viewer': (context) => const TimetableViewerScreen(),
+        '/notifications': (context) => const NotificationCenterScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        '/student_fee_dashboard': (context) => const StudentFeeDashboardScreen(studentId: 'demo_student'),
         AppConstants.teacherDashboardRoute: (context) => const TeacherDashboardScreen(),
         AppConstants.adminDashboardRoute: (context) => const AdminDashboardScreen(),
         AppConstants.enrollmentFormRoute: (context) => const EnrollmentFormScreen(),

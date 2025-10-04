@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import '../models/fee_model.dart';
-import '../services/fee_service.dart';
-import '../services/push_notification_service.dart';
-import '../utils/enhanced_responsive_helper.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 
@@ -17,18 +13,13 @@ class EnhancedStudentDashboard extends StatefulWidget {
 
 class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   String _userName = 'Ahmed Ali';
-  bool _isLoading = true;
+  bool _isLoading = false;
   
-  // Services
-  final _feeService = FeeService();
-  final _notificationService = PushNotificationService();
-  
-  // Enhanced dashboard data
-  List<FeeModel> _fees = [];
-  double _totalDue = 0.0;
-  double _totalPaid = 0.0;
-  int _pendingFeesCount = 0;
-  int _notificationCount = 3; // Sample notification count
+  // Sample data
+  double _totalDue = 15000.0;
+  double _totalPaid = 25000.0;
+  int _pendingFeesCount = 2;
+  int _notificationCount = 3;
   List<Map<String, dynamic>> _todayClasses = [];
   List<Map<String, dynamic>> _upcomingExams = [];
 
@@ -44,7 +35,6 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
     });
 
     try {
-      await _loadFeeData();
       await _loadTodayClasses();
       await _loadUpcomingExams();
     } catch (e) {
@@ -53,38 +43,6 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
       setState(() {
         _isLoading = false;
       });
-    }
-  }
-
-  Future<void> _loadFeeData() async {
-    try {
-      // Generate sample fees if needed
-      await _feeService.generateSampleFees();
-      
-      // Get fees for current user
-      final fees = await _feeService.getFeesForStudent('demo_user_123');
-      
-      double totalDue = 0.0;
-      double totalPaid = 0.0;
-      int pendingCount = 0;
-      
-      for (final fee in fees) {
-        totalDue += fee.remainingAmount;
-        totalPaid += fee.amountPaid;
-        
-        if (fee.status == PaymentStatus.pending || fee.status == PaymentStatus.partiallyPaid) {
-          pendingCount++;
-        }
-      }
-      
-      setState(() {
-        _fees = fees;
-        _totalDue = totalDue;
-        _totalPaid = totalPaid;
-        _pendingFeesCount = pendingCount;
-      });
-    } catch (e) {
-      debugPrint('Error loading fee data: $e');
     }
   }
 
@@ -139,11 +97,11 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Student Dashboard'),
+        title: Text('Welcome, $_userName'),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
-          // Enhanced Notification Badge
           Stack(
             children: [
               IconButton(
@@ -188,175 +146,40 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           ),
         ],
       ),
+      drawer: _buildComprehensiveDrawer(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
-              child: EnhancedResponsiveLayout(
-                smallMobile: _buildSmallMobileLayout(),
-                mobile: _buildMobileLayout(),
-                largeMobile: _buildLargeMobileLayout(),
-                tablet: _buildTabletLayout(),
-                desktop: _buildDesktopLayout(),
-                largeDesktop: _buildLargeDesktopLayout(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildFeeSummaryCard(),
+                  const SizedBox(height: 16),
+                  _buildTodayClassesCard(),
+                  const SizedBox(height: 16),
+                  _buildUpcomingExamsCard(),
+                  const SizedBox(height: 16),
+                  _buildQuickActionsCard(),
+                ],
               ),
             ),
     );
   }
 
-  // Enhanced layout methods for different screen sizes
-  Widget _buildSmallMobileLayout() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildFeeSummaryCard(),
-        SizedBox(height: EnhancedResponsiveHelper.getEnhancedResponsiveValue(context, smallMobile: 12.0)),
-        _buildTodayClassesCard(),
-        SizedBox(height: EnhancedResponsiveHelper.getEnhancedResponsiveValue(context, smallMobile: 12.0)),
-        _buildUpcomingExamsCard(),
-        SizedBox(height: EnhancedResponsiveHelper.getEnhancedResponsiveValue(context, smallMobile: 12.0)),
-        _buildQuickActionsCard(),
-      ],
-    );
-  }
-  
-  Widget _buildMobileLayout() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildFeeSummaryCard(),
-        const SizedBox(height: 16),
-        _buildTodayClassesCard(),
-        const SizedBox(height: 16),
-        _buildUpcomingExamsCard(),
-        const SizedBox(height: 16),
-        _buildQuickActionsCard(),
-      ],
-    );
-  }
-  
-  Widget _buildLargeMobileLayout() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Two-column layout for fee and classes on large mobile
-        Row(
-          children: [
-            Expanded(child: _buildFeeSummaryCard()),
-            const SizedBox(width: 12),
-            Expanded(child: _buildTodayClassesCard()),
-          ],
-        ),
-        const SizedBox(height: 20),
-        _buildUpcomingExamsCard(),
-        const SizedBox(height: 20),
-        _buildQuickActionsCard(),
-      ],
-    );
-  }
-  
-  Widget _buildTabletLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 2,
-          child: Column(
-            children: [
-              _buildFeeSummaryCard(),
-              const SizedBox(height: 20),
-              _buildTodayClassesCard(),
-            ],
-          ),
-        ),
-        const SizedBox(width: 20),
-        Expanded(
-          flex: 1,
-          child: Column(
-            children: [
-              _buildUpcomingExamsCard(),
-              const SizedBox(height: 20),
-              _buildQuickActionsCard(),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildDesktopLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 3,
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(child: _buildFeeSummaryCard()),
-                  const SizedBox(width: 24),
-                  Expanded(child: _buildTodayClassesCard()),
-                ],
-              ),
-              const SizedBox(height: 24),
-              _buildQuickActionsCard(),
-            ],
-          ),
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          flex: 1,
-          child: _buildUpcomingExamsCard(),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildLargeDesktopLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 2,
-          child: Column(
-            children: [
-              _buildFeeSummaryCard(),
-              const SizedBox(height: 32),
-              _buildTodayClassesCard(),
-            ],
-          ),
-        ),
-        const SizedBox(width: 32),
-        Expanded(
-          flex: 2,
-          child: Column(
-            children: [
-              _buildUpcomingExamsCard(),
-              const SizedBox(height: 32),
-              _buildQuickActionsCard(),
-            ],
-          ),
-        ),
-        const SizedBox(width: 32),
-        Expanded(
-          flex: 1,
-          child: _buildAdditionalInfoCard(),
-        ),
-      ],
-    );
-  }
-
   Widget _buildFeeSummaryCard() {
-    return EnhancedResponsiveCard(
-      enableTouchFeedback: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.account_balance_wallet, color: AppTheme.primaryColor),
-              const SizedBox(width: 8),
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.account_balance_wallet, color: AppTheme.primaryColor),
+                const SizedBox(width: 8),
               Text(
                 'Fee Summary',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -401,15 +224,15 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             ],
           ),
           const SizedBox(height: 16),
-          EnhancedResponsiveButton(
-            text: 'Pay Fees',
-            icon: const Icon(Icons.payment),
+          ElevatedButton.icon(
             onPressed: () {
               Navigator.pushNamed(context, '/student_fee_dashboard');
             },
-            enableHapticFeedback: true,
+            icon: const Icon(Icons.payment),
+            label: const Text('Pay Fees'),
           ),
         ],
+        ),
       ),
     );
   }
@@ -449,10 +272,13 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   }
 
   Widget _buildTodayClassesCard() {
-    return EnhancedResponsiveCard(
-      enableTouchFeedback: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -491,7 +317,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             )
           else
             Column(
-              children: _todayClasses.take(3).map((classInfo) {
+              children: _todayClasses.take(3).map<Widget>((classInfo) {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(12),
@@ -550,15 +376,19 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             label: const Text('View Full Timetable'),
           ),
         ],
+        ),
       ),
     );
   }
 
   Widget _buildUpcomingExamsCard() {
-    return EnhancedResponsiveCard(
-      enableTouchFeedback: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -589,7 +419,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             )
           else
             Column(
-              children: _upcomingExams.take(3).map((exam) {
+              children: _upcomingExams.take(3).map<Widget>((exam) {
                 final daysUntil = exam['date'].difference(DateTime.now()).inDays;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
@@ -670,15 +500,19 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             label: const Text('View All Exams'),
           ),
         ],
+        ),
       ),
     );
   }
 
   Widget _buildQuickActionsCard() {
-    return EnhancedResponsiveCard(
-      enableTouchFeedback: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Quick Actions',
@@ -690,28 +524,10 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: EnhancedResponsiveHelper.getEnhancedGridColumns(context),
-            mainAxisSpacing: EnhancedResponsiveHelper.getEnhancedResponsiveValue(
-              context,
-              smallMobile: 8.0,
-              mobile: 12.0,
-              tablet: 16.0,
-              desktop: 20.0,
-            ),
-            crossAxisSpacing: EnhancedResponsiveHelper.getEnhancedResponsiveValue(
-              context,
-              smallMobile: 8.0,
-              mobile: 12.0,
-              tablet: 16.0,
-              desktop: 20.0,
-            ),
-            childAspectRatio: EnhancedResponsiveHelper.getEnhancedResponsiveValue(
-              context,
-              smallMobile: 1.1,
-              mobile: 1.2,
-              tablet: 1.3,
-              desktop: 1.4,
-            ),
+            crossAxisCount: 3,
+            mainAxisSpacing: 12.0,
+            crossAxisSpacing: 12.0,
+            childAspectRatio: 1.2,
             children: [
               _buildActionCard(
                 'My Assignments',
@@ -750,6 +566,18 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                 () => Navigator.pushNamed(context, '/calendar'),
               ),
               _buildActionCard(
+                'AI Assistant',
+                Icons.psychology,
+                Colors.purple,
+                () => Navigator.pushNamed(context, '/ai_chatbot'),
+              ),
+              _buildActionCard(
+                'AI Features',
+                Icons.auto_awesome,
+                Colors.indigo,
+                () => Navigator.pushNamed(context, '/ai_features_test'),
+              ),
+              _buildActionCard(
                 'Security Test',
                 Icons.security,
                 Colors.red,
@@ -758,46 +586,20 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             ],
           ),
         ],
+        ),
       ),
     );
   }
 
   Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
-      onTap: () {
-        EnhancedResponsiveHelper.provideTouchFeedback(context);
-        onTap();
-      },
-      borderRadius: BorderRadius.circular(
-        EnhancedResponsiveHelper.getEnhancedResponsiveValue(
-          context,
-          smallMobile: 8.0,
-          mobile: 12.0,
-          tablet: 16.0,
-          desktop: 20.0,
-        ),
-      ),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12.0),
       child: Container(
-        padding: EdgeInsets.all(
-          EnhancedResponsiveHelper.getEnhancedResponsiveValue(
-            context,
-            smallMobile: 8.0,
-            mobile: 12.0,
-            tablet: 16.0,
-            desktop: 20.0,
-          ),
-        ),
+        padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
           color: color.withAlpha(25),
-          borderRadius: BorderRadius.circular(
-            EnhancedResponsiveHelper.getEnhancedResponsiveValue(
-              context,
-              smallMobile: 8.0,
-              mobile: 12.0,
-              tablet: 16.0,
-              desktop: 20.0,
-            ),
-          ),
+          borderRadius: BorderRadius.circular(12.0),
           border: Border.all(color: color.withAlpha(76)),
         ),
         child: Column(
@@ -805,23 +607,15 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           children: [
             Icon(
               icon,
-              size: EnhancedResponsiveHelper.getTouchFriendlySize(context, 32.0),
+              size: 32.0,
               color: color,
             ),
-            SizedBox(
-              height: EnhancedResponsiveHelper.getEnhancedResponsiveValue(
-                context,
-                smallMobile: 6.0,
-                mobile: 8.0,
-                tablet: 10.0,
-                desktop: 12.0,
-              ),
-            ),
-            EnhancedResponsiveText(
+            const SizedBox(height: 8.0),
+            Text(
               title,
               textAlign: TextAlign.center,
-              baseFontSize: 12.0,
               style: TextStyle(
+                fontSize: 12.0,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
@@ -834,9 +628,13 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   
   // Additional info card for large desktop layout
   Widget _buildAdditionalInfoCard() {
-    return EnhancedResponsiveCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Quick Stats',
@@ -853,6 +651,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           const SizedBox(height: 12),
           _buildStatItem('Attendance', '95%', Icons.check_circle, Colors.purple),
         ],
+        ),
       ),
     );
   }
@@ -893,4 +692,132 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
       ],
     );
   }
+
+  Widget _buildComprehensiveDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          UserAccountsDrawerHeader(
+            accountName: Text(_userName),
+            accountEmail: const Text('ahmed.ali@student.edu.pk'),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Text(
+                _userName.split(' ').map((e) => e[0]).join(''),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryColor,
+                ),
+              ),
+            ),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          
+          // Academic Section
+          _buildDrawerSection('📚 Academic', [
+            _buildDrawerItem(Icons.assignment, 'Assignments', '/assignments'),
+            _buildDrawerItem(Icons.quiz, 'Quizzes', '/quizzes'),
+            _buildDrawerItem(Icons.grade, 'Grades', '/grades'),
+            _buildDrawerItem(Icons.schedule, 'Timetable', '/timetable'),
+            _buildDrawerItem(Icons.event, 'Calendar', '/calendar'),
+            _buildDrawerItem(Icons.book, 'Courses', '/courses'),
+          ]),
+          
+          // Performance Section
+          _buildDrawerSection('📊 Performance', [
+            _buildDrawerItem(Icons.analytics, 'Performance Analytics', '/performance'),
+            _buildDrawerItem(Icons.trending_up, 'Progress Reports', '/progress'),
+            _buildDrawerItem(Icons.assessment, 'Exam Results', '/exam_results'),
+            _buildDrawerItem(Icons.check_circle, 'Attendance', '/attendance'),
+          ]),
+          
+          // Communication Section
+          _buildDrawerSection('💬 Communication', [
+            _buildDrawerItem(Icons.message, 'Messages', '/messages'),
+            _buildDrawerItem(Icons.notifications, 'Notifications', '/notifications'),
+            _buildDrawerItem(Icons.forum, 'Discussion Forums', '/forums'),
+            _buildDrawerItem(Icons.support_agent, 'AI Assistant', '/ai_chatbot'),
+          ]),
+          
+          // Documents & Files Section
+          _buildDrawerSection('📁 Documents', [
+            _buildDrawerItem(Icons.folder, 'My Documents', '/documents'),
+            _buildDrawerItem(Icons.download, 'Downloads', '/downloads'),
+            _buildDrawerItem(Icons.upload_file, 'File Upload', '/upload'),
+            _buildDrawerItem(Icons.library_books, 'Library', '/library'),
+          ]),
+          
+          // Financial Section
+          _buildDrawerSection('💰 Financial', [
+            _buildDrawerItem(Icons.payment, 'Fee Payment', '/fee_payment'),
+            _buildDrawerItem(Icons.receipt, 'Fee History', '/fee_history'),
+            _buildDrawerItem(Icons.account_balance_wallet, 'Scholarships', '/scholarships'),
+            _buildDrawerItem(Icons.credit_card, 'Payment Methods', '/payment_methods'),
+          ]),
+          
+          // AI Features Section
+          _buildDrawerSection('🤖 AI Features', [
+            _buildDrawerItem(Icons.smart_toy, 'AI Chatbot', '/ai_chatbot'),
+            _buildDrawerItem(Icons.auto_awesome, 'AI Features Test', '/ai_features_test'),
+            _buildDrawerItem(Icons.psychology, 'Study Assistant', '/study_assistant'),
+            _buildDrawerItem(Icons.lightbulb, 'Smart Recommendations', '/recommendations'),
+          ]),
+          
+          // Settings & Security Section
+          _buildDrawerSection('⚙️ Settings', [
+            _buildDrawerItem(Icons.settings, 'Settings', '/settings'),
+            _buildDrawerItem(Icons.security, 'Security Test', '/security_test'),
+            _buildDrawerItem(Icons.account_circle, 'Profile', '/profile'),
+            _buildDrawerItem(Icons.help, 'Help & Support', '/help'),
+          ]),
+          
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Logout', style: TextStyle(color: Colors.red)),
+            onTap: () => _logout(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerSection(String title, List<Widget> items) {
+    return ExpansionTile(
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+      initiallyExpanded: false,
+      children: items,
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, String route) {
+    return ListTile(
+      leading: Icon(icon, size: 20),
+      title: Text(title),
+      contentPadding: const EdgeInsets.only(left: 32, right: 16),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.pushNamed(context, route);
+      },
+    );
+  }
+
+  void _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
+    }
+  }
+
 }
