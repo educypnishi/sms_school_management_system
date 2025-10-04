@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'services/firebase_service.dart';
 
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
+import 'screens/firebase_login_screen.dart';
+import 'screens/firebase_signup_screen.dart';
 import 'screens/student_dashboard_screen.dart';
 import 'screens/enhanced_student_dashboard_working.dart';
 import 'screens/security_test_screen.dart';
@@ -57,10 +61,17 @@ import 'screens/visa_application_detail_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/constants.dart';
 
-// For Phase 1, we'll use a simplified version without Firebase
-// We'll properly integrate Firebase in later phases
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    // Initialize Firebase
+    await FirebaseService.initializeFirebase();
+    debugPrint('🔥 Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('❌ Firebase initialization failed: $e');
+    // Continue app execution even if Firebase fails
+  }
   
   // Load theme preference
   final prefs = await SharedPreferences.getInstance();
@@ -102,8 +113,12 @@ class _MyAppState extends State<MyApp> {
       initialRoute: AppConstants.splashRoute,
       routes: {
         AppConstants.splashRoute: (context) => const SplashScreen(),
-        AppConstants.loginRoute: (context) => const LoginScreen(),
-        AppConstants.signupRoute: (context) => const SignupScreen(),
+        AppConstants.loginRoute: (context) => const FirebaseLoginScreen(),
+        AppConstants.signupRoute: (context) => const FirebaseSignupScreen(),
+        '/legacy_login': (context) => const LoginScreen(),
+        '/legacy_signup': (context) => const SignupScreen(),
+        '/firebase_login': (context) => const FirebaseLoginScreen(),
+        '/firebase_signup': (context) => const FirebaseSignupScreen(),
         AppConstants.studentDashboardRoute: (context) => const EnhancedStudentDashboard(),
         '/security_test': (context) => const SecurityTestScreen(),
         '/ai_chatbot': (context) => const AIChatbotScreen(),

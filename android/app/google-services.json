@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "731012682647",
+    "project_id": "school-management-system-79445",
+    "storage_bucket": "school-management-system-79445.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:731012682647:android:b28149addd14821037aad2",
+        "android_client_info": {
+          "package_name": "com.funtech.sms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCh_9EHTsOv8OfDkr_wcZGjOXcObcbpTdI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

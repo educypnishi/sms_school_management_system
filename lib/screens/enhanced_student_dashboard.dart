@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/firebase_auth_service.dart';
+import '../services/firebase_student_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 
@@ -35,15 +38,37 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
     });
 
     try {
-      await _loadTodayClasses();
-      await _loadUpcomingExams();
+      // Load data from Firebase if user is authenticated
+      if (FirebaseAuthService.isAuthenticated) {
+        final dashboardData = await FirebaseStudentService.getStudentDashboardData();
+        
+        setState(() {
+          _userName = dashboardData['user']['fullName'] ?? 'Student';
+          _totalDue = dashboardData['fees']['totalDue']?.toDouble() ?? 0.0;
+          _totalPaid = dashboardData['fees']['totalPaid']?.toDouble() ?? 0.0;
+          _pendingFeesCount = dashboardData['fees']['pendingCount'] ?? 0;
+          _notificationCount = dashboardData['notificationCount'] ?? 0;
+          _todayClasses = List<Map<String, dynamic>>.from(dashboardData['todayClasses'] ?? []);
+          _upcomingExams = List<Map<String, dynamic>>.from(dashboardData['upcomingExams'] ?? []);
+        });
+      } else {
+        // Load sample data if not authenticated
+        await _loadSampleData();
+      }
     } catch (e) {
       debugPrint('Error loading enhanced data: $e');
+      // Fallback to sample data on error
+      await _loadSampleData();
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _loadSampleData() async {
+    await _loadTodayClasses();
+    await _loadUpcomingExams();
   }
 
   Future<void> _loadTodayClasses() async {
@@ -813,10 +838,37 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   }
 
   void _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Sign out from Firebase
+      await FirebaseAuthService.signOut();
+      
+      // Clear local preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error signing out: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

@@ -3,90 +3,69 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import '../firebase_options.dart';
 
 class FirebaseService {
+  static bool _initialized = false;
+  
   static Future<void> initializeFirebase() async {
+    if (_initialized) return;
+    
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      debugPrint('Firebase initialized successfully');
+      _initialized = true;
+      debugPrint('✅ Firebase initialized successfully');
+      
+      // Enable offline persistence for Firestore
+      if (!kIsWeb) {
+        await FirebaseFirestore.instance.enablePersistence();
+        debugPrint('✅ Firestore offline persistence enabled');
+      }
+      
+      // Set up authentication state listener
+      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        if (user == null) {
+          debugPrint('🔐 User is currently signed out!');
+        } else {
+          debugPrint('🔐 User is signed in: ${user.email}');
+        }
+      });
+      
     } catch (e) {
-      debugPrint('Error initializing Firebase: $e');
+      debugPrint('❌ Error initializing Firebase: $e');
+      rethrow;
     }
   }
 
   // Auth instance
-  static FirebaseAuth auth = FirebaseAuth.instance;
+  static FirebaseAuth get auth => FirebaseAuth.instance;
   
   // Firestore instance
-  static FirebaseFirestore firestore = FirebaseFirestore.instance;
+  static FirebaseFirestore get firestore => FirebaseFirestore.instance;
   
   // Storage instance
-  static FirebaseStorage storage = FirebaseStorage.instance;
-}
-
-// Firebase configuration options
-class DefaultFirebaseOptions {
-  static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return web;
-    }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return android;
-      case TargetPlatform.iOS:
-        return ios;
-      case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      default:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
-        );
+  static FirebaseStorage get storage => FirebaseStorage.instance;
+  
+  // Check if user is authenticated
+  static bool get isAuthenticated => auth.currentUser != null;
+  
+  // Get current user
+  static User? get currentUser => auth.currentUser;
+  
+  // Get current user ID
+  static String? get currentUserId => auth.currentUser?.uid;
+  
+  // Sign out
+  static Future<void> signOut() async {
+    try {
+      await auth.signOut();
+      debugPrint('✅ User signed out successfully');
+    } catch (e) {
+      debugPrint('❌ Error signing out: $e');
+      rethrow;
     }
   }
-
-  // Web Firebase configuration
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_AUTH_DOMAIN',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
-    measurementId: 'YOUR_MEASUREMENT_ID',
-  );
-
-  // Android Firebase configuration
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
-  );
-
-  // iOS Firebase configuration
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    appId: 'YOUR_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
-    iosClientId: 'YOUR_IOS_CLIENT_ID',
-    iosBundleId: 'YOUR_IOS_BUNDLE_ID',
-  );
 }
+
