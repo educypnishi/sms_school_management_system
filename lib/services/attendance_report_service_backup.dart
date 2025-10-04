@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+// import 'package:open_file/open_file.dart';  // Disabled for web
+// import 'package:file_picker/file_picker.dart';  // Disabled for web
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'web_file_service.dart';
@@ -15,6 +17,128 @@ class AttendanceReportService {
   static Future<String> generateStudentReport({
     required String studentId,
     required String studentName,
+    DateTime? startDate,
+    DateTime? endDate,
+    String format = 'pdf', // 'pdf', 'csv'
+  }) async {
+    try {
+      // Get attendance data
+      final attendanceRecords = await FirebaseAttendanceService.getStudentAttendance(
+        studentId: studentId,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+      final stats = await FirebaseAttendanceService.getStudentAttendanceStats(
+        studentId: studentId,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+      if (format == 'pdf') {
+        return await _generateStudentPDFReport(
+          studentName: studentName,
+          attendanceRecords: attendanceRecords,
+          stats: stats,
+          startDate: startDate,
+          endDate: endDate,
+        );
+      } else {
+        return await _generateStudentCSVReport(
+          studentName: studentName,
+          attendanceRecords: attendanceRecords,
+          stats: stats,
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error generating student report: $e');
+      rethrow;
+    }
+  }
+
+  // Generate class attendance report
+  static Future<String> generateClassReport({
+    required String classId,
+    required String className,
+    DateTime? startDate,
+    DateTime? endDate,
+    String format = 'pdf',
+  }) async {
+    try {
+      // Get class data
+      final classModel = await FirebaseClassService.getClassById(classId);
+      final students = await FirebaseClassService.getClassStudents(classId);
+      
+      // Get attendance statistics for the class
+      final classStats = await FirebaseAttendanceService.getClassAttendanceStats(
+        classId: classId,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+      // Get individual student attendance
+      final studentAttendanceData = <String, Map<String, dynamic>>{};
+      for (final student in students) {
+        final studentId = student['studentId'];
+        final studentStats = await FirebaseAttendanceService.getStudentAttendanceStats(
+          studentId: studentId,
+          startDate: startDate,
+          endDate: endDate,
+        );
+        studentAttendanceData[studentId] = {
+          'name': student['studentName'],
+          'stats': studentStats,
+        };
+      }
+
+      if (format == 'pdf') {
+        return await _generateClassPDFReport(
+          classModel: classModel,
+          classStats: classStats,
+          studentAttendanceData: studentAttendanceData,
+          startDate: startDate,
+          endDate: endDate,
+        );
+      } else {
+        return await _generateClassCSVReport(
+          className: className,
+          classStats: classStats,
+          studentAttendanceData: studentAttendanceData,
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error generating class report: $e');
+      rethrow;
+    }
+  }
+
+  // Generate monthly attendance summary
+  static Future<String> generateMonthlySummary({
+    required String classId,
+    required String className,
+    required int year,
+    required int month,
+  }) async {
+    try {
+      final startDate = DateTime(year, month, 1);
+      final endDate = DateTime(year, month + 1, 0); // Last day of month
+
+      return await generateClassReport(
+        classId: classId,
+        className: className,
+        startDate: startDate,
+        endDate: endDate,
+        format: 'pdf',
+      );
+    } catch (e) {
+      debugPrint('❌ Error generating monthly summary: $e');
+      rethrow;
+    }
+  }
+
+  // Private methods for PDF generation
+  static Future<String> _generateStudentPDFReport({
+    required String studentName,
     required List<AttendanceModel> attendanceRecords,
     required Map<String, dynamic> stats,
     DateTime? startDate,
@@ -22,7 +146,7 @@ class AttendanceReportService {
   }) async {
     final pdf = pw.Document();
     final now = DateTime.now();
-
+    
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
@@ -74,16 +198,35 @@ class AttendanceReportService {
                 border: pw.Border.all(color: PdfColors.grey),
                 borderRadius: pw.BorderRadius.circular(8),
               ),
-              child: pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _buildStatColumn('Total Days', '${stats['totalDays'] ?? 0}'),
-                  _buildStatColumn('Present', '${stats['presentDays'] ?? 0}'),
-                  _buildStatColumn('Absent', '${stats['absentDays'] ?? 0}'),
-                  _buildStatColumn('Late', '${stats['lateDays'] ?? 0}'),
-                  _buildStatColumn(
-                    'Percentage', 
-                    '${(stats['attendancePercentage'] ?? 0.0).toStringAsFixed(1)}%'
+                  pw.Text(
+                    'ATTENDANCE SUMMARY',
+                    style: pw.TextStyle(
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                  pw.SizedBox(height: 10),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildStatColumn('Total Days', '${stats['totalDays'] ?? 0}'),
+                      _buildStatColumn('Present', '${stats['presentDays'] ?? 0}'),
+                      _buildStatColumn('Absent', '${stats['absentDays'] ?? 0}'),
+                      _buildStatColumn('Late', '${stats['lateDays'] ?? 0}'),
+                    ],
+                  ),
+                  pw.SizedBox(height: 10),
+                  pw.Center(
+                    child: pw.Text(
+                      'Attendance Percentage: ${(stats['attendancePercentage'] ?? 0.0).toStringAsFixed(1)}%',
+                      style: pw.TextStyle(
+                        fontSize: 16,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -91,9 +234,9 @@ class AttendanceReportService {
             
             pw.SizedBox(height: 20),
             
-            // Detailed Records Table
+            // Attendance Records Table
             pw.Text(
-              'DETAILED ATTENDANCE RECORDS',
+              'DETAILED RECORDS',
               style: pw.TextStyle(
                 fontSize: 18,
                 fontWeight: pw.FontWeight.bold,
@@ -105,10 +248,10 @@ class AttendanceReportService {
               border: pw.TableBorder.all(color: PdfColors.grey),
               columnWidths: {
                 0: const pw.FlexColumnWidth(2),
-                1: const pw.FlexColumnWidth(3),
-                2: const pw.FlexColumnWidth(2),
-                3: const pw.FlexColumnWidth(2),
-                4: const pw.FlexColumnWidth(3),
+                1: const pw.FlexColumnWidth(2),
+                2: const pw.FlexColumnWidth(1),
+                3: const pw.FlexColumnWidth(1),
+                4: const pw.FlexColumnWidth(2),
               },
               children: [
                 // Header row
@@ -140,8 +283,8 @@ class AttendanceReportService {
                 }).toList(),
               ],
             ),
-          ];
-        },
+          ],
+        ),
       ),
     );
 
@@ -152,13 +295,13 @@ class AttendanceReportService {
       // Web: Download file directly
       WebFileService.downloadFile(
         pdfBytes, 
-        'attendance_report_${studentName.replaceAll(' ', '_')}_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf'
+        'attendance_report_${student.id}_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf'
       );
       return 'Downloaded to browser';
     } else {
       // Mobile: Save to device
       final output = await getApplicationDocumentsDirectory();
-      final file = File('${output.path}/attendance_report_${studentName.replaceAll(' ', '_')}_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf');
+      final file = File('${output.path}/attendance_report_${student.id}_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.pdf');
       await file.writeAsBytes(pdfBytes);
       return file.path;
     }
@@ -173,7 +316,7 @@ class AttendanceReportService {
     DateTime? endDate,
   }) async {
     // Simple implementation for now
-    return 'Class report generated successfully for ${classModel.name}';
+    return 'Class report generated successfully';
   }
 
   // Helper methods

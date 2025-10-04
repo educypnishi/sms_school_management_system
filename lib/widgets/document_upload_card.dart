@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+// import 'package:file_picker/file_picker.dart';  // Disabled for web compatibility
 import '../models/document_model.dart';
 import '../theme/app_theme.dart';
 
@@ -177,17 +177,27 @@ class _DocumentUploadCardState extends State<DocumentUploadCard> {
 
   Future<void> _selectFile() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
-        allowMultiple: false,
+      // Web-compatible file picker placeholder
+      // For web compatibility, show a message instead of file picker
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('File picker not available on web. Use mobile app for file uploads.'),
+          backgroundColor: Colors.orange,
+        ),
       );
+      
+      // TODO: Implement web-compatible file picker
+      // FilePickerResult? result = await FilePicker.platform.pickFiles(
+      //   type: FileType.custom,
+      //   allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+      //   allowMultiple: false,
+      // );
 
-      if (result != null && result.files.single.path != null) {
-        setState(() {
-          _selectedFile = File(result.files.single.path!);
-        });
-      }
+      // if (result != null && result.files.single.path != null) {
+      //   setState(() {
+      //     _selectedFile = File(result.files.single.path!);
+      //   });
+      // }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

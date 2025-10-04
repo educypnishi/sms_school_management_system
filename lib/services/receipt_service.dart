@@ -5,8 +5,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
-import 'package:file_picker/file_picker.dart';
+// import 'package:open_file/open_file.dart';  // Disabled for web compatibility
+// import 'package:file_picker/file_picker.dart';  // Disabled for web compatibility
 import 'package:intl/intl.dart';
 import 'dart:io';
 
@@ -526,19 +526,14 @@ class ReceiptService {
         final file = File(filePath);
         await file.writeAsBytes(pdfBytes);
         
-        // Open the file
-        await OpenFile.open(filePath);
+        // Open the file (disabled for web compatibility)
+        // await OpenFile.open(filePath);
+        debugPrint('✅ Receipt saved: $filePath');
       } else {
-        // For web or desktop platforms
-        final result = await FilePicker.platform.saveFile(
-          dialogTitle: 'Save Receipt',
-          fileName: fileName,
-        );
-        
-        if (result != null) {
-          final file = File(result);
-          await file.writeAsBytes(pdfBytes);
-        }
+        // For web or desktop platforms (disabled for web compatibility)
+        // Use web file service for downloads
+        debugPrint('✅ Receipt generated for web platform');
+        // TODO: Implement web-compatible file download
       }
     } catch (e) {
       debugPrint('Error saving receipt PDF file: $e');

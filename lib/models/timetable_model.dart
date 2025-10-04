@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TimetableSlot {
   final String timeSlot;
@@ -270,4 +271,142 @@ class TimetableModel {
       'rooms': rooms.toList(),
     };
   }
+
+  // Add Firebase factory method
+  factory TimetableModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return TimetableModel.fromMap({...data, 'id': doc.id});
+  }
+}
+
+// Enhanced Firebase-compatible models
+class EnhancedTimetableModel {
+  final String id;
+  final String name;
+  final String academicYear;
+  final String semester;
+  final DateTime startDate;
+  final DateTime endDate;
+  final List<String> workingDays;
+  final Map<String, String> timeSlots;
+  final String? description;
+  final String status;
+  final String? createdBy;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final List<String> schedules;
+  final List<Map<String, dynamic>> conflicts;
+  final bool isActive;
+
+  EnhancedTimetableModel({
+    required this.id,
+    required this.name,
+    required this.academicYear,
+    required this.semester,
+    required this.startDate,
+    required this.endDate,
+    required this.workingDays,
+    required this.timeSlots,
+    this.description,
+    this.status = 'draft',
+    this.createdBy,
+    this.createdAt,
+    this.updatedAt,
+    this.schedules = const [],
+    this.conflicts = const [],
+    this.isActive = false,
+  });
+
+  factory EnhancedTimetableModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    
+    return EnhancedTimetableModel(
+      id: doc.id,
+      name: data['name'] ?? '',
+      academicYear: data['academicYear'] ?? '',
+      semester: data['semester'] ?? '',
+      startDate: data['startDate'] != null 
+          ? DateTime.parse(data['startDate']) 
+          : DateTime.now(),
+      endDate: data['endDate'] != null 
+          ? DateTime.parse(data['endDate']) 
+          : DateTime.now(),
+      workingDays: List<String>.from(data['workingDays'] ?? []),
+      timeSlots: Map<String, String>.from(data['timeSlots'] ?? {}),
+      description: data['description'],
+      status: data['status'] ?? 'draft',
+      createdBy: data['createdBy'],
+      createdAt: data['createdAt']?.toDate(),
+      updatedAt: data['updatedAt']?.toDate(),
+      schedules: List<String>.from(data['schedules'] ?? []),
+      conflicts: List<Map<String, dynamic>>.from(data['conflicts'] ?? []),
+      isActive: data['isActive'] ?? false,
+    );
+  }
+}
+
+class ClassScheduleModel {
+  final String id;
+  final String timetableId;
+  final String classId;
+  final String className;
+  final String subjectId;
+  final String subjectName;
+  final String teacherId;
+  final String teacherName;
+  final String roomId;
+  final String roomName;
+  final String day;
+  final String timeSlot;
+  final String startTime;
+  final String endTime;
+  final String? notes;
+  final List<Map<String, dynamic>> conflicts;
+  final String status;
+
+  ClassScheduleModel({
+    required this.id,
+    required this.timetableId,
+    required this.classId,
+    required this.className,
+    required this.subjectId,
+    required this.subjectName,
+    required this.teacherId,
+    required this.teacherName,
+    required this.roomId,
+    required this.roomName,
+    required this.day,
+    required this.timeSlot,
+    required this.startTime,
+    required this.endTime,
+    this.notes,
+    this.conflicts = const [],
+    this.status = 'confirmed',
+  });
+
+  factory ClassScheduleModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    
+    return ClassScheduleModel(
+      id: doc.id,
+      timetableId: data['timetableId'] ?? '',
+      classId: data['classId'] ?? '',
+      className: data['className'] ?? '',
+      subjectId: data['subjectId'] ?? '',
+      subjectName: data['subjectName'] ?? '',
+      teacherId: data['teacherId'] ?? '',
+      teacherName: data['teacherName'] ?? '',
+      roomId: data['roomId'] ?? '',
+      roomName: data['roomName'] ?? '',
+      day: data['day'] ?? '',
+      timeSlot: data['timeSlot'] ?? '',
+      startTime: data['startTime'] ?? '',
+      endTime: data['endTime'] ?? '',
+      notes: data['notes'],
+      conflicts: List<Map<String, dynamic>>.from(data['conflicts'] ?? []),
+      status: data['status'] ?? 'confirmed',
+    );
+  }
+
+  bool get hasConflicts => conflicts.isNotEmpty;
 }

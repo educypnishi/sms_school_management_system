@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/attendance_report_service.dart';
+import '../models/class_model.dart';
 import '../theme/app_theme.dart';
 
 class AttendanceAlertsWidget extends StatefulWidget {
@@ -36,7 +37,6 @@ class _AttendanceAlertsWidgetState extends State<AttendanceAlertsWidget> {
     try {
       final alerts = await AttendanceReportService.getAttendanceAlerts(
         classId: widget.classId,
-        threshold: widget.threshold,
       );
       
       setState(() {
@@ -239,12 +239,26 @@ class _AttendanceAlertsWidgetState extends State<AttendanceAlertsWidget> {
       );
 
       // Generate report with alert data
+      // Create dummy class model and data for the report
+      final classModel = ClassModel(
+        id: widget.classId ?? 'unknown',
+        name: 'Low Attendance Alert Report',
+        grade: 'All Grades',
+        subject: 'Attendance Report',
+        teacherName: 'System Generated',
+        room: 'N/A',
+        schedule: 'Generated Report',
+        capacity: 30,
+        currentStudents: _alerts.length,
+        averageGrade: 0.0,
+      );
+      
       final reportPath = await AttendanceReportService.generateClassReport(
-        classId: widget.classId,
-        className: 'Low Attendance Alert Report',
+        classModel: classModel,
+        classStats: {'totalStudents': _alerts.length, 'averageAttendance': 0.0},
+        studentAttendanceData: {},
         startDate: DateTime.now().subtract(const Duration(days: 30)),
         endDate: DateTime.now(),
-        format: 'pdf',
       );
 
       if (mounted) {

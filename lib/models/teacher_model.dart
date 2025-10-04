@@ -148,14 +148,13 @@ class TeacherModel {
       yearsOfExperience: yearsOfExperience ?? this.yearsOfExperience,
       joiningDate: joiningDate ?? this.joiningDate,
       employeeId: employeeId ?? this.employeeId,
-      classesTaught: classesTaught ?? this.classesTaught,
       subjectsTaught: subjectsTaught ?? this.subjectsTaught,
       photoUrl: photoUrl ?? this.photoUrl,
       schedule: schedule ?? this.schedule,
       performanceReviews: performanceReviews ?? this.performanceReviews,
       status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-}
+
+  // Getter for timetable compatibility
+  List<String> get subjects => subjectsTaught ?? [];
