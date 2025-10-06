@@ -49,6 +49,8 @@ import 'screens/timetable_generator_screen.dart';
 import 'screens/timetable_viewer_screen.dart';
 import 'screens/notification_center_screen.dart';
 import 'screens/student_performance_analytics_screen.dart';
+import 'screens/student_gradebook_screen.dart';
+import 'screens/student_attendance_analytics_screen.dart';
 import 'screens/learning_management_screen.dart';
 import 'screens/assignment_creator_screen.dart';
 import 'screens/assignment_list_screen.dart';
@@ -138,6 +140,7 @@ class _MyAppState extends State<MyApp> {
         '/attendance': (context) => const AttendanceTrackerScreen(userId: 'demo_student'),
         '/calendar': (context) => const CalendarScreen(userId: 'demo_student'),
         '/timetable_viewer': (context) => const TimetableViewerScreen(),
+        '/timetable': (context) => const TimetableViewerScreen(),
         '/exam_management': (context) => const ExamManagementScreen(),
         '/create_exam': (context) => const TeacherExamsScreen(),
         '/teacher_exams': (context) => const TeacherExamsScreen(),
@@ -202,12 +205,60 @@ class _MyAppState extends State<MyApp> {
         
         // Analytics Routes
         AppConstants.studentPerformanceAnalyticsRoute: (context) => const StudentPerformanceAnalyticsScreen(),
+        '/student_performance_analytics': (context) => const StudentPerformanceAnalyticsScreen(),
+        '/student_gradebook': (context) => StudentGradebookScreen(studentId: 'demo_student'),
+        '/student_attendance_analytics': (context) => const StudentAttendanceAnalyticsScreen(),
+        
+        // Missing Navigation Routes
+        '/courses': (context) => const CourseListScreen(),
+        '/progress': (context) => Scaffold(
+          appBar: AppBar(title: const Text('Progress Reports')),
+          body: const Center(child: Text('Progress Reports - Coming Soon!')),
+        ),
+        '/forums': (context) => Scaffold(
+          appBar: AppBar(title: const Text('Discussion Forums')),
+          body: const Center(child: Text('Discussion Forums - Coming Soon!')),
+        ),
+        '/downloads': (context) => Scaffold(
+          appBar: AppBar(title: const Text('Downloads')),
+          body: const Center(child: Text('Downloads - Coming Soon!')),
+        ),
+        '/upload': (context) => Scaffold(
+          appBar: AppBar(title: const Text('File Upload')),
+          body: const Center(child: Text('File Upload - Coming Soon!')),
+        ),
+        '/library': (context) => Scaffold(
+          appBar: AppBar(title: const Text('Library')),
+          body: const Center(child: Text('Library - Coming Soon!')),
+        ),
+        '/fee_history': (context) => Scaffold(
+          appBar: AppBar(title: const Text('Fee History')),
+          body: const Center(child: Text('Fee History - Coming Soon!')),
+        ),
+        '/scholarships': (context) => Scaffold(
+          appBar: AppBar(title: const Text('Scholarships')),
+          body: const Center(child: Text('Scholarships - Coming Soon!')),
+        ),
+        '/payment_methods': (context) => Scaffold(
+          appBar: AppBar(title: const Text('Payment Methods')),
+          body: const Center(child: Text('Payment Methods - Coming Soon!')),
+        ),
+        '/study_assistant': (context) => Scaffold(
+          appBar: AppBar(title: const Text('Study Assistant')),
+          body: const Center(child: Text('AI Study Assistant - Coming Soon!')),
+        ),
+        '/recommendations': (context) => Scaffold(
+          appBar: AppBar(title: const Text('Smart Recommendations')),
+          body: const Center(child: Text('Smart Recommendations - Coming Soon!')),
+        ),
         
         // Learning Management Routes
         AppConstants.learningManagementRoute: (context) => const LearningManagementScreen(),
         AppConstants.assignmentCreatorRoute: (context) => const AssignmentCreatorScreen(),
         AppConstants.assignmentListRoute: (context) => const AssignmentListScreen(),
         AppConstants.quizBuilderRoute: (context) => const QuizBuilderScreen(),
+        '/quiz_builder': (context) => const QuizBuilderScreen(),
+        '/quizzes': (context) => const QuizBuilderScreen(),
         
         // Employee Management Routes
         AppConstants.employeeDashboardRoute: (context) => const EmployeeDashboardScreen(),

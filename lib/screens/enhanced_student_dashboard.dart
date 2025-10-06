@@ -785,10 +785,12 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           
           // Performance Section
           _buildDrawerSection('📊 Performance', [
-            _buildDrawerItem(Icons.analytics, 'Performance Analytics', '/performance'),
+            _buildDrawerItem(Icons.analytics, 'Performance Analytics', '/student_performance_analytics'),
             _buildDrawerItem(Icons.trending_up, 'Progress Reports', '/progress'),
             _buildDrawerItem(Icons.assessment, 'Exam Results', '/exam_results'),
             _buildDrawerItem(Icons.history, 'Exam History', '/exam_history'),
+            _buildDrawerItem(Icons.book, 'Student Gradebook', '/student_gradebook'),
+            _buildDrawerItem(Icons.bar_chart, 'Attendance Analytics', '/student_attendance_analytics'),
             _buildDrawerItem(Icons.check_circle, 'Attendance', '/attendance'),
           ]),
           

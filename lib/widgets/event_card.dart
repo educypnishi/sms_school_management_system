@@ -40,13 +40,13 @@ class EventCard extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    event.typeIcon,
-                    color: event.priorityColor,
+                    event.typeIcon ?? Icons.event,
+                    color: event.priorityColor ?? Colors.blue,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      event.title,
+                      event.title ?? 'Untitled Event',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -60,7 +60,7 @@ class EventCard extends StatelessWidget {
               
               // Event description
               Text(
-                event.description,
+                event.description ?? 'No description available',
                 style: const TextStyle(color: AppTheme.lightTextColor),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -77,7 +77,7 @@ class EventCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    event.formattedDate,
+                    event.formattedDate ?? 'No date',
                     style: const TextStyle(
                       color: AppTheme.lightTextColor,
                       fontSize: 14,
