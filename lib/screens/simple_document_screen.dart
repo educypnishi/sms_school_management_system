@@ -118,14 +118,14 @@ class _SimpleDocumentScreenState extends State<SimpleDocumentScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: doc['color'].withAlpha(25),
+              backgroundColor: (doc['color'] as Color? ?? Colors.blue).withAlpha(25),
               child: Icon(
-                doc['icon'],
-                color: doc['color'],
+                doc['icon'] as IconData? ?? Icons.description,
+                color: doc['color'] as Color? ?? Colors.blue,
               ),
             ),
             title: Text(
-              doc['name'],
+              doc['name'] as String? ?? 'Unknown Document',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
@@ -133,19 +133,19 @@ class _SimpleDocumentScreenState extends State<SimpleDocumentScreen> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${doc['type']} • ${doc['size']}'),
-                Text('Uploaded: ${doc['uploadDate']}'),
+                Text('${doc['type'] ?? 'Unknown'} • ${doc['size'] ?? 'Unknown size'}'),
+                Text('Uploaded: ${doc['uploadDate'] ?? 'Unknown date'}'),
                 Container(
                   margin: const EdgeInsets.only(top: 4),
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: doc['color'].withAlpha(25),
+                    color: (doc['color'] as Color? ?? Colors.blue).withAlpha(25),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    doc['status'],
+                    doc['status'] as String? ?? 'Unknown Status',
                     style: TextStyle(
-                      color: doc['color'],
+                      color: doc['color'] as Color? ?? Colors.blue,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -211,19 +211,19 @@ class _SimpleDocumentScreenState extends State<SimpleDocumentScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: doc['color'].withAlpha(25),
+              backgroundColor: (doc['color'] as Color? ?? Colors.red).withAlpha(25),
               child: Icon(
-                doc['icon'],
-                color: doc['color'],
+                doc['icon'] as IconData? ?? Icons.description,
+                color: doc['color'] as Color? ?? Colors.red,
               ),
             ),
             title: Text(
-              doc['name'],
+              doc['name'] as String? ?? 'Required Document',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            subtitle: Text(doc['description']),
+            subtitle: Text(doc['description'] as String? ?? 'No description available'),
             trailing: ElevatedButton.icon(
               onPressed: () {
                 _uploadRequiredDocument(doc);
@@ -231,7 +231,7 @@ class _SimpleDocumentScreenState extends State<SimpleDocumentScreen> {
               icon: const Icon(Icons.upload, size: 16),
               label: const Text('Upload'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: doc['color'],
+                backgroundColor: doc['color'] as Color? ?? Colors.red,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -271,7 +271,7 @@ class _SimpleDocumentScreenState extends State<SimpleDocumentScreen> {
   void _viewDocument(Map<String, dynamic> doc) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Viewing ${doc['name']}'),
+        content: Text('Viewing ${doc['name'] ?? 'document'}'),
       ),
     );
   }
@@ -279,7 +279,7 @@ class _SimpleDocumentScreenState extends State<SimpleDocumentScreen> {
   void _downloadDocument(Map<String, dynamic> doc) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Downloading ${doc['name']}'),
+        content: Text('Downloading ${doc['name'] ?? 'document'}'),
       ),
     );
   }
@@ -289,7 +289,7 @@ class _SimpleDocumentScreenState extends State<SimpleDocumentScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Document'),
-        content: Text('Are you sure you want to delete ${doc['name']}?'),
+        content: Text('Are you sure you want to delete ${doc['name'] ?? 'this document'}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -303,7 +303,7 @@ class _SimpleDocumentScreenState extends State<SimpleDocumentScreen> {
               });
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('${doc['name']} deleted'),
+                  content: Text('${doc['name'] ?? 'Document'} deleted'),
                 ),
               );
             },
@@ -318,7 +318,7 @@ class _SimpleDocumentScreenState extends State<SimpleDocumentScreen> {
   void _uploadRequiredDocument(Map<String, dynamic> doc) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Upload ${doc['name']} functionality coming soon!'),
+        content: Text('Upload ${doc['name'] ?? 'document'} functionality coming soon!'),
       ),
     );
   }

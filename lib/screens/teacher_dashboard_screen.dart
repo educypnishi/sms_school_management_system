@@ -6,6 +6,7 @@ import '../services/firebase_assignment_service.dart';
 import '../services/firebase_attendance_service.dart';
 import '../services/application_service.dart';
 import '../services/attendance_service.dart';
+import '../services/demo_auth_service.dart';
 import 'teacher_attendance_screen.dart';
 import 'qr_attendance_screen.dart';
 import '../models/class_model.dart';
@@ -52,6 +53,14 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     });
     
     try {
+      // Load demo user data
+      final user = await DemoAuthService.getCurrentUser();
+      
+      if (user != null) {
+        setState(() {
+          _teacherName = user['name'] ?? 'Teacher';
+        });
+      }
       // Load real Firebase data if authenticated
       if (FirebaseAuthService.isAuthenticated) {
         final teacherId = FirebaseAuthService.currentUserId!;

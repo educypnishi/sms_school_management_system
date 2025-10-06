@@ -73,18 +73,18 @@ class _SplashScreenState extends State<SplashScreen> {
           Navigator.pushReplacementNamed(context, AppConstants.studentDashboardRoute);
         }
       } else {
-        // User is not logged in, navigate to login screen
-        debugPrint('SplashScreen: User is not logged in, navigating to login screen');
-        Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
+        // User is not logged in, navigate to role selection screen
+        debugPrint('SplashScreen: User is not logged in, navigating to role selection screen');
+        Navigator.pushReplacementNamed(context, '/role_selection');
       }
     } catch (e) {
       debugPrint('Error in splash screen: $e');
       
       if (!mounted) return;
       
-      // Navigate to login screen if there's an error
-      debugPrint('SplashScreen: Error occurred, navigating to login screen');
-      Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
+      // Navigate to role selection screen if there's an error
+      debugPrint('SplashScreen: Error occurred, navigating to role selection screen');
+      Navigator.pushReplacementNamed(context, '/role_selection');
     }
   }
 

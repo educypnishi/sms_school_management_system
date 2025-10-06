@@ -8,6 +8,7 @@ import '../services/firebase_class_service.dart';
 import '../services/firebase_grade_service.dart';
 import '../services/firebase_assignment_service.dart';
 import '../services/firebase_attendance_service.dart';
+import '../services/demo_auth_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import 'student_attendance_analytics_screen.dart';
@@ -23,19 +24,24 @@ class EnhancedStudentDashboard extends StatefulWidget {
 }
 
 class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
-  String _userName = 'Ahmed Ali';
+  String _userName = 'Loading...';
+  String _userEmail = '';
+  String _studentId = '';
   bool _isLoading = false;
   
-  // Sample data
-  double _totalDue = 15000.0;
-  double _totalPaid = 25000.0;
-  int _pendingFeesCount = 2;
-  int _notificationCount = 3;
+  // Real data variables
+  double _totalDue = 0.0;
+  double _totalPaid = 0.0;
+  int _pendingFeesCount = 0;
+  int _notificationCount = 0;
   List<Map<String, dynamic>> _todayClasses = [];
   List<Map<String, dynamic>> _upcomingExams = [];
   List<Map<String, dynamic>> _recentGrades = [];
   List<Map<String, dynamic>> _pendingAssignments = [];
   Map<String, dynamic> _attendanceStats = {};
+  
+  final FirebaseAuthService _authService = FirebaseAuthService();
+  final FirebaseStudentService _studentService = FirebaseStudentService();
 
   @override
   void initState() {
@@ -49,60 +55,20 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
     });
 
     try {
-      // Load data from Firebase if user is authenticated
-      if (FirebaseAuthService.isAuthenticated) {
-        final userId = FirebaseAuthService.currentUserId!;
-        
-        // Load all real data in parallel
-        final results = await Future.wait([
-          FirebaseStudentService.getStudentDashboardData(),
-          FirebaseGradeService.getStudentGrades(userId),
-          FirebaseAssignmentService.getStudentAssignments(userId),
-          FirebaseAttendanceService.getStudentAttendanceStats(
-            studentId: userId,
-            startDate: DateTime.now().subtract(const Duration(days: 30)),
-            endDate: DateTime.now(),
-          ),
-        ]);
-        
-        final dashboardData = results[0] as Map<String, dynamic>;
-        final grades = results[1] as List;
-        final assignments = results[2] as List;
-        final attendanceStats = results[3] as Map<String, dynamic>;
-        
+      // Load demo user data
+      final user = await DemoAuthService.getCurrentUser();
+      
+      if (user != null) {
         setState(() {
-          _userName = dashboardData['user']['fullName'] ?? 'Student';
-          _totalDue = dashboardData['fees']['totalDue']?.toDouble() ?? 0.0;
-          _totalPaid = dashboardData['fees']['totalPaid']?.toDouble() ?? 0.0;
-          _pendingFeesCount = dashboardData['fees']['pendingCount'] ?? 0;
-          _notificationCount = dashboardData['notificationCount'] ?? 0;
-          _todayClasses = List<Map<String, dynamic>>.from(dashboardData['todayClasses'] ?? []);
-          _upcomingExams = List<Map<String, dynamic>>.from(dashboardData['upcomingExams'] ?? []);
-          
-          // Process real grades data
-          _recentGrades = grades.take(3).map((grade) => {
-            'subject': grade.courseName,
-            'score': grade.score,
-            'maxScore': grade.maxScore,
-            'letterGrade': grade.letterGrade,
-            'date': grade.gradedDate,
-          }).toList();
-          
-          // Process real assignments data
-          _pendingAssignments = assignments.where((assignment) {
-            return assignment.dueDate.isAfter(DateTime.now());
-          }).take(3).map((assignment) => {
-            'title': assignment.title,
-            'subject': assignment.subject,
-            'dueDate': assignment.dueDate,
-            'maxMarks': assignment.maxMarks,
-          }).toList();
-          
-          // Set attendance stats
-          _attendanceStats = attendanceStats;
+          _userName = user['name'] ?? 'Student';
+          _userEmail = user['email'] ?? '';
+          _studentId = user['id'] ?? '';
         });
+        
+        // Load sample data with real user info
+        await _loadSampleDataWithUserInfo();
       } else {
-        // Load sample data if not authenticated
+        // Load basic sample data
         await _loadSampleData();
       }
     } catch (e) {
@@ -114,6 +80,74 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _loadSampleDataWithUserInfo() async {
+    // Set realistic sample data for the logged-in user
+    setState(() {
+      _totalDue = 15000.0;
+      _totalPaid = 25000.0;
+      _pendingFeesCount = 2;
+      _notificationCount = 5;
+      
+      // Sample recent grades
+      _recentGrades = [
+        {
+          'subject': 'Mathematics',
+          'score': 85,
+          'maxScore': 100,
+          'letterGrade': 'A',
+          'date': DateTime.now().subtract(const Duration(days: 3)),
+        },
+        {
+          'subject': 'Physics',
+          'score': 78,
+          'maxScore': 100,
+          'letterGrade': 'B+',
+          'date': DateTime.now().subtract(const Duration(days: 7)),
+        },
+        {
+          'subject': 'Chemistry',
+          'score': 92,
+          'maxScore': 100,
+          'letterGrade': 'A+',
+          'date': DateTime.now().subtract(const Duration(days: 10)),
+        },
+      ];
+      
+      // Sample pending assignments
+      _pendingAssignments = [
+        {
+          'title': 'Calculus Problem Set',
+          'subject': 'Mathematics',
+          'dueDate': DateTime.now().add(const Duration(days: 3)),
+          'maxMarks': 50,
+        },
+        {
+          'title': 'Physics Lab Report',
+          'subject': 'Physics',
+          'dueDate': DateTime.now().add(const Duration(days: 5)),
+          'maxMarks': 30,
+        },
+        {
+          'title': 'Chemistry Essay',
+          'subject': 'Chemistry',
+          'dueDate': DateTime.now().add(const Duration(days: 7)),
+          'maxMarks': 25,
+        },
+      ];
+      
+      // Sample attendance stats
+      _attendanceStats = {
+        'totalClasses': 120,
+        'attendedClasses': 108,
+        'attendancePercentage': 90.0,
+        'absentDays': 12,
+      };
+    });
+    
+    await _loadTodayClasses();
+    await _loadUpcomingExams();
   }
 
   Future<void> _loadSampleData() async {

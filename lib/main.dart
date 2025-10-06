@@ -40,7 +40,8 @@ import 'screens/settings_screen.dart';
 import 'screens/timetable_viewer_screen.dart';
 import 'screens/notification_center_screen.dart';
 import 'screens/enrollment_progress_screen.dart' as original_enrollment_progress;
-import 'screens/simple_document_screen.dart';
+import 'screens/new_documents_screen.dart';
+import 'screens/role_selection_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/program_comparison_screen.dart' as original_program_comparison;
 import 'screens/saved_comparisons_screen.dart';
@@ -72,6 +73,7 @@ import 'utils/constants.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Re-enable Firebase initialization with better error handling
   try {
     // Initialize Firebase
     await FirebaseService.initializeFirebase();
@@ -82,8 +84,15 @@ void main() async {
   }
   
   // Load theme preference
-  final prefs = await SharedPreferences.getInstance();
-  final isDarkMode = prefs.getBool('darkMode') ?? false;
+  SharedPreferences? prefs;
+  bool isDarkMode = false;
+  
+  try {
+    prefs = await SharedPreferences.getInstance();
+    isDarkMode = prefs.getBool('darkMode') ?? false;
+  } catch (e) {
+    debugPrint('SharedPreferences error: $e');
+  }
   
   runApp(MyApp(isDarkMode: isDarkMode));
 }
@@ -115,18 +124,21 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: AppConstants.appName,
+      title: 'School Management System',
       theme: _isDarkMode ? AppTheme.darkTheme : AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
       initialRoute: AppConstants.splashRoute,
       routes: {
         AppConstants.splashRoute: (context) => const SplashScreen(),
+        '/role_selection': (context) => const RoleSelectionScreen(),
+        '/student_login': (context) => const StudentLoginScreen(),
+        '/teacher_login': (context) => const TeacherLoginScreen(),
+        '/admin_login': (context) => const AdminLoginScreen(),
         AppConstants.loginRoute: (context) => const FirebaseLoginScreen(),
         AppConstants.signupRoute: (context) => const FirebaseSignupScreen(),
-        '/legacy_login': (context) => const LoginScreen(),
-        '/legacy_signup': (context) => const SignupScreen(),
-        '/firebase_login': (context) => const FirebaseLoginScreen(),
-        '/firebase_signup': (context) => const FirebaseSignupScreen(),
+        '/legacy/login': (context) => const LoginScreen(),
+        '/legacy/signup': (context) => const SignupScreen(),
+        '/firebase/login': (context) => const FirebaseLoginScreen(),
         AppConstants.studentDashboardRoute: (context) => const EnhancedStudentDashboard(),
         '/security_test': (context) => const SecurityTestScreen(),
         '/ai_chatbot': (context) => const AIChatbotScreen(),
@@ -134,7 +146,7 @@ class _MyAppState extends State<MyApp> {
         '/assignments': (context) => const AssignmentListScreen(),
         '/grades': (context) => const GradeAnalyticsScreen(),
         '/fee_payment': (context) => const StudentFeeDashboardScreen(studentId: 'demo_student'),
-        '/documents': (context) => const SimpleDocumentScreen(),
+        '/documents': (context) => const NewDocumentsScreen(),
         '/messages': (context) => const ConversationsScreen(),
         '/performance': (context) => const GradeAnalyticsScreen(),
         '/attendance': (context) => const AttendanceTrackerScreen(userId: 'demo_student'),
