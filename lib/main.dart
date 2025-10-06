@@ -10,7 +10,7 @@ import 'screens/signup_screen.dart';
 import 'screens/firebase_login_screen.dart';
 import 'screens/firebase_signup_screen.dart';
 import 'screens/student_dashboard_screen.dart';
-import 'screens/enhanced_student_dashboard_working.dart';
+import 'screens/enhanced_student_dashboard.dart';
 import 'screens/security_test_screen.dart';
 import 'screens/ai_chatbot_screen.dart';
 import 'screens/ai_features_test_screen.dart';
@@ -28,6 +28,12 @@ import 'screens/course_list_screen.dart';
 import 'screens/course_detail_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/conversations_screen.dart';
+import 'screens/exam_management_screen.dart';
+import 'screens/exam_results_screen.dart';
+import 'screens/student_exams_screen.dart';
+import 'screens/teacher_exams_screen.dart';
+import 'screens/student_exam_dashboard_screen.dart';
+import 'screens/student_take_exam_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
@@ -132,6 +138,16 @@ class _MyAppState extends State<MyApp> {
         '/attendance': (context) => const AttendanceTrackerScreen(userId: 'demo_student'),
         '/calendar': (context) => const CalendarScreen(userId: 'demo_student'),
         '/timetable_viewer': (context) => const TimetableViewerScreen(),
+        '/exam_management': (context) => const ExamManagementScreen(),
+        '/create_exam': (context) => const TeacherExamsScreen(),
+        '/teacher_exams': (context) => const TeacherExamsScreen(),
+        '/grade_exams': (context) => const TeacherExamsScreen(),
+        '/exam_analytics': (context) => const TeacherExamsScreen(),
+        '/student_exams': (context) => const StudentExamsScreen(),
+        '/student_exam_dashboard': (context) => const StudentExamDashboardScreen(),
+        '/take_exam': (context) => const StudentExamDashboardScreen(),
+        '/exam_results': (context) => const StudentExamsScreen(),
+        '/exam_history': (context) => const StudentExamsScreen(),
         '/notifications': (context) => const NotificationCenterScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/student_fee_dashboard': (context) => const StudentFeeDashboardScreen(studentId: 'demo_student'),

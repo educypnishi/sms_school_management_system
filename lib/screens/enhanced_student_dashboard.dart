@@ -602,22 +602,28 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             childAspectRatio: 1.2,
             children: [
               _buildActionCard(
-                'My Assignments',
-                Icons.assignment,
-                AppTheme.secondaryColor,
-                () => Navigator.pushNamed(context, '/assignments'),
+                'Exam Center',
+                Icons.quiz,
+                Colors.red,
+                () => Navigator.pushNamed(context, '/student_exam_dashboard'),
               ),
               _buildActionCard(
-                'My Documents',
-                Icons.folder,
-                AppTheme.accentColor,
-                () => Navigator.pushNamed(context, '/documents'),
-              ),
-              _buildActionCard(
-                'Messages',
-                Icons.chat,
+                'Fee Payment',
+                Icons.payment,
                 Colors.green,
-                () => Navigator.pushNamed(context, '/messages'),
+                () => Navigator.pushNamed(context, '/fee_payment'),
+              ),
+              _buildActionCard(
+                'Notifications',
+                Icons.notifications,
+                Colors.orange,
+                () => Navigator.pushNamed(context, '/notifications'),
+              ),
+              _buildActionCard(
+                'Timetable',
+                Icons.schedule,
+                Colors.blue,
+                () => Navigator.pushNamed(context, '/timetable'),
               ),
               _buildActionCard(
                 'Performance',
@@ -626,34 +632,10 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                 () => Navigator.pushNamed(context, '/performance'),
               ),
               _buildActionCard(
-                'Attendance',
-                Icons.fact_check,
-                Colors.teal,
-                () => Navigator.pushNamed(context, '/attendance'),
-              ),
-              _buildActionCard(
-                'Calendar',
-                Icons.calendar_today,
-                Colors.orange,
-                () => Navigator.pushNamed(context, '/calendar'),
-              ),
-              _buildActionCard(
-                'AI Assistant',
-                Icons.psychology,
-                Colors.purple,
-                () => Navigator.pushNamed(context, '/ai_chatbot'),
-              ),
-              _buildActionCard(
-                'AI Features',
-                Icons.auto_awesome,
-                Colors.indigo,
-                () => Navigator.pushNamed(context, '/ai_features_test'),
-              ),
-              _buildActionCard(
-                'Security Test',
-                Icons.security,
-                Colors.red,
-                () => Navigator.pushNamed(context, '/security_test'),
+                'Settings',
+                Icons.settings,
+                Colors.grey,
+                () => Navigator.pushNamed(context, '/settings'),
               ),
             ],
           ),
@@ -793,6 +775,8 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           _buildDrawerSection('📚 Academic', [
             _buildDrawerItem(Icons.assignment, 'Assignments', '/assignments'),
             _buildDrawerItem(Icons.quiz, 'Quizzes', '/quizzes'),
+            _buildDrawerItem(Icons.school, 'My Exams', '/student_exams'),
+            _buildDrawerItem(Icons.play_circle, 'Take Exam', '/take_exam'),
             _buildDrawerItem(Icons.grade, 'Grades', '/grades'),
             _buildDrawerItem(Icons.schedule, 'Timetable', '/timetable'),
             _buildDrawerItem(Icons.event, 'Calendar', '/calendar'),
@@ -804,6 +788,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             _buildDrawerItem(Icons.analytics, 'Performance Analytics', '/performance'),
             _buildDrawerItem(Icons.trending_up, 'Progress Reports', '/progress'),
             _buildDrawerItem(Icons.assessment, 'Exam Results', '/exam_results'),
+            _buildDrawerItem(Icons.history, 'Exam History', '/exam_history'),
             _buildDrawerItem(Icons.check_circle, 'Attendance', '/attendance'),
           ]),
           
@@ -812,7 +797,6 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
             _buildDrawerItem(Icons.message, 'Messages', '/messages'),
             _buildDrawerItem(Icons.notifications, 'Notifications', '/notifications'),
             _buildDrawerItem(Icons.forum, 'Discussion Forums', '/forums'),
-            _buildDrawerItem(Icons.support_agent, 'AI Assistant', '/ai_chatbot'),
           ]),
           
           // Documents & Files Section

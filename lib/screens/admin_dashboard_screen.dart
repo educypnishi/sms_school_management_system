@@ -1188,7 +1188,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             _buildDrawerItem(Icons.book, 'Courses', '/courses'),
             _buildDrawerItem(Icons.class_, 'Classes', '/classes'),
             _buildDrawerItem(Icons.schedule, 'Timetables', '/timetables'),
-            _buildDrawerItem(Icons.quiz, 'Exams', '/exams'),
+            _buildDrawerItem(Icons.quiz, 'Exams', '/exam_management'),
             _buildDrawerItem(Icons.grade, 'Grade Management', '/grade_management'),
           ]),
           

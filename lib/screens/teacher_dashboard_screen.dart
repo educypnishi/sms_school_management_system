@@ -751,9 +751,11 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           
           // Assessment Section
           _buildDrawerSection('📊 Assessment', [
-            _buildDrawerItem(Icons.quiz, 'Online Exams', '/online_exams'),
+            _buildDrawerItem(Icons.add_circle, 'Create Exam', '/create_exam'),
+            _buildDrawerItem(Icons.quiz, 'My Exams', '/teacher_exams'),
+            _buildDrawerItem(Icons.assignment_turned_in, 'Grade Exams', '/grade_exams'),
+            _buildDrawerItem(Icons.analytics, 'Exam Analytics', '/exam_analytics'),
             _buildDrawerItem(Icons.auto_awesome, 'AI Grading', '/ai_grading'),
-            _buildDrawerItem(Icons.analytics, 'Grade Analytics', '/grade_analytics'),
             _buildDrawerItem(Icons.trending_up, 'Performance Trends', '/performance_trends'),
           ]),
           
