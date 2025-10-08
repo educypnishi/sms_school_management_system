@@ -374,7 +374,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
       });
 
       // Navigate to student dashboard
-      Navigator.pushReplacementNamed(context, '/student_dashboard');
+      Navigator.pushReplacementNamed(context, AppConstants.studentDashboardRoute);
     }
   }
 }
@@ -593,7 +593,7 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> {
       });
 
       // Navigate to teacher dashboard
-      Navigator.pushReplacementNamed(context, '/teacher_dashboard');
+      Navigator.pushReplacementNamed(context, AppConstants.teacherDashboardRoute);
     }
   }
 }
@@ -829,7 +829,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       });
 
       // Navigate to admin dashboard
-      Navigator.pushReplacementNamed(context, '/admin_dashboard');
+      Navigator.pushReplacementNamed(context, AppConstants.adminDashboardRoute);
     }
   }
 }

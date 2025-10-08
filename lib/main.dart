@@ -11,6 +11,7 @@ import 'screens/firebase_login_screen.dart';
 import 'screens/firebase_signup_screen.dart';
 import 'screens/student_dashboard_screen.dart';
 import 'screens/enhanced_student_dashboard.dart';
+import 'screens/simple_student_dashboard.dart';
 import 'screens/security_test_screen.dart';
 import 'screens/ai_chatbot_screen.dart';
 import 'screens/ai_features_test_screen.dart';
@@ -67,25 +68,40 @@ import 'screens/exam_scheduler_screen.dart';
 import 'screens/student_fee_dashboard_screen.dart';
 import 'screens/university_comparison_screen.dart';
 import 'screens/visa_application_detail_screen.dart';
-import 'theme/app_theme.dart';
+import 'services/data_seeding_service.dart';
 import 'utils/constants.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Re-enable Firebase initialization with better error handling
+  SharedPreferences? prefs;
+  bool isDarkMode = false;
+  
+  // Initialize Firebase
   try {
-    // Initialize Firebase
     await FirebaseService.initializeFirebase();
     debugPrint('🔥 Firebase initialized successfully');
+    
+    // Seed sample data if needed (only in debug mode)
+    if (kDebugMode) {
+      try {
+        final seedingService = DataSeedingService();
+        final isSeeded = await seedingService.isDataSeeded();
+        if (!isSeeded) {
+          debugPrint('🌱 Seeding sample data...');
+          await seedingService.seedAllData();
+          debugPrint('✅ Sample data seeded successfully');
+        }
+      } catch (e) {
+        debugPrint('⚠️ Error seeding data: $e');
+        // Continue without seeding
+      }
+    }
   } catch (e) {
     debugPrint('❌ Firebase initialization failed: $e');
     // Continue app execution even if Firebase fails
   }
-  
-  // Load theme preference
-  SharedPreferences? prefs;
-  bool isDarkMode = false;
   
   try {
     prefs = await SharedPreferences.getInstance();
@@ -287,23 +303,23 @@ class _MyAppState extends State<MyApp> {
           appBar: AppBar(title: const Text('Fee Payment')),
           body: const Center(child: Text('Fee Payment - Coming Soon!')),
         ),
-        AppConstants.studentFeeDashboardRoute: (context) => const StudentFeeDashboardScreen(
-          studentId: 'demo_student',
+        AppConstants.studentFeeDashboardRoute: (context) => StudentFeeDashboardScreen(
+          studentId: ModalRoute.of(context)!.settings.arguments as String? ?? 'demo_student',
         ),
         
         // Additional Analytics Routes
         AppConstants.gradeAnalyticsRoute: (context) => const GradeAnalyticsScreen(),
         
         // Additional Academic Routes
-        AppConstants.attendanceTrackerRoute: (context) => const AttendanceTrackerScreen(
-          userId: 'demo_user',
+        AppConstants.attendanceTrackerRoute: (context) => AttendanceTrackerScreen(
+          userId: ModalRoute.of(context)!.settings.arguments as String? ?? 'demo_user',
         ),
         AppConstants.examSchedulerRoute: (context) => const ExamSchedulerScreen(),
         
         // University & Visa Routes
         AppConstants.universityComparisonRoute: (context) => const UniversityComparisonScreen(),
-        AppConstants.visaApplicationDetailRoute: (context) => const VisaApplicationDetailScreen(
-          visaApplicationId: 'demo_visa_app',
+        AppConstants.visaApplicationDetailRoute: (context) => VisaApplicationDetailScreen(
+          visaApplicationId: ModalRoute.of(context)!.settings.arguments as String? ?? 'demo_visa_app',
         ),
       },
     );

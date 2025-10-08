@@ -48,35 +48,15 @@ class _SplashScreenState extends State<SplashScreen> {
     try {
       debugPrint('SplashScreen: Initializing app...');
       // Show splash screen for a moment
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 3));
       debugPrint('SplashScreen: Delay completed');
       
       if (!mounted) return;
       
-      // Check if user is logged in
-      debugPrint('SplashScreen: Checking if user is logged in...');
-      final authService = AuthService();
-      final user = await authService.getCurrentUser();
-      debugPrint('SplashScreen: User check completed. User: ${user?.name ?? 'null'}');
+      // Navigate directly to role selection screen
+      debugPrint('SplashScreen: Navigating to role selection screen');
+      Navigator.pushReplacementNamed(context, '/role_selection');
       
-      if (user != null) {
-        // User is logged in, navigate to appropriate dashboard based on role
-        debugPrint('SplashScreen: User is logged in with role: ${user.role}');
-        if (user.role == AppConstants.adminRole) {
-          debugPrint('SplashScreen: Navigating to admin dashboard');
-          Navigator.pushReplacementNamed(context, AppConstants.adminDashboardRoute);
-        } else if (user.role == AppConstants.teacherRole) {
-          debugPrint('SplashScreen: Navigating to teacher dashboard');
-          Navigator.pushReplacementNamed(context, AppConstants.teacherDashboardRoute);
-        } else {
-          debugPrint('SplashScreen: Navigating to student dashboard');
-          Navigator.pushReplacementNamed(context, AppConstants.studentDashboardRoute);
-        }
-      } else {
-        // User is not logged in, navigate to role selection screen
-        debugPrint('SplashScreen: User is not logged in, navigating to role selection screen');
-        Navigator.pushReplacementNamed(context, '/role_selection');
-      }
     } catch (e) {
       debugPrint('Error in splash screen: $e');
       
@@ -191,60 +171,15 @@ class _SplashScreenState extends State<SplashScreen> {
                 strokeWidth: 4,
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             
-            // Direct Login Buttons for Testing
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.shadowColor,
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Quick Login for Testing',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryColor,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  // Student Login Button
-                  _buildLoginButton(
-                    'Login as Student',
-                    Icons.person,
-                    AppTheme.primaryColor,
-                    () => Navigator.pushReplacementNamed(context, AppConstants.studentDashboardRoute),
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  // Teacher Login Button
-                  _buildLoginButton(
-                    'Login as Teacher',
-                    Icons.school,
-                    AppTheme.secondaryColor,
-                    () => Navigator.pushReplacementNamed(context, AppConstants.teacherDashboardRoute),
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  // Admin Login Button
-                  _buildLoginButton(
-                    'Login as Admin',
-                    Icons.admin_panel_settings,
-                    AppTheme.accentColor,
-                    () => Navigator.pushReplacementNamed(context, AppConstants.adminDashboardRoute),
-                  ),
-                ],
+            // Loading Text
+            Text(
+              'Loading...',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withOpacity(0.8),
               ),
             ),
           ],
@@ -254,22 +189,4 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
   
-  Widget _buildLoginButton(String text, IconData icon, Color color, VoidCallback onPressed) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon),
-        label: Text(text),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
-    );
-  }
 }

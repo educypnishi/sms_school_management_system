@@ -9,6 +9,11 @@ import '../services/firebase_grade_service.dart';
 import '../services/firebase_assignment_service.dart';
 import '../services/firebase_attendance_service.dart';
 import '../services/demo_auth_service.dart';
+import '../services/real_student_data_service.dart';
+import '../models/real_attendance_model.dart';
+import '../models/real_grade_model.dart';
+import '../models/real_fee_model.dart';
+import '../models/real_class_model.dart';
 import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import 'student_attendance_analytics_screen.dart';
@@ -40,8 +45,19 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
   List<Map<String, dynamic>> _pendingAssignments = [];
   Map<String, dynamic> _attendanceStats = {};
   
-  final FirebaseAuthService _authService = FirebaseAuthService();
-  final FirebaseStudentService _studentService = FirebaseStudentService();
+  // Firebase services with error handling
+  FirebaseAuthService? _authService;
+  FirebaseStudentService? _studentService;
+  
+  // Real data service
+  final RealStudentDataService _realDataService = RealStudentDataService();
+  
+  // Real data models
+  StudentFeeSummary? _feeSummary;
+  AttendanceSummary? _attendanceSummary;
+  TodayClassSchedule? _todaySchedule;
+  List<RealGradeModel> _realGrades = [];
+  bool _useRealData = false; // Flag to switch between demo and real data
 
   @override
   void initState() {
@@ -55,21 +71,37 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
     });
 
     try {
-      // Load demo user data
-      final user = await DemoAuthService.getCurrentUser();
+      // Try to initialize Firebase services (optional)
+      try {
+        _authService = FirebaseAuthService();
+        _studentService = FirebaseStudentService();
+        debugPrint('Firebase services initialized successfully');
+        _useRealData = true;
+      } catch (e) {
+        debugPrint('Firebase services not available: $e');
+        _useRealData = false;
+      }
       
-      if (user != null) {
-        setState(() {
-          _userName = user['name'] ?? 'Student';
-          _userEmail = user['email'] ?? '';
-          _studentId = user['id'] ?? '';
-        });
-        
-        // Load sample data with real user info
-        await _loadSampleDataWithUserInfo();
+      if (_useRealData) {
+        // Load real data from Firebase
+        await _loadRealData();
       } else {
-        // Load basic sample data
-        await _loadSampleData();
+        // Load demo user data
+        final user = await DemoAuthService.getCurrentUser();
+        
+        if (user != null) {
+          setState(() {
+            _userName = user['name'] ?? 'Student';
+            _userEmail = user['email'] ?? '';
+            _studentId = user['id'] ?? '';
+          });
+          
+          // Load sample data with real user info
+          await _loadSampleDataWithUserInfo();
+        } else {
+          // Load basic sample data
+          await _loadSampleData();
+        }
       }
     } catch (e) {
       debugPrint('Error loading enhanced data: $e');
@@ -79,6 +111,104 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _loadRealData() async {
+    try {
+      // Get current student from Firebase
+      final student = await _realDataService.getCurrentStudent();
+      
+      if (student != null) {
+        setState(() {
+          _userName = student.name;
+          _userEmail = student.email;
+          _studentId = student.id;
+        });
+
+        // Load all real data in parallel
+        final dashboardData = await _realDataService.getDashboardSummary(student.id);
+        
+        setState(() {
+          _feeSummary = dashboardData['fees'] as StudentFeeSummary?;
+          _attendanceSummary = dashboardData['attendance'] as AttendanceSummary?;
+          _todaySchedule = dashboardData['todaySchedule'] as TodayClassSchedule?;
+          _realGrades = dashboardData['recentGrades'] as List<RealGradeModel>? ?? [];
+          _notificationCount = dashboardData['notificationCount'] as int? ?? 0;
+          
+          // Update legacy variables for compatibility
+          if (_feeSummary != null) {
+            _totalDue = _feeSummary!.totalPending;
+            _totalPaid = _feeSummary!.totalPaid;
+            _pendingFeesCount = _feeSummary!.pendingFeeCount;
+          }
+          
+          if (_attendanceSummary != null) {
+            _attendanceStats = {
+              'totalClasses': _attendanceSummary!.totalClasses,
+              'attendedClasses': _attendanceSummary!.presentClasses,
+              'attendancePercentage': _attendanceSummary!.attendancePercentage,
+              'absentDays': _attendanceSummary!.absentClasses,
+            };
+          }
+          
+          // Convert real grades to legacy format for compatibility
+          _recentGrades = _realGrades.map((grade) => {
+            'subject': grade.subjectName,
+            'score': grade.marksObtained.toInt(),
+            'maxScore': grade.totalMarks.toInt(),
+            'letterGrade': grade.letterGrade,
+            'date': grade.assessmentDate,
+          }).toList();
+          
+          // Convert today's schedule to legacy format
+          if (_todaySchedule != null) {
+            _todayClasses = _todaySchedule!.classes.map((classSchedule) => {
+              'subject': classSchedule.subjectName,
+              'time': classSchedule.timeRange,
+              'room': classSchedule.roomNumber,
+              'teacher': classSchedule.teacherName,
+            }).toList();
+          }
+          
+          // Convert upcoming assignments and exams
+          final upcomingAssignments = dashboardData['upcomingAssignments'] as List<Map<String, dynamic>>? ?? [];
+          _pendingAssignments = upcomingAssignments.map((assignment) => {
+            'title': assignment['title'],
+            'subject': assignment['subject'],
+            'dueDate': assignment['dueDate'],
+            'maxMarks': assignment['maxMarks'],
+          }).toList();
+          
+          final upcomingExams = dashboardData['upcomingExams'] as List<Map<String, dynamic>>? ?? [];
+          _upcomingExams = upcomingExams.map((exam) => {
+            'subject': exam['subject'],
+            'date': exam['date'],
+            'type': exam['type'],
+          }).toList();
+        });
+      } else {
+        // No student found, fallback to demo data
+        debugPrint('No student found in Firebase, using demo data');
+        await _loadDemoFallback();
+      }
+    } catch (e) {
+      debugPrint('Error loading real data: $e');
+      await _loadDemoFallback();
+    }
+  }
+
+  Future<void> _loadDemoFallback() async {
+    final user = await DemoAuthService.getCurrentUser();
+    if (user != null) {
+      setState(() {
+        _userName = user['name'] ?? 'Student';
+        _userEmail = user['email'] ?? '';
+        _studentId = user['id'] ?? '';
+      });
+      await _loadSampleDataWithUserInfo();
+    } else {
+      await _loadSampleData();
     }
   }
 
@@ -447,7 +577,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              classInfo['subject'],
+                              classInfo['subject'] as String? ?? 'Unknown Subject',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -455,7 +585,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${classInfo['room']} • ${classInfo['teacher']}',
+                              '${classInfo['room'] as String? ?? 'Unknown Room'} • ${classInfo['teacher'] as String? ?? 'Unknown Teacher'}',
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 12,
@@ -465,7 +595,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                         ),
                       ),
                       Text(
-                        classInfo['time'],
+                        classInfo['time'] as String? ?? 'Unknown Time',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppTheme.secondaryColor,
@@ -529,7 +659,8 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
           else
             Column(
               children: _upcomingExams.take(3).map<Widget>((exam) {
-                final daysUntil = exam['date'].difference(DateTime.now()).inDays;
+                final examDate = exam['date'] as DateTime? ?? DateTime.now().add(const Duration(days: 1));
+                final daysUntil = examDate.difference(DateTime.now()).inDays;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(12),
@@ -550,7 +681,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              exam['subject'],
+                              exam['subject'] as String? ?? 'Unknown Subject',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -558,7 +689,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              exam['type'],
+                              exam['type'] as String? ?? 'Unknown Type',
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 12,
@@ -587,7 +718,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('MMM dd').format(exam['date']),
+                            DateFormat('MMM dd').format(examDate),
                           ),
                         ],
                       ),
@@ -915,8 +1046,18 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
         ),
       );
 
-      // Sign out from Firebase
-      await FirebaseAuthService.signOut();
+      // Sign out from Firebase if available
+      if (_authService != null) {
+        try {
+          await FirebaseAuthService.signOut();
+          debugPrint('Firebase sign out successful');
+        } catch (e) {
+          debugPrint('Firebase sign out failed: $e');
+        }
+      }
+      
+      // Clear demo auth
+      await DemoAuthService.logout();
       
       // Clear local preferences
       final prefs = await SharedPreferences.getInstance();
@@ -924,7 +1065,7 @@ class _EnhancedStudentDashboardState extends State<EnhancedStudentDashboard> {
       
       if (mounted) {
         Navigator.pop(context); // Close loading dialog
-        Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
+        Navigator.pushReplacementNamed(context, '/role_selection');
       }
     } catch (e) {
       if (mounted) {
